@@ -10,7 +10,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Save, X, Package, QrCode, Scan, AlertCircle, CheckCircle2, Camera, Keyboard } from 'lucide-react';
 import type { FormEventHandler } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -188,6 +188,137 @@ export default function TransaksiCreate({ obat, batches }: Props) {
     };
 
     const selectedBatch = batches.find((item) => item.id.toString() === data.batch_id);
+    const isMasuk = data.jenis_transaksi === 'masuk';
+    const isPenjualan = data.jenis_transaksi === 'penjualan';
+    const isKeluar = data.jenis_transaksi === 'keluar';
+    const requiresTempoDate = (isMasuk && data.metode_pembayaran === 'tempo') || (isPenjualan && data.metode_pembayaran === 'kredit');
+
+    useEffect(() => {
+        // Keep legacy fields empty because current transaction logic does not use them.
+        if (data.sales_nama !== '') {
+            setData('sales_nama', '');
+        }
+        if (data.operator_nama !== '') {
+            setData('operator_nama', '');
+        }
+
+        if (isMasuk) {
+            if (!['cash', 'konsinyasi', 'tempo'].includes(data.metode_pembayaran)) {
+                setData('metode_pembayaran', 'cash');
+            }
+            if (data.tipe_penjualan !== '') {
+                setData('tipe_penjualan', '');
+            }
+            if (data.pelanggan_nama !== '') {
+                setData('pelanggan_nama', '');
+            }
+            if (data.dokter_nama !== '') {
+                setData('dokter_nama', '');
+            }
+            if (data.kasir_nama !== '') {
+                setData('kasir_nama', '');
+            }
+            return;
+        }
+
+        if (isPenjualan) {
+            if (!['qris', 'cash', 'transfer', 'debit', 'kredit'].includes(data.metode_pembayaran)) {
+                setData('metode_pembayaran', 'cash');
+            }
+            if (data.supplier_nama !== '') {
+                setData('supplier_nama', '');
+            }
+            if (data.tipe_penjualan === '') {
+                setData('tipe_penjualan', 'biasa');
+            }
+            return;
+        }
+
+        if (data.metode_pembayaran !== '') {
+            setData('metode_pembayaran', '');
+        }
+        if (data.tipe_penjualan !== '') {
+            setData('tipe_penjualan', '');
+        }
+        if (data.supplier_nama !== '') {
+            setData('supplier_nama', '');
+        }
+        if (data.pelanggan_nama !== '') {
+            setData('pelanggan_nama', '');
+        }
+        if (data.dokter_nama !== '') {
+            setData('dokter_nama', '');
+        }
+        if (data.kasir_nama !== '') {
+            setData('kasir_nama', '');
+        }
+    }, [
+        data.dokter_nama,
+        data.kasir_nama,
+        data.metode_pembayaran,
+        data.operator_nama,
+        data.pelanggan_nama,
+        data.sales_nama,
+        data.supplier_nama,
+        data.tipe_penjualan,
+        isMasuk,
+        isPenjualan,
+        setData,
+    ]);
+
+    useEffect(() => {
+        if (isKeluar) {
+            if (data.kategori_keuangan !== 'none') {
+                setData('kategori_keuangan', 'none');
+            }
+            if (data.status_pelunasan !== 'lunas') {
+                setData('status_pelunasan', 'lunas');
+            }
+            if (data.jatuh_tempo !== '') {
+                setData('jatuh_tempo', '');
+            }
+            return;
+        }
+
+        if (isMasuk && data.metode_pembayaran === 'tempo') {
+            if (data.kategori_keuangan !== 'hutang') {
+                setData('kategori_keuangan', 'hutang');
+            }
+            if (data.status_pelunasan !== 'belum_lunas') {
+                setData('status_pelunasan', 'belum_lunas');
+            }
+            return;
+        }
+
+        if (isPenjualan && data.metode_pembayaran === 'kredit') {
+            if (data.kategori_keuangan !== 'piutang') {
+                setData('kategori_keuangan', 'piutang');
+            }
+            if (data.status_pelunasan !== 'belum_lunas') {
+                setData('status_pelunasan', 'belum_lunas');
+            }
+            return;
+        }
+
+        if (data.kategori_keuangan !== 'none') {
+            setData('kategori_keuangan', 'none');
+        }
+        if (data.status_pelunasan !== 'lunas') {
+            setData('status_pelunasan', 'lunas');
+        }
+        if (data.jatuh_tempo !== '') {
+            setData('jatuh_tempo', '');
+        }
+    }, [
+        data.jatuh_tempo,
+        data.kategori_keuangan,
+        data.metode_pembayaran,
+        data.status_pelunasan,
+        isKeluar,
+        isMasuk,
+        isPenjualan,
+        setData,
+    ]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -459,78 +590,86 @@ export default function TransaksiCreate({ obat, batches }: Props) {
                             <div className="grid gap-4 md:grid-cols-3">
                                 <div className="grid gap-2">
                                     <Label htmlFor="metode_pembayaran">Metode Pembayaran</Label>
-                                    <Input
-                                        id="metode_pembayaran"
-                                        value={data.metode_pembayaran}
-                                        onChange={(e) => setData('metode_pembayaran', e.target.value)}
-                                        placeholder="cash / transfer / qris / kredit"
-                                    />
+                                    {isKeluar ? (
+                                        <Input id="metode_pembayaran" value="Tidak digunakan untuk barang keluar" disabled />
+                                    ) : (
+                                        <Select value={data.metode_pembayaran || undefined} onValueChange={(value) => setData('metode_pembayaran', value)}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Pilih metode" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {isMasuk ? (
+                                                    <>
+                                                        <SelectItem value="cash">Cash</SelectItem>
+                                                        <SelectItem value="konsinyasi">Konsinyasi</SelectItem>
+                                                        <SelectItem value="tempo">Tempo</SelectItem>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <SelectItem value="qris">QRIS</SelectItem>
+                                                        <SelectItem value="cash">Cash</SelectItem>
+                                                        <SelectItem value="transfer">Transfer</SelectItem>
+                                                        <SelectItem value="debit">Debit</SelectItem>
+                                                        <SelectItem value="kredit">Kredit</SelectItem>
+                                                    </>
+                                                )}
+                                            </SelectContent>
+                                        </Select>
+                                    )}
+                                    {errors.metode_pembayaran && <p className="text-sm text-destructive">{errors.metode_pembayaran}</p>}
                                 </div>
                                 <div className="grid gap-2">
                                     <Label htmlFor="kategori_keuangan">Kategori Keuangan</Label>
-                                    <Select value={data.kategori_keuangan} onValueChange={(value) => setData('kategori_keuangan', value)}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="none">None</SelectItem>
-                                            <SelectItem value="hutang">Hutang</SelectItem>
-                                            <SelectItem value="piutang">Piutang</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                    <Input id="kategori_keuangan" value={data.kategori_keuangan} disabled />
                                 </div>
                                 <div className="grid gap-2">
                                     <Label htmlFor="status_pelunasan">Status Pelunasan</Label>
-                                    <Select value={data.status_pelunasan} onValueChange={(value) => setData('status_pelunasan', value)}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="lunas">Lunas</SelectItem>
-                                            <SelectItem value="belum_lunas">Belum Lunas</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                    <Input id="status_pelunasan" value={data.status_pelunasan} disabled />
                                 </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="supplier_nama">Supplier</Label>
-                                    <Input id="supplier_nama" value={data.supplier_nama} onChange={(e) => setData('supplier_nama', e.target.value)} />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="pelanggan_nama">Pelanggan</Label>
-                                    <Input id="pelanggan_nama" value={data.pelanggan_nama} onChange={(e) => setData('pelanggan_nama', e.target.value)} />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="dokter_nama">Dokter</Label>
-                                    <Input id="dokter_nama" value={data.dokter_nama} onChange={(e) => setData('dokter_nama', e.target.value)} />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="sales_nama">Sales</Label>
-                                    <Input id="sales_nama" value={data.sales_nama} onChange={(e) => setData('sales_nama', e.target.value)} />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="operator_nama">Operator</Label>
-                                    <Input id="operator_nama" value={data.operator_nama} onChange={(e) => setData('operator_nama', e.target.value)} />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="kasir_nama">Kasir</Label>
-                                    <Input id="kasir_nama" value={data.kasir_nama} onChange={(e) => setData('kasir_nama', e.target.value)} />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="tipe_penjualan">Tipe Penjualan</Label>
-                                    <Select value={data.tipe_penjualan || undefined} onValueChange={(value) => setData('tipe_penjualan', value)}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Pilih tipe" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="biasa">Biasa</SelectItem>
-                                            <SelectItem value="resep">Resep</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="jatuh_tempo">Jatuh Tempo</Label>
-                                    <Input id="jatuh_tempo" type="date" value={data.jatuh_tempo} onChange={(e) => setData('jatuh_tempo', e.target.value)} />
-                                </div>
+                                {isMasuk && (
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="supplier_nama">Supplier</Label>
+                                        <Input id="supplier_nama" value={data.supplier_nama} onChange={(e) => setData('supplier_nama', e.target.value)} placeholder="Nama supplier" />
+                                    </div>
+                                )}
+                                {isPenjualan && (
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="pelanggan_nama">Pelanggan</Label>
+                                        <Input id="pelanggan_nama" value={data.pelanggan_nama} onChange={(e) => setData('pelanggan_nama', e.target.value)} placeholder="Nama pelanggan" />
+                                    </div>
+                                )}
+                                {isPenjualan && (
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="tipe_penjualan">Tipe Penjualan</Label>
+                                        <Select value={data.tipe_penjualan || undefined} onValueChange={(value) => setData('tipe_penjualan', value)}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Pilih tipe" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="biasa">Biasa</SelectItem>
+                                                <SelectItem value="resep">Resep</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                )}
+                                {isPenjualan && data.tipe_penjualan === 'resep' && (
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="dokter_nama">Dokter</Label>
+                                        <Input id="dokter_nama" value={data.dokter_nama} onChange={(e) => setData('dokter_nama', e.target.value)} placeholder="Nama dokter resep" />
+                                    </div>
+                                )}
+                                {isPenjualan && (
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="kasir_nama">Kasir</Label>
+                                        <Input id="kasir_nama" value={data.kasir_nama} onChange={(e) => setData('kasir_nama', e.target.value)} placeholder="Nama kasir (opsional)" />
+                                    </div>
+                                )}
+                                {requiresTempoDate && (
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="jatuh_tempo">Jatuh Tempo</Label>
+                                        <Input id="jatuh_tempo" type="date" value={data.jatuh_tempo} onChange={(e) => setData('jatuh_tempo', e.target.value)} />
+                                    </div>
+                                )}
                                 <label className="md:col-span-3 flex items-center gap-2 text-sm">
                                     <input type="checkbox" checked={data.is_taxed} onChange={(e) => setData('is_taxed', e.target.checked)} />
                                     Transaksi dikenakan pajak

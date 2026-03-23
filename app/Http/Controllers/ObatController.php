@@ -74,7 +74,7 @@ class ObatController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'kode_obat' => 'required|string|max:50|unique:obat,kode_obat',
+            'kode_obat' => 'nullable|string|max:50|unique:obat,kode_obat',
             'nama_obat' => 'required|string|max:191',
             'nama_generik' => 'nullable|string|max:191',
             'nama_brand' => 'nullable|string|max:191',
@@ -109,10 +109,6 @@ class ObatController extends Controller
 
         if ($hasInitialBatch) {
             $batchFieldErrors = [];
-
-            if (empty($validated['initial_nomor_batch'])) {
-                $batchFieldErrors['initial_nomor_batch'] = 'Nomor batch wajib diisi jika ingin menambahkan batch awal.';
-            }
             if (empty($validated['initial_tanggal_expired'])) {
                 $batchFieldErrors['initial_tanggal_expired'] = 'Tanggal expired batch awal wajib diisi.';
             }
@@ -133,7 +129,7 @@ class ObatController extends Controller
 
         DB::transaction(function () use ($validated, $hasInitialBatch): void {
             $obatData = [
-                'kode_obat' => $validated['kode_obat'],
+                'kode_obat' => $validated['kode_obat'] ?? null,
                 'nama_obat' => $validated['nama_obat'],
                 'nama_generik' => $validated['nama_generik'] ?? null,
                 'nama_brand' => $validated['nama_brand'] ?? null,
@@ -158,7 +154,7 @@ class ObatController extends Controller
                 BatchObat::create([
                     'obat_id' => $obat->id,
                     'supplier_id' => $validated['initial_supplier_id'] ?? null,
-                    'nomor_batch' => $validated['initial_nomor_batch'],
+                    'nomor_batch' => $validated['initial_nomor_batch'] ?? null,
                     'tanggal_produksi' => $validated['initial_tanggal_produksi'] ?? null,
                     'tanggal_expired' => $validated['initial_tanggal_expired'],
                     'tanggal_masuk' => $validated['initial_tanggal_masuk'],
@@ -206,7 +202,7 @@ class ObatController extends Controller
         $obat = Obat::findOrFail($id);
 
         $validated = $request->validate([
-            'kode_obat' => 'required|string|max:50|unique:obat,kode_obat,' . $id,
+            'kode_obat' => 'sometimes|filled|string|max:50|unique:obat,kode_obat,' . $id,
             'nama_obat' => 'required|string|max:191',
             'nama_generik' => 'nullable|string|max:191',
             'nama_brand' => 'nullable|string|max:191',
@@ -303,18 +299,18 @@ class ObatController extends Controller
         
         $instructions = [
             ['A3', 'Kolom yang wajib diisi:'],
-            ['A4', '- Kode Obat (unik, tidak boleh duplikat)'],
-            ['A5', '- Nama Obat'],
-            ['A6', '- Kategori ID (lihat master data kategori)'],
-            ['A7', '- Jenis ID (lihat master data jenis)'],
-            ['A8', '- Satuan ID (lihat master data satuan)'],
-            ['A9', '- Stok Total (angka, jumlah stok saat ini)'],
-            ['A10', '- Stok Minimum (angka, minimal stok sebelum reorder)'],
+            ['A4', '- Nama Obat'],
+            ['A5', '- Kategori ID (lihat master data kategori)'],
+            ['A6', '- Jenis ID (lihat master data jenis)'],
+            ['A7', '- Satuan ID (lihat master data satuan)'],
+            ['A8', '- Stok Total (angka, jumlah stok saat ini)'],
+            ['A9', '- Stok Minimum (angka, minimal stok sebelum reorder)'],
             ['A11', ''],
             ['A12', 'Kolom opsional:'],
-            ['A13', '- Harga Beli, Harga Jual (bisa diisi 0 jika belum ada)'],
-            ['A14', '- Nama Generik, Nama Brand, Lokasi Penyimpanan'],
-            ['A15', '- Deskripsi, Efek Samping, Indikasi, Kontraindikasi'],
+            ['A13', '- Kode Obat (jika kosong akan dibuat otomatis)'],
+            ['A14', '- Harga Beli, Harga Jual (bisa diisi 0 jika belum ada)'],
+            ['A15', '- Nama Generik, Nama Brand, Lokasi Penyimpanan'],
+            ['A16', '- Deskripsi, Efek Samping, Indikasi, Kontraindikasi'],
             ['A17', 'Format file: .xlsx atau .csv'],
             ['A18', 'Hapus baris contoh sebelum upload'],
         ];
@@ -377,7 +373,7 @@ class ObatController extends Controller
                     'harga_beli' => $row[9] ?? null,
                     'harga_jual' => $row[10] ?? null,
                 ], [
-                    'kode_obat' => 'required|unique:obat,kode_obat',
+                    'kode_obat' => 'nullable|unique:obat,kode_obat',
                     'nama_obat' => 'required',
                     'kategori_id' => 'required|exists:kategori_obat,id',
                     'jenis_id' => 'required|exists:jenis_obat,id',
@@ -401,7 +397,7 @@ class ObatController extends Controller
 
                 try {
                     Obat::create([
-                        'kode_obat' => $row[0],
+                        'kode_obat' => $row[0] ?? null,
                         'nama_obat' => $row[1],
                         'nama_generik' => $row[2] ?? null,
                         'nama_brand' => $row[3] ?? null,

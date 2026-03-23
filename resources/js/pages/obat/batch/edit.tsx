@@ -177,13 +177,12 @@ export default function BatchEdit({ batch, obat, suppliers }: Props) {
                                     </div>
 
                                     <div className="space-y-1.5">
-                                        <Label htmlFor="nomor_batch">Nomor Batch / Lot *</Label>
+                                        <Label htmlFor="nomor_batch">Nomor Batch / Lot</Label>
                                         <Input
                                             id="nomor_batch"
                                             value={data.nomor_batch}
                                             onChange={(e) => setData('nomor_batch', e.target.value)}
                                             placeholder="Contoh: LOT2024A123"
-                                            required
                                         />
                                         {errors.nomor_batch && <p className="text-xs text-destructive">{errors.nomor_batch}</p>}
                                     </div>

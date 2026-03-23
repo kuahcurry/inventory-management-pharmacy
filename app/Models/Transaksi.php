@@ -135,9 +135,12 @@ class Transaksi extends Model
             default => 'TRX',
         };
         $date = now()->format('Ymd');
-        $random = strtoupper(Str::random(4));
+        do {
+            $random = strtoupper(Str::random(4));
+            $candidate = "{$prefix}-{$date}-{$random}";
+        } while (self::where('kode_transaksi', $candidate)->exists());
 
-        return "{$prefix}-{$date}-{$random}";
+        return $candidate;
     }
 
     /**

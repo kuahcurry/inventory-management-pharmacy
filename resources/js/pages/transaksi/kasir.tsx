@@ -258,6 +258,7 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
     useEffect(() => {
         if (data.mode !== 'penjualan' || data.tipe_penjualan !== 'resep') {
             setData('resep_id', '');
+            setData('dokter_nama', '');
             return;
         }
 
@@ -416,7 +417,7 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                                     </Select>
                                 </div>
 
-                                {data.tipe_penjualan === 'resep' ? (
+                                {data.tipe_penjualan === 'resep' && (
                                     <div className="grid gap-2">
                                         <Label>Resep</Label>
                                         <Select
@@ -440,16 +441,6 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                                                 : 'Tambahkan obat ke keranjang untuk menyaring resep yang relevan.'}
                                         </p>
                                         {errors.resep_id && <p className="text-sm text-destructive">{errors.resep_id}</p>}
-                                    </div>
-                                ) : (
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="dokter-nama">Dokter</Label>
-                                        <Input
-                                            id="dokter-nama"
-                                            value={data.dokter_nama}
-                                            onChange={(e) => setData('dokter_nama', e.target.value)}
-                                            placeholder="Opsional"
-                                        />
                                     </div>
                                 )}
 

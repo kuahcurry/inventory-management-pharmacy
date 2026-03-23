@@ -192,8 +192,8 @@ export default function CreateObat({ kategori, jenis, satuan, suppliers }: Creat
 
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     <div className="space-y-1.5">
-                                        <Label htmlFor="kode_obat">Kode *</Label>
-                                        <Input id="kode_obat" value={data.kode_obat} onChange={(e) => setData('kode_obat', e.target.value)} placeholder="OBT001" required />
+                                        <Label htmlFor="kode_obat">Kode (opsional)</Label>
+                                        <Input id="kode_obat" value={data.kode_obat} onChange={(e) => setData('kode_obat', e.target.value)} placeholder="Kosongkan untuk generate otomatis" />
                                         {errors.kode_obat && <p className="text-xs text-destructive">{errors.kode_obat}</p>}
                                     </div>
                                     <div className="space-y-1.5">
@@ -282,7 +282,7 @@ export default function CreateObat({ kategori, jenis, satuan, suppliers }: Creat
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     <div className="space-y-1.5">
                                         <Label htmlFor="initial_nomor_batch">Nomor Batch</Label>
-                                        <Input id="initial_nomor_batch" value={data.initial_nomor_batch} onChange={(e) => setData('initial_nomor_batch', e.target.value)} placeholder="BATCH-001" />
+                                        <Input id="initial_nomor_batch" value={data.initial_nomor_batch} onChange={(e) => setData('initial_nomor_batch', e.target.value)} placeholder="Kosongkan untuk generate otomatis" />
                                         {errors.initial_nomor_batch && <p className="text-xs text-destructive">{errors.initial_nomor_batch}</p>}
                                     </div>
                                     <div className="space-y-1.5">

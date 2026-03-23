@@ -53,7 +53,7 @@ class BatchObatController extends Controller
         $validated = $request->validate([
             'obat_id' => 'required|exists:obat,id',
             'supplier_id' => 'nullable|exists:supplier,id',
-            'nomor_batch' => 'required|string|max:50',
+            'nomor_batch' => 'nullable|string|max:50',
             'tanggal_produksi' => 'nullable|date',
             'tanggal_expired' => 'required|date|after:today',
             'tanggal_masuk' => 'required|date',
@@ -126,7 +126,7 @@ class BatchObatController extends Controller
         $validated = $request->validate([
             'obat_id' => 'required|exists:obat,id',
             'supplier_id' => 'nullable|exists:supplier,id',
-            'nomor_batch' => 'required|string|max:50',
+            'nomor_batch' => 'sometimes|filled|string|max:50',
             'tanggal_produksi' => 'nullable|date',
             'tanggal_expired' => 'required|date',
             'tanggal_masuk' => 'required|date',

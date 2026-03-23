@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Obat extends Model
 {
@@ -49,6 +50,28 @@ class Obat extends Model
         'is_high_risk_drug' => 'boolean',
         'target_margin_percentage' => 'decimal:2',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function (self $obat): void {
+            if (blank($obat->kode_obat)) {
+                $obat->kode_obat = $obat->generateKodeObat();
+            }
+        });
+    }
+
+    public function generateKodeObat(): string
+    {
+        $date = now()->format('ymd');
+
+        do {
+            $candidate = 'OBT-'.$date.'-'.strtoupper(Str::random(4));
+        } while (self::where('kode_obat', $candidate)->exists());
+
+        return $candidate;
+    }
 
     /**
      * Get the category of this medicine

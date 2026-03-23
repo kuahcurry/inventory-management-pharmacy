@@ -33,6 +33,7 @@ interface ObatIndexProps {
         current_page: number;
         last_page: number;
         total: number;
+        per_page?: number;
     };
     batches: {
         data: Array<{
@@ -52,14 +53,54 @@ interface ObatIndexProps {
         current_page: number;
         last_page: number;
         total: number;
+        per_page?: number;
     };
     filters: {
         search?: string;
     };
 }
 
+type PageToken = number | 'dots-left' | 'dots-right';
+
+function getPageTokens(currentPage: number, lastPage: number): PageToken[] {
+    if (lastPage <= 7) {
+        return Array.from({ length: lastPage }, (_, i) => i + 1);
+    }
+
+    const tokens: PageToken[] = [1];
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(lastPage - 1, currentPage + 1);
+
+    if (start > 2) {
+        tokens.push('dots-left');
+    }
+
+    for (let page = start; page <= end; page += 1) {
+        tokens.push(page);
+    }
+
+    if (end < lastPage - 1) {
+        tokens.push('dots-right');
+    }
+
+    tokens.push(lastPage);
+
+    return tokens;
+}
+
 export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
     const [search, setSearch] = useState(filters.search || '');
+
+    const obatPerPage = obats.per_page ?? 15;
+    const batchPerPage = batches.per_page ?? 10;
+    const obatStartNo = (obats.current_page - 1) * obatPerPage + 1;
+    const batchStartNo = (batches.current_page - 1) * batchPerPage + 1;
+    const obatFrom = obats.total === 0 ? 0 : obatStartNo;
+    const obatTo = obats.total === 0 ? 0 : obatStartNo + obats.data.length - 1;
+    const batchFrom = batches.total === 0 ? 0 : batchStartNo;
+    const batchTo = batches.total === 0 ? 0 : batchStartNo + batches.data.length - 1;
+    const obatPageTokens = useMemo(() => getPageTokens(obats.current_page, obats.last_page), [obats.current_page, obats.last_page]);
+    const batchPageTokens = useMemo(() => getPageTokens(batches.current_page, batches.last_page), [batches.current_page, batches.last_page]);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -125,6 +166,7 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
                         <table className="w-full">
                             <thead className="border-b border-sidebar-border/70">
                                 <tr className="bg-slate-50/60">
+                                    <th className="w-16 p-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">No.</th>
                                     <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Kode</th>
                                     <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Nama Obat</th>
                                     <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Kategori</th>
@@ -136,11 +178,12 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
                             </thead>
                             <tbody>
                                 {obats.data.length > 0 ? (
-                                    obats.data.map((obat) => {
+                                    obats.data.map((obat, index) => {
                                         const kritis = obat.stok_total <= obat.stok_minimum;
 
                                         return (
                                             <tr key={obat.id} className="border-b border-sidebar-border/50 last:border-0 hover:bg-slate-50/60">
+                                                <td className="p-3 text-right text-sm font-medium text-slate-700">{obatStartNo + index}</td>
                                                 <td className="p-3 text-sm font-mono text-slate-700">{obat.kode_obat}</td>
                                                 <td className="p-3 text-sm font-semibold text-slate-800">{obat.nama_obat}</td>
                                                 <td className="p-3 text-sm text-muted-foreground">{obat.kategori.nama_kategori}</td>
@@ -176,7 +219,7 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
                                     })
                                 ) : (
                                     <tr>
-                                        <td colSpan={7} className="p-8 text-center text-sm text-muted-foreground">
+                                        <td colSpan={8} className="p-8 text-center text-sm text-muted-foreground">
                                             <Package className="mx-auto mb-2 size-8" />
                                             Tidak ada data obat
                                         </td>
@@ -188,18 +231,24 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
 
                     {obats.last_page > 1 && (
                         <div className="flex items-center justify-between border-t border-sidebar-border/70 p-4">
-                            <p className="text-sm text-muted-foreground">Showing {obats.data.length} of {obats.total} results</p>
+                            <p className="text-sm text-muted-foreground">Menampilkan {obatFrom}-{obatTo} dari {obats.total} obat</p>
                             <div className="flex gap-2">
-                                {Array.from({ length: obats.last_page }, (_, i) => i + 1).map((page) => (
-                                    <Button
-                                        key={page}
-                                        size="sm"
-                                        variant={page === obats.current_page ? 'default' : 'outline'}
-                                        onClick={() => router.get('/obat', { search, page, batch_page: batches.current_page }, { preserveState: true })}
-                                    >
-                                        {page}
-                                    </Button>
-                                ))}
+                                {obatPageTokens.map((token, index) =>
+                                    typeof token === 'number' ? (
+                                        <Button
+                                            key={`obat-page-${token}`}
+                                            size="sm"
+                                            variant={token === obats.current_page ? 'default' : 'outline'}
+                                            onClick={() => router.get('/obat', { search, page: token, batch_page: batches.current_page }, { preserveState: true })}
+                                        >
+                                            {token}
+                                        </Button>
+                                    ) : (
+                                        <span key={`obat-${token}-${index}`} className="px-2 py-1 text-sm text-muted-foreground">
+                                            ...
+                                        </span>
+                                    ),
+                                )}
                             </div>
                         </div>
                     )}
@@ -223,6 +272,7 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
                         <table className="w-full">
                             <thead className="border-b border-sidebar-border/70">
                                 <tr className="bg-slate-50/60">
+                                    <th className="w-16 p-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">No.</th>
                                     <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Nomor Batch</th>
                                     <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Obat</th>
                                     <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Supplier</th>
@@ -233,8 +283,9 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
                             </thead>
                             <tbody>
                                 {batches.data.length > 0 ? (
-                                    batches.data.map((batch) => (
+                                    batches.data.map((batch, index) => (
                                         <tr key={batch.id} className="border-b border-sidebar-border/50 last:border-0 hover:bg-slate-50/60">
+                                            <td className="p-3 text-right text-sm font-medium text-slate-700">{batchStartNo + index}</td>
                                             <td className="p-3 text-sm font-mono font-medium text-slate-700">{batch.nomor_batch}</td>
                                             <td className="p-3 text-sm">
                                                 <div className="font-medium text-slate-800">{batch.obat.nama_obat}</div>
@@ -250,7 +301,7 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={6} className="p-8 text-center text-sm text-muted-foreground">Tidak ada data batch obat</td>
+                                        <td colSpan={7} className="p-8 text-center text-sm text-muted-foreground">Tidak ada data batch obat</td>
                                     </tr>
                                 )}
                             </tbody>
@@ -259,18 +310,24 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
 
                     {batches.last_page > 1 && (
                         <div className="flex items-center justify-between border-t border-sidebar-border/70 p-4">
-                            <p className="text-sm text-muted-foreground">Showing {batches.data.length} of {batches.total} batches</p>
+                            <p className="text-sm text-muted-foreground">Menampilkan {batchFrom}-{batchTo} dari {batches.total} batch</p>
                             <div className="flex gap-2">
-                                {Array.from({ length: batches.last_page }, (_, i) => i + 1).map((page) => (
-                                    <Button
-                                        key={`batch-${page}`}
-                                        size="sm"
-                                        variant={page === batches.current_page ? 'default' : 'outline'}
-                                        onClick={() => router.get('/obat', { search, page: obats.current_page, batch_page: page }, { preserveState: true })}
-                                    >
-                                        {page}
-                                    </Button>
-                                ))}
+                                {batchPageTokens.map((token, index) =>
+                                    typeof token === 'number' ? (
+                                        <Button
+                                            key={`batch-page-${token}`}
+                                            size="sm"
+                                            variant={token === batches.current_page ? 'default' : 'outline'}
+                                            onClick={() => router.get('/obat', { search, page: obats.current_page, batch_page: token }, { preserveState: true })}
+                                        >
+                                            {token}
+                                        </Button>
+                                    ) : (
+                                        <span key={`batch-${token}-${index}`} className="px-2 py-1 text-sm text-muted-foreground">
+                                            ...
+                                        </span>
+                                    ),
+                                )}
                             </div>
                         </div>
                     )}

@@ -51,7 +51,7 @@ class ObatController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'kode_obat' => 'required|unique:obat,kode_obat',
+            'kode_obat' => 'nullable|unique:obat,kode_obat',
             'nama_obat' => 'required|max:200',
             'nama_generik' => 'nullable|max:200',
             'nama_brand' => 'nullable|max:200',
@@ -99,7 +99,7 @@ class ObatController extends Controller
     public function update(Request $request, Obat $obat): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'kode_obat' => 'required|unique:obat,kode_obat,' . $obat->id,
+            'kode_obat' => 'sometimes|filled|unique:obat,kode_obat,' . $obat->id,
             'nama_obat' => 'required|max:200',
             'nama_generik' => 'nullable|max:200',
             'nama_brand' => 'nullable|max:200',

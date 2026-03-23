@@ -48,7 +48,10 @@ class BatchObat extends Model
     {
         parent::boot();
 
-        static::creating(function ($batch) {
+        static::creating(function (self $batch): void {
+            if (blank($batch->nomor_batch)) {
+                $batch->nomor_batch = $batch->generateNomorBatch();
+            }
             if (empty($batch->kode_qr)) {
                 $batch->kode_qr = $batch->generateQrCode();
             }
@@ -118,6 +121,27 @@ class BatchObat extends Model
         $timestamp = now()->format('YmdHis');
         $random = strtoupper(Str::random(6));
         return "{$prefix}-{$timestamp}-{$random}";
+    }
+
+    /**
+     * Generate unique batch number when user does not provide one
+     */
+    public function generateNomorBatch(): string
+    {
+        $obatCode = $this->obat?->kode_obat;
+
+        if (! $obatCode && $this->obat_id) {
+            $obatCode = Obat::query()->whereKey($this->obat_id)->value('kode_obat');
+        }
+
+        $prefix = strtoupper(Str::of($obatCode ?? 'OBT')->replace(['-', ' '], '')->substr(0, 6));
+        $date = now()->format('ymd');
+
+        do {
+            $candidate = 'B-'.($prefix !== '' ? $prefix : 'OBT').'-'.$date.'-'.strtoupper(Str::random(3));
+        } while (self::where('nomor_batch', $candidate)->exists());
+
+        return $candidate;
     }
 
     /**
