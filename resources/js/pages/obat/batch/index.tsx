@@ -161,6 +161,28 @@ export default function BatchIndex({ batches }: Props) {
         }).format(amount);
     };
 
+    const summary = batches.data.reduce(
+        (acc, batch) => {
+            const expiry = getExpiryStatus(batch.tanggal_expired);
+            acc.totalStok += Number(batch.stok_tersedia || 0);
+            acc.totalNilai += Number(batch.stok_tersedia || 0) * Number(batch.harga_beli || 0);
+
+            if (expiry.status === 'expired') {
+                acc.expired += 1;
+            } else if (expiry.status === 'warning') {
+                acc.warning += 1;
+            }
+
+            return acc;
+        },
+        {
+            totalStok: 0,
+            totalNilai: 0,
+            expired: 0,
+            warning: 0,
+        }
+    );
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Batch Obat" />
@@ -178,6 +200,29 @@ export default function BatchIndex({ batches }: Props) {
                             Tambah Batch
                         </Link>
                     </Button>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="rounded-lg border border-sidebar-border/70 bg-card p-3">
+                        <div className="text-xs uppercase tracking-wide text-muted-foreground">Batch ditampilkan</div>
+                        <div className="mt-1 text-2xl font-semibold">{batches.data.length}</div>
+                        <div className="text-xs text-muted-foreground">Dari total {batches.total} batch</div>
+                    </div>
+                    <div className="rounded-lg border border-sidebar-border/70 bg-card p-3">
+                        <div className="text-xs uppercase tracking-wide text-muted-foreground">Mendekati expired</div>
+                        <div className="mt-1 text-2xl font-semibold text-amber-700">{summary.warning}</div>
+                        <div className="text-xs text-muted-foreground">Kurang dari 30 hari</div>
+                    </div>
+                    <div className="rounded-lg border border-sidebar-border/70 bg-card p-3">
+                        <div className="text-xs uppercase tracking-wide text-muted-foreground">Sudah expired</div>
+                        <div className="mt-1 text-2xl font-semibold text-destructive">{summary.expired}</div>
+                        <div className="text-xs text-muted-foreground">Perlu tindakan segera</div>
+                    </div>
+                    <div className="rounded-lg border border-sidebar-border/70 bg-card p-3">
+                        <div className="text-xs uppercase tracking-wide text-muted-foreground">Nilai stok halaman ini</div>
+                        <div className="mt-1 text-lg font-semibold text-emerald-700">{formatCurrency(summary.totalNilai)}</div>
+                        <div className="text-xs text-muted-foreground">Total stok: {summary.totalStok}</div>
+                    </div>
                 </div>
 
                 <div className="rounded-xl border border-sidebar-border/70 bg-card">

@@ -184,6 +184,13 @@ export default function BatchShow({ batch }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Batch ${batch.nomor_batch}`} />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
+                <div className="rounded-xl border border-slate-300 bg-gradient-to-r from-slate-100 via-white to-slate-100 p-4">
+                    <h1 className="text-2xl font-bold tracking-tight text-slate-800">Detail Batch {batch.nomor_batch}</h1>
+                    <p className="text-sm text-slate-600">
+                        Halaman detail diprioritaskan untuk verifikasi stok, status expiry, dan jejak transaksi batch.
+                    </p>
+                </div>
+
                 <div className="flex items-center justify-between">
                     <div>
                         <div className="flex items-center gap-2 mb-2">
@@ -199,7 +206,7 @@ export default function BatchShow({ batch }: Props) {
                             {batch.nomor_batch}
                         </h1>
                         <p className="text-sm text-muted-foreground">
-                            Detail informasi batch obat
+                            Obat {batch.obat.nama_obat} • Kode QR {batch.kode_qr}
                         </p>
                     </div>
                     <div className="flex gap-2">

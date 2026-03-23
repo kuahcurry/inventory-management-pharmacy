@@ -120,10 +120,19 @@ export default function TransaksiEdit({ transaksi, obat, batches }: Props) {
         }).format(amount);
     };
 
+    const selectedBatch = batches.find((item) => item.id.toString() === data.batch_id);
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Edit Transaksi" />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
+                <div className="rounded-xl border border-slate-300 bg-gradient-to-r from-slate-100 via-white to-slate-100 p-4">
+                    <h1 className="text-2xl font-bold tracking-tight text-slate-800">Edit Transaksi</h1>
+                    <p className="text-sm text-slate-600">
+                        Pastikan perubahan jumlah, batch, dan nilai transaksi tetap sinkron sebelum menyimpan pembaruan.
+                    </p>
+                </div>
+
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold">Edit Transaksi</h1>
@@ -289,15 +298,37 @@ export default function TransaksiEdit({ transaksi, obat, batches }: Props) {
                         </div>
 
                         {data.jumlah && data.harga_satuan && (
-                            <div className="rounded-lg bg-purple-50 dark:bg-purple-950/20 p-4 border border-purple-200 dark:border-purple-800">
+                            <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 p-4">
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm font-medium">Total Harga:</span>
-                                    <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                                    <span className="text-2xl font-bold text-emerald-700">
                                         {formatCurrency(getTotalHarga())}
                                     </span>
                                 </div>
                             </div>
                         )}
+                    </div>
+
+                    <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 space-y-4">
+                        <h3 className="text-lg font-semibold">Ringkasan Operasional</h3>
+                        <div className="grid gap-3 md:grid-cols-4">
+                            <div className="rounded-md border px-3 py-2">
+                                <p className="text-xs text-muted-foreground">Mode</p>
+                                <p className="text-sm font-semibold">{data.jenis_transaksi}</p>
+                            </div>
+                            <div className="rounded-md border px-3 py-2">
+                                <p className="text-xs text-muted-foreground">Batch</p>
+                                <p className="text-sm font-semibold">{selectedBatch?.nomor_batch || '-'}</p>
+                            </div>
+                            <div className="rounded-md border px-3 py-2">
+                                <p className="text-xs text-muted-foreground">Stok Batch</p>
+                                <p className="text-sm font-semibold">{selectedBatch ? selectedBatch.stok_tersedia : '-'}</p>
+                            </div>
+                            <div className="rounded-md border px-3 py-2">
+                                <p className="text-xs text-muted-foreground">Nilai Transaksi</p>
+                                <p className="text-sm font-semibold text-emerald-700">{formatCurrency(getTotalHarga())}</p>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Informasi Tambahan */}

@@ -49,17 +49,42 @@ export default function BatchCreate({ obat, suppliers }: Props) {
         catatan: '',
     });
 
+    const selectedObat = obat.find((item) => item.id.toString() === data.obat_id);
+    const estimasiNilaiBatch = (Number(data.stok_awal) || 0) * (Number(data.harga_beli) || 0);
+
+    const getExpiryInfo = (value: string) => {
+        if (!value) {
+            return { label: 'Belum diisi', tone: 'text-muted-foreground' };
+        }
+
+        const today = new Date();
+        const expiry = new Date(value);
+        const diffDays = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) {
+            return { label: `Kadaluarsa ${Math.abs(diffDays)} hari lalu`, tone: 'text-destructive' };
+        }
+
+        if (diffDays <= 30) {
+            return { label: `${diffDays} hari menuju expired`, tone: 'text-amber-700' };
+        }
+
+        return { label: `${diffDays} hari menuju expired`, tone: 'text-emerald-700' };
+    };
+
+    const expiryInfo = getExpiryInfo(data.tanggal_expired);
+
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+        }).format(amount);
+    };
+
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
-        
-        // Manually set cleaned data before submitting
-        setData({
-            ...data,
-            supplier_id: data.supplier_id || '',
-            tanggal_produksi: data.tanggal_produksi || '',
-            catatan: data.catatan || '',
-        });
-        
+
         post('/obat/batch', {
             onSuccess: () => {
                 console.log('Batch saved successfully');
@@ -75,11 +100,11 @@ export default function BatchCreate({ obat, suppliers }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Tambah Batch Obat" />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
+                <div className="rounded-xl border border-slate-300 bg-gradient-to-r from-slate-100 via-white to-slate-100 p-4">
                     <div>
-                        <h1 className="text-2xl font-bold">Tambah Batch Obat</h1>
-                        <p className="text-sm text-muted-foreground">
-                            Tambahkan batch baru untuk tracking obat masuk
+                        <h1 className="text-2xl font-bold tracking-tight text-slate-800">Tambah Batch Obat</h1>
+                        <p className="text-sm text-slate-600">
+                            Input batch disusun seperti panel operasional agar proses penerimaan barang lebih cepat dan minim salah.
                         </p>
                     </div>
                 </div>
@@ -95,108 +120,67 @@ export default function BatchCreate({ obat, suppliers }: Props) {
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="max-w-3xl space-y-6">
-                    <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 space-y-6">
-                        <div className="space-y-2">
-                            <h3 className="text-lg font-semibold">Informasi Obat</h3>
-                            <p className="text-sm text-muted-foreground">
-                                Pilih obat dan supplier untuk batch ini
-                            </p>
-                        </div>
+                <form onSubmit={handleSubmit} className="rounded-xl border border-slate-300 bg-card p-4 shadow-sm">
+                    <div className="grid gap-4 lg:grid-cols-12">
+                        <section className="space-y-3 rounded-lg border border-slate-300 p-3 lg:col-span-7">
+                            <h2 className="border-b border-slate-200 pb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">Barang</h2>
 
-                        <div className="grid gap-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="obat_id">Obat *</Label>
-                                <Select value={data.obat_id} onValueChange={(value) => setData('obat_id', value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Pilih obat" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {obat.map((item) => (
-                                            <SelectItem key={item.id} value={item.id.toString()}>
-                                                {item.nama_obat} ({item.kode_obat})
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {errors.obat_id && (
-                                    <p className="text-sm text-destructive">{errors.obat_id}</p>
-                                )}
-                            </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="supplier_id">Supplier</Label>
-                                <Select value={data.supplier_id} onValueChange={(value) => setData('supplier_id', value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Pilih supplier (opsional)" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {suppliers.map((supplier) => (
-                                            <SelectItem key={supplier.id} value={supplier.id.toString()}>
-                                                {supplier.nama_supplier} ({supplier.kode_supplier})
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {errors.supplier_id && (
-                                    <p className="text-sm text-destructive">{errors.supplier_id}</p>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 space-y-6">
-                        <div className="space-y-2">
-                            <h3 className="text-lg font-semibold">Informasi Batch</h3>
-                            <p className="text-sm text-muted-foreground">
-                                Detail batch dan tanggal penting
-                            </p>
-                        </div>
-
-                        <div className="grid gap-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="nomor_batch">Nomor Batch / Lot *</Label>
-                                <Input
-                                    id="nomor_batch"
-                                    value={data.nomor_batch}
-                                    onChange={(e) => setData('nomor_batch', e.target.value)}
-                                    placeholder="Contoh: LOT2024A123"
-                                    required
-                                />
-                                {errors.nomor_batch && (
-                                    <p className="text-sm text-destructive">{errors.nomor_batch}</p>
-                                )}
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="tanggal_produksi">Tanggal Produksi</Label>
-                                    <Input
-                                        id="tanggal_produksi"
-                                        type="date"
-                                        value={data.tanggal_produksi}
-                                        onChange={(e) => setData('tanggal_produksi', e.target.value)}
-                                    />
-                                    {errors.tanggal_produksi && (
-                                        <p className="text-sm text-destructive">{errors.tanggal_produksi}</p>
-                                    )}
+                            <div className="grid gap-3">
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="obat_id">Obat *</Label>
+                                    <Select value={data.obat_id} onValueChange={(value) => setData('obat_id', value)}>
+                                        <SelectTrigger id="obat_id">
+                                            <SelectValue placeholder="Pilih obat" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {obat.map((item) => (
+                                                <SelectItem key={item.id} value={item.id.toString()}>
+                                                    {item.nama_obat} ({item.kode_obat})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.obat_id && <p className="text-xs text-destructive">{errors.obat_id}</p>}
                                 </div>
 
-                                <div className="grid gap-2">
-                                    <Label htmlFor="tanggal_expired">Tanggal Expired *</Label>
-                                    <Input
-                                        id="tanggal_expired"
-                                        type="date"
-                                        value={data.tanggal_expired}
-                                        onChange={(e) => setData('tanggal_expired', e.target.value)}
-                                        required
-                                    />
-                                    {errors.tanggal_expired && (
-                                        <p className="text-sm text-destructive">{errors.tanggal_expired}</p>
-                                    )}
-                                </div>
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="supplier_id">Supplier</Label>
+                                        <Select value={data.supplier_id} onValueChange={(value) => setData('supplier_id', value)}>
+                                            <SelectTrigger id="supplier_id">
+                                                <SelectValue placeholder="Pilih supplier (opsional)" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {suppliers.map((supplier) => (
+                                                    <SelectItem key={supplier.id} value={supplier.id.toString()}>
+                                                        {supplier.nama_supplier} ({supplier.kode_supplier})
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        {errors.supplier_id && <p className="text-xs text-destructive">{errors.supplier_id}</p>}
+                                    </div>
 
-                                <div className="grid gap-2">
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="nomor_batch">Nomor Batch / Lot *</Label>
+                                        <Input
+                                            id="nomor_batch"
+                                            value={data.nomor_batch}
+                                            onChange={(e) => setData('nomor_batch', e.target.value)}
+                                            placeholder="Contoh: LOT2024A123"
+                                            required
+                                        />
+                                        {errors.nomor_batch && <p className="text-xs text-destructive">{errors.nomor_batch}</p>}
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section className="space-y-3 rounded-lg border border-slate-300 p-3 lg:col-span-5">
+                            <h2 className="border-b border-slate-200 pb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">Keterangan</h2>
+
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                <div className="space-y-1.5">
                                     <Label htmlFor="tanggal_masuk">Tanggal Masuk *</Label>
                                     <Input
                                         id="tanggal_masuk"
@@ -205,25 +189,55 @@ export default function BatchCreate({ obat, suppliers }: Props) {
                                         onChange={(e) => setData('tanggal_masuk', e.target.value)}
                                         required
                                     />
-                                    {errors.tanggal_masuk && (
-                                        <p className="text-sm text-destructive">{errors.tanggal_masuk}</p>
-                                    )}
+                                    {errors.tanggal_masuk && <p className="text-xs text-destructive">{errors.tanggal_masuk}</p>}
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="tanggal_produksi">Tanggal Produksi</Label>
+                                    <Input
+                                        id="tanggal_produksi"
+                                        type="date"
+                                        value={data.tanggal_produksi}
+                                        onChange={(e) => setData('tanggal_produksi', e.target.value)}
+                                    />
+                                    {errors.tanggal_produksi && <p className="text-xs text-destructive">{errors.tanggal_produksi}</p>}
+                                </div>
+
+                                <div className="space-y-1.5 sm:col-span-2">
+                                    <Label htmlFor="tanggal_expired">Tanggal Expired *</Label>
+                                    <Input
+                                        id="tanggal_expired"
+                                        type="date"
+                                        value={data.tanggal_expired}
+                                        onChange={(e) => setData('tanggal_expired', e.target.value)}
+                                        required
+                                    />
+                                    <p className={`text-xs ${expiryInfo.tone}`}>{expiryInfo.label}</p>
+                                    {errors.tanggal_expired && <p className="text-xs text-destructive">{errors.tanggal_expired}</p>}
+                                </div>
+
+                                <div className="space-y-1.5 sm:col-span-2">
+                                    <Label htmlFor="status">Status Batch</Label>
+                                    <Select value={data.status} onValueChange={(value) => setData('status', value)}>
+                                        <SelectTrigger id="status">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="active">Tersedia</SelectItem>
+                                            <SelectItem value="empty">Habis</SelectItem>
+                                            <SelectItem value="expired">Kadaluarsa</SelectItem>
+                                            <SelectItem value="recalled">Ditarik</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        </section>
 
-                    <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 space-y-6">
-                        <div className="space-y-2">
-                            <h3 className="text-lg font-semibold">Stok dan Harga</h3>
-                            <p className="text-sm text-muted-foreground">
-                                Informasi stok awal dan harga pembelian
-                            </p>
-                        </div>
+                        <section className="space-y-3 rounded-lg border border-emerald-300 bg-emerald-50/40 p-3 lg:col-span-7">
+                            <h2 className="border-b border-emerald-200 pb-2 text-sm font-semibold uppercase tracking-wide text-emerald-800">Beli</h2>
 
-                        <div className="grid gap-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="grid gap-2">
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                <div className="space-y-1.5">
                                     <Label htmlFor="stok_awal">Stok Awal *</Label>
                                     <Input
                                         id="stok_awal"
@@ -234,13 +248,11 @@ export default function BatchCreate({ obat, suppliers }: Props) {
                                         placeholder="Jumlah stok awal"
                                         required
                                     />
-                                    {errors.stok_awal && (
-                                        <p className="text-sm text-destructive">{errors.stok_awal}</p>
-                                    )}
+                                    {errors.stok_awal && <p className="text-xs text-destructive">{errors.stok_awal}</p>}
                                 </div>
 
-                                <div className="grid gap-2">
-                                    <Label htmlFor="harga_beli">Harga Beli (per unit) *</Label>
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="harga_beli">Harga Beli per Unit *</Label>
                                     <Input
                                         id="harga_beli"
                                         type="number"
@@ -251,41 +263,50 @@ export default function BatchCreate({ obat, suppliers }: Props) {
                                         placeholder="Harga per satuan"
                                         required
                                     />
-                                    {errors.harga_beli && (
-                                        <p className="text-sm text-destructive">{errors.harga_beli}</p>
-                                    )}
+                                    {errors.harga_beli && <p className="text-xs text-destructive">{errors.harga_beli}</p>}
                                 </div>
                             </div>
+                        </section>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="status">Status</Label>
-                                <Select value={data.status} onValueChange={(value) => setData('status', value)}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="active">Tersedia</SelectItem>
-                                        <SelectItem value="empty">Habis</SelectItem>
-                                        <SelectItem value="expired">Kadaluarsa</SelectItem>
-                                        <SelectItem value="recalled">Ditarik</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="catatan">Catatan</Label>
+                        <section className="space-y-3 rounded-lg border border-amber-300 bg-amber-50/40 p-3 lg:col-span-5">
+                            <h2 className="border-b border-amber-200 pb-2 text-sm font-semibold uppercase tracking-wide text-amber-800">Catatan</h2>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="catatan">Catatan Batch</Label>
                                 <Textarea
                                     id="catatan"
                                     value={data.catatan}
                                     onChange={(e) => setData('catatan', e.target.value)}
                                     placeholder="Catatan tambahan (opsional)"
-                                    rows={3}
+                                    rows={4}
                                 />
                             </div>
-                        </div>
+                        </section>
+
+                        <section className="rounded-lg border border-slate-300 bg-slate-50 p-3 lg:col-span-12">
+                            <h2 className="mb-3 border-b border-slate-200 pb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">Ringkasan Batch</h2>
+                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                <div className="rounded-md border border-slate-200 bg-white px-3 py-2">
+                                    <div className="text-xs text-muted-foreground">Obat</div>
+                                    <div className="text-sm font-semibold">{selectedObat?.nama_obat || '-'}</div>
+                                    <div className="text-xs text-muted-foreground">{selectedObat?.kode_obat || 'Pilih obat terlebih dahulu'}</div>
+                                </div>
+                                <div className="rounded-md border border-slate-200 bg-white px-3 py-2">
+                                    <div className="text-xs text-muted-foreground">Satuan</div>
+                                    <div className="text-sm font-semibold">{selectedObat?.satuan?.nama_satuan || '-'}</div>
+                                </div>
+                                <div className="rounded-md border border-slate-200 bg-white px-3 py-2">
+                                    <div className="text-xs text-muted-foreground">Nilai Batch</div>
+                                    <div className="text-sm font-semibold text-emerald-700">{formatCurrency(estimasiNilaiBatch)}</div>
+                                </div>
+                                <div className="rounded-md border border-slate-200 bg-white px-3 py-2">
+                                    <div className="text-xs text-muted-foreground">Status Expired</div>
+                                    <div className={`text-sm font-semibold ${expiryInfo.tone}`}>{expiryInfo.label}</div>
+                                </div>
+                            </div>
+                        </section>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="mt-4 flex gap-2">
                         <Button type="submit" disabled={processing}>
                             <Save className="mr-2 size-4" />
                             {processing ? 'Menyimpan...' : 'Simpan Batch'}

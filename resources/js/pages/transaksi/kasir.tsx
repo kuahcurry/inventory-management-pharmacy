@@ -212,6 +212,13 @@ export default function Kasir({ batches, paymentMethodsByMode }: Props) {
             <Head title="Kasir" />
 
             <div className="flex h-full flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
+                <div className="rounded-xl border border-slate-300 bg-gradient-to-r from-slate-100 via-white to-slate-100 p-4">
+                    <h1 className="text-2xl font-bold tracking-tight text-slate-800">Kasir Transaksi</h1>
+                    <p className="text-sm text-slate-600">
+                        Operasional checkout berbasis batch untuk penjualan dan barang masuk dengan kontrol pembayaran yang terstruktur.
+                    </p>
+                </div>
+
                 <div>
                     <h1 className="text-2xl font-bold">Kasir</h1>
                     <p className="text-sm text-muted-foreground">

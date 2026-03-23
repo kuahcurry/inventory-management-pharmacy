@@ -184,6 +184,13 @@ export default function SemuaTransaksi({ transaksi, stats, filters }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Semua Transaksi" />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
+                <div className="rounded-xl border border-slate-300 bg-gradient-to-r from-slate-100 via-white to-slate-100 p-4">
+                    <h1 className="text-2xl font-bold tracking-tight text-slate-800">Semua Transaksi</h1>
+                    <p className="text-sm text-slate-600">
+                        Pusat monitoring transaksi untuk validasi alur masuk, keluar, dan penjualan dalam satu layar.
+                    </p>
+                </div>
+
                 {/* Header */}
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
@@ -238,7 +245,7 @@ export default function SemuaTransaksi({ transaksi, stats, filters }: Props) {
                                 <p className="text-sm text-muted-foreground">Total Nilai (Rp)</p>
                                 <p className="text-xl font-bold">{formatCurrency(stats.total_value_today)}</p>
                             </div>
-                            <Wallet className="size-8 text-purple-600" />
+                            <Wallet className="size-8 text-teal-600" />
                         </div>
                     </div>
                 </div>

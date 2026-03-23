@@ -14,18 +14,67 @@ use Inertia\Response;
 class DashboardController extends Controller
 {
     /**
+     * Build a fixed 7-day transaction series ending today.
+     *
+     * @return array<int, array<string, int|string>>
+     */
+    private function buildTransactionTrend7d(): array
+    {
+        $startDate = now()->subDays(6)->startOfDay();
+
+        $grouped = Transaksi::query()
+            ->whereDate('tanggal_transaksi', '>=', $startDate->toDateString())
+            ->get()
+            ->groupBy(fn (Transaksi $item) => $item->tanggal_transaksi->format('Y-m-d'));
+
+        return collect(range(0, 6))->map(function (int $offset) use ($startDate, $grouped): array {
+            $date = $startDate->copy()->addDays($offset);
+            $key = $date->format('Y-m-d');
+            $rows = $grouped->get($key, collect());
+
+            return [
+                'date' => $key,
+                'label' => $date->isoFormat('dd, D MMM'),
+                'total' => (int) $rows->count(),
+                'masuk' => (int) $rows->where('jenis_transaksi', Transaksi::JENIS_MASUK)->count(),
+                'keluar' => (int) $rows->whereIn('jenis_transaksi', [Transaksi::JENIS_KELUAR, Transaksi::JENIS_PENJUALAN])->count(),
+            ];
+        })->all();
+    }
+
+    /**
      * Display the dashboard page
      */
     public function index(Request $request): Response
     {
+        $todayTransactions = Transaksi::today()->count();
+        $yesterdayTransactions = Transaksi::query()
+            ->whereDate('tanggal_transaksi', now()->subDay()->toDateString())
+            ->count();
+
+        $todayIncoming = (int) Transaksi::today()->masuk()->sum('jumlah');
+        $yesterdayIncoming = (int) Transaksi::query()
+            ->whereDate('tanggal_transaksi', now()->subDay()->toDateString())
+            ->masuk()
+            ->sum('jumlah');
+
+        $todayOutgoing = (int) Transaksi::today()->keluar()->sum('jumlah');
+        $yesterdayOutgoing = (int) Transaksi::query()
+            ->whereDate('tanggal_transaksi', now()->subDay()->toDateString())
+            ->keluar()
+            ->sum('jumlah');
+
         $stats = [
             'total_obat' => Obat::active()->count(),
             'total_stok' => Obat::active()->sum('stok_total'),
             'low_stock_count' => Obat::active()->stokRendah()->count(),
             'expired_soon_count' => BatchObat::active()->expiringSoon(30)->count(),
-            'today_transactions' => Transaksi::today()->count(),
-            'today_incoming' => Transaksi::today()->masuk()->sum('jumlah'),
-            'today_outgoing' => Transaksi::today()->keluar()->sum('jumlah'),
+            'today_transactions' => $todayTransactions,
+            'today_incoming' => $todayIncoming,
+            'today_outgoing' => $todayOutgoing,
+            'yesterday_transactions' => $yesterdayTransactions,
+            'yesterday_incoming' => $yesterdayIncoming,
+            'yesterday_outgoing' => $yesterdayOutgoing,
         ];
 
         // Get low stock medicines
@@ -48,6 +97,7 @@ class DashboardController extends Controller
             'stats' => $stats,
             'lowStock' => $lowStock,
             'expiringSoon' => $expiringSoon,
+            'transactionTrend7d' => $this->buildTransactionTrend7d(),
         ]);
     }
 

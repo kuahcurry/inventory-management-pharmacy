@@ -126,6 +126,13 @@ export default function TransaksiShow({ transaksi }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Transaksi ${transaksi.kode_transaksi}`} />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
+                <div className="rounded-xl border border-slate-300 bg-gradient-to-r from-slate-100 via-white to-slate-100 p-4">
+                    <h1 className="text-2xl font-bold tracking-tight text-slate-800">Detail Transaksi {transaksi.kode_transaksi}</h1>
+                    <p className="text-sm text-slate-600">
+                        Halaman verifikasi transaksi untuk audit jenis, batch, nilai, dan petugas pelaksana.
+                    </p>
+                </div>
+
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold">Detail Transaksi</h1>
@@ -245,7 +252,7 @@ export default function TransaksiShow({ transaksi }: Props) {
                             <div className="pt-4 border-t">
                                 <div className="flex justify-between items-center">
                                     <span className="text-muted-foreground font-medium">Total Harga:</span>
-                                    <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                                    <span className="text-2xl font-bold text-emerald-700">
                                         {formatCurrency(transaksi.total_harga)}
                                     </span>
                                 </div>

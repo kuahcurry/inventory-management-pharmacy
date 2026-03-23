@@ -151,6 +151,13 @@ export default function BarangMasuk({ transaksi, stats, filters }: Props) {
             <Head title="Barang Masuk" />
 
             <div className="flex h-full flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
+                <div className="rounded-xl border border-slate-300 bg-gradient-to-r from-slate-100 via-white to-slate-100 p-4">
+                    <h1 className="text-2xl font-bold tracking-tight text-slate-800">Workflow Barang Masuk</h1>
+                    <p className="text-sm text-slate-600">
+                        Fokus penerimaan barang, kontrol kuantitas, dan validasi nilai transaksi masuk per periode.
+                    </p>
+                </div>
+
                 {/* Header */}
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
@@ -198,7 +205,7 @@ export default function BarangMasuk({ transaksi, stats, filters }: Props) {
                                 <p className="text-2xl font-bold">{formatCurrency(stats.total_value_today)}</p>
                                 <p className="text-xs text-muted-foreground mt-1">Total Nilai</p>
                             </div>
-                            <Wallet className="size-8 text-purple-500" />
+                            <Wallet className="size-8 text-teal-600" />
                         </div>
                     </div>
 
