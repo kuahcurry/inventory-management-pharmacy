@@ -69,6 +69,13 @@ export default function Kasir({ batches, paymentMethodsByMode }: Props) {
         mode: 'penjualan',
         metode_pembayaran: 'qris',
         tanggal_transaksi: new Date().toISOString().slice(0, 10),
+        supplier_nama: '',
+        pelanggan_nama: '',
+        dokter_nama: '',
+        sales_nama: '',
+        operator_nama: '',
+        tipe_penjualan: 'biasa',
+        is_taxed: false,
         diskon_persen: '0',
         ppn_persen: '11',
         pembayaran_diterima: '',
@@ -276,6 +283,86 @@ export default function Kasir({ batches, paymentMethodsByMode }: Props) {
                                 )}
                             </div>
                         </div>
+
+                        <div className="grid gap-2 md:grid-cols-2">
+                            {data.mode === 'masuk' ? (
+                                <div className="grid gap-2">
+                                    <Label htmlFor="supplier-nama">Supplier</Label>
+                                    <Input
+                                        id="supplier-nama"
+                                        value={data.supplier_nama}
+                                        onChange={(e) => setData('supplier_nama', e.target.value)}
+                                        placeholder="Nama supplier"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="grid gap-2">
+                                    <Label htmlFor="pelanggan-nama">Pelanggan</Label>
+                                    <Input
+                                        id="pelanggan-nama"
+                                        value={data.pelanggan_nama}
+                                        onChange={(e) => setData('pelanggan_nama', e.target.value)}
+                                        placeholder="Nama pelanggan"
+                                    />
+                                </div>
+                            )}
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="operator-nama">Operator</Label>
+                                <Input
+                                    id="operator-nama"
+                                    value={data.operator_nama}
+                                    onChange={(e) => setData('operator_nama', e.target.value)}
+                                    placeholder="Operator transaksi"
+                                />
+                            </div>
+                        </div>
+
+                        {data.mode === 'penjualan' && (
+                            <div className="grid gap-2 md:grid-cols-3">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="dokter-nama">Dokter</Label>
+                                    <Input
+                                        id="dokter-nama"
+                                        value={data.dokter_nama}
+                                        onChange={(e) => setData('dokter_nama', e.target.value)}
+                                        placeholder="Opsional"
+                                    />
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="sales-nama">Sales</Label>
+                                    <Input
+                                        id="sales-nama"
+                                        value={data.sales_nama}
+                                        onChange={(e) => setData('sales_nama', e.target.value)}
+                                        placeholder="Opsional"
+                                    />
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label>Tipe Penjualan</Label>
+                                    <Select value={data.tipe_penjualan} onValueChange={(value) => setData('tipe_penjualan', value)}>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="biasa">Biasa</SelectItem>
+                                            <SelectItem value="resep">Resep</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <label className="col-span-3 flex items-center gap-2 text-sm">
+                                    <input
+                                        type="checkbox"
+                                        checked={data.is_taxed}
+                                        onChange={(e) => setData('is_taxed', e.target.checked)}
+                                    />
+                                    Transaksi dikenakan pajak
+                                </label>
+                            </div>
+                        )}
 
                         {data.mode === 'masuk' && data.metode_pembayaran === 'tempo' && (
                             <div className="grid gap-2">

@@ -91,20 +91,52 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Laporan',
-        href: '/laporan',
+        href: '/reports',
         icon: FileText,
         items: [
             {
-                title: 'Laporan Stok',
+                title: 'Pusat Laporan',
+                href: '/reports',
+            },
+            {
+                title: 'Pembelian',
+                href: '/reports/pembelian',
+            },
+            {
+                title: 'Penjualan',
+                href: '/reports/penjualan',
+            },
+            {
+                title: 'Hutang & Piutang',
+                href: '/reports/hutang-piutang',
+            },
+            {
+                title: 'Cashflow',
+                href: '/reports/cashflow',
+            },
+            {
+                title: 'Obat',
+                href: '/reports/obat',
+            },
+            {
+                title: 'Keuangan',
+                href: '/reports/keuangan',
+            },
+            {
+                title: 'Stok',
                 href: '/reports/stock',
             },
             {
-                title: 'Laporan Transaksi',
+                title: 'Transaksi',
                 href: '/reports/transactions',
             },
             {
-                title: 'Laporan Kadaluarsa',
+                title: 'Kadaluarsa',
                 href: '/reports/expiry',
+            },
+            {
+                title: 'Operasional',
+                href: '/reports/operational',
             },
         ],
     }

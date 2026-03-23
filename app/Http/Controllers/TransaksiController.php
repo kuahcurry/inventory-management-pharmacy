@@ -59,6 +59,13 @@ class TransaksiController extends Controller
             'ppn_persen' => 'nullable|numeric|min:0|max:100',
             'pembayaran_diterima' => 'nullable|numeric|min:0',
             'tempo_jatuh_tempo' => 'nullable|date|after_or_equal:tanggal_transaksi',
+            'supplier_nama' => 'nullable|string|max:255',
+            'pelanggan_nama' => 'nullable|string|max:255',
+            'dokter_nama' => 'nullable|string|max:255',
+            'sales_nama' => 'nullable|string|max:255',
+            'operator_nama' => 'nullable|string|max:255',
+            'tipe_penjualan' => 'nullable|in:biasa,resep',
+            'is_taxed' => 'nullable|boolean',
             'items' => 'required|array|min:1',
             'items.*.obat_id' => 'required|exists:obat,id',
             'items.*.batch_id' => 'nullable|exists:batch_obat,id',
@@ -177,6 +184,23 @@ class TransaksiController extends Controller
                         'Grand total: '.number_format($grandTotal, 2, '.', ''),
                     ])),
                     'nomor_referensi' => null,
+                    'supplier_nama' => $validated['supplier_nama'] ?? null,
+                    'pelanggan_nama' => $validated['pelanggan_nama'] ?? null,
+                    'dokter_nama' => $validated['dokter_nama'] ?? null,
+                    'sales_nama' => $validated['sales_nama'] ?? null,
+                    'operator_nama' => $validated['operator_nama'] ?? null,
+                    'kasir_nama' => auth()->user()?->name,
+                    'metode_pembayaran' => $validated['metode_pembayaran'],
+                    'tipe_penjualan' => $validated['mode'] === 'penjualan' ? ($validated['tipe_penjualan'] ?? 'biasa') : null,
+                    'kategori_keuangan' => $validated['mode'] === 'masuk' && $validated['metode_pembayaran'] === 'tempo'
+                        ? 'hutang'
+                        : ($validated['mode'] === 'penjualan' && $validated['metode_pembayaran'] === 'kredit' ? 'piutang' : 'none'),
+                    'status_pelunasan' => ($validated['mode'] === 'masuk' && $validated['metode_pembayaran'] === 'tempo')
+                        || ($validated['mode'] === 'penjualan' && $validated['metode_pembayaran'] === 'kredit')
+                            ? 'belum_lunas'
+                            : 'lunas',
+                    'jatuh_tempo' => $validated['tempo_jatuh_tempo'] ?? null,
+                    'is_taxed' => (bool) ($validated['is_taxed'] ?? false),
                 ]);
 
                 $this->updateStock($transaksi);
@@ -272,12 +296,27 @@ class TransaksiController extends Controller
             'tanggal_transaksi' => 'required|date',
             'keterangan' => 'nullable|string',
             'nomor_referensi' => 'nullable|string|max:100',
+            'supplier_nama' => 'nullable|string|max:255',
+            'pelanggan_nama' => 'nullable|string|max:255',
+            'dokter_nama' => 'nullable|string|max:255',
+            'sales_nama' => 'nullable|string|max:255',
+            'operator_nama' => 'nullable|string|max:255',
+            'kasir_nama' => 'nullable|string|max:255',
+            'metode_pembayaran' => 'nullable|string|max:30',
+            'tipe_penjualan' => 'nullable|in:biasa,resep',
+            'kategori_keuangan' => 'nullable|in:none,hutang,piutang',
+            'status_pelunasan' => 'nullable|in:lunas,belum_lunas',
+            'jatuh_tempo' => 'nullable|date',
+            'is_taxed' => 'nullable|boolean',
         ]);
 
         // Calculate total
         $validated['total_harga'] = $validated['jumlah'] * $validated['harga_satuan'];
         $validated['user_id'] = auth()->id();
         $validated['waktu_transaksi'] = now()->toTimeString();
+        $validated['kategori_keuangan'] = $validated['kategori_keuangan'] ?? 'none';
+        $validated['status_pelunasan'] = $validated['status_pelunasan'] ?? 'lunas';
+        $validated['is_taxed'] = (bool) ($validated['is_taxed'] ?? false);
 
         // Validate stock for keluar/penjualan
         if (in_array($validated['jenis_transaksi'], ['keluar', 'penjualan'])) {
@@ -361,10 +400,25 @@ class TransaksiController extends Controller
             'tanggal_transaksi' => 'required|date',
             'keterangan' => 'nullable|string',
             'nomor_referensi' => 'nullable|string|max:100',
+            'supplier_nama' => 'nullable|string|max:255',
+            'pelanggan_nama' => 'nullable|string|max:255',
+            'dokter_nama' => 'nullable|string|max:255',
+            'sales_nama' => 'nullable|string|max:255',
+            'operator_nama' => 'nullable|string|max:255',
+            'kasir_nama' => 'nullable|string|max:255',
+            'metode_pembayaran' => 'nullable|string|max:30',
+            'tipe_penjualan' => 'nullable|in:biasa,resep',
+            'kategori_keuangan' => 'nullable|in:none,hutang,piutang',
+            'status_pelunasan' => 'nullable|in:lunas,belum_lunas',
+            'jatuh_tempo' => 'nullable|date',
+            'is_taxed' => 'nullable|boolean',
         ]);
 
         // Calculate total
         $validated['total_harga'] = $validated['jumlah'] * $validated['harga_satuan'];
+        $validated['kategori_keuangan'] = $validated['kategori_keuangan'] ?? 'none';
+        $validated['status_pelunasan'] = $validated['status_pelunasan'] ?? 'lunas';
+        $validated['is_taxed'] = (bool) ($validated['is_taxed'] ?? false);
 
         // Validate stock for keluar/penjualan
         if (in_array($validated['jenis_transaksi'], ['keluar', 'penjualan'])) {

@@ -56,7 +56,7 @@ export function FirstTimeTutorial() {
                 title: 'Laporan Operasional',
                 description: 'Lihat laporan stok dan transaksi untuk monitoring dan audit berkala.',
                 actionLabel: 'Buka Laporan',
-                href: '/reports/stock',
+                href: '/reports',
             });
         }
 

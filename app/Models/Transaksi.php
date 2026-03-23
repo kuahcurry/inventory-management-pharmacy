@@ -36,6 +36,18 @@ class Transaksi extends Model
         'waktu_transaksi',
         'keterangan',
         'nomor_referensi',
+        'supplier_nama',
+        'pelanggan_nama',
+        'dokter_nama',
+        'sales_nama',
+        'operator_nama',
+        'kasir_nama',
+        'metode_pembayaran',
+        'tipe_penjualan',
+        'kategori_keuangan',
+        'status_pelunasan',
+        'jatuh_tempo',
+        'is_taxed',
     ];
 
     protected $casts = [
@@ -44,6 +56,8 @@ class Transaksi extends Model
         'total_harga' => 'decimal:2',
         'tanggal_transaksi' => 'date',
         'waktu_transaksi' => 'datetime:H:i:s',
+        'jatuh_tempo' => 'date',
+        'is_taxed' => 'boolean',
     ];
 
     /**

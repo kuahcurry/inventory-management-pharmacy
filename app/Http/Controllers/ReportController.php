@@ -12,12 +12,657 @@ use App\Models\ReorderSuggestion;
 use App\Models\Transaksi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ReportController extends Controller
 {
     public function __construct(private BuildOperationalInsights $insights) {}
+
+    /**
+     * Display merged report center with grouped report packs.
+     */
+    public function index(): Response
+    {
+        $overview = [
+            'total_obat' => Obat::count(),
+            'total_stok' => (int) Obat::sum('stok_total'),
+            'total_transaksi_30d' => (int) Transaksi::query()
+                ->whereDate('tanggal_transaksi', '>=', now()->subDays(30)->toDateString())
+                ->count(),
+            'nilai_transaksi_30d' => (float) Transaksi::query()
+                ->whereDate('tanggal_transaksi', '>=', now()->subDays(30)->toDateString())
+                ->sum('total_harga'),
+            'batch_expired' => (int) BatchObat::query()
+                ->where('stok_tersedia', '>', 0)
+                ->whereDate('tanggal_expired', '<', now())
+                ->count(),
+            'batch_expiring_30d' => (int) BatchObat::query()
+                ->where('stok_tersedia', '>', 0)
+                ->whereDate('tanggal_expired', '>=', now())
+                ->whereDate('tanggal_expired', '<=', now()->addDays(30))
+                ->count(),
+        ];
+
+        $mergedReports = [
+            [
+                'key' => 'pembelian_suite',
+                'title' => 'Pembelian Suite',
+                'description' => 'Satu paket laporan pembelian untuk semua dimensi utama agar tidak memecah menu.',
+                'status' => 'ready',
+                'primary_link' => '/reports/pembelian',
+                'secondary_link' => '/transaksi/masuk',
+                'contains' => [
+                    'Laporan Pembelian',
+                    'Laporan Pembelian Detail',
+                    'Laporan Pembelian Detail Suplier',
+                    'Laporan Pembelian per Barang',
+                    'Laporan Pembelian per Suplier',
+                    'Laporan Pembelian Kredit',
+                    'Laporan Pembelian Tunai',
+                ],
+            ],
+            [
+                'key' => 'penjualan_suite',
+                'title' => 'Penjualan Suite',
+                'description' => 'Satu paket penjualan berbasis filter dinamis (tanggal, barang, kategori, metode bayar, operator).',
+                'status' => 'ready',
+                'primary_link' => '/reports/penjualan',
+                'secondary_link' => '/transaksi/keluar',
+                'contains' => [
+                    'Laporan Penjualan',
+                    'Laporan Penjualan Detail',
+                    'Laporan Penjualan Detail Pelanggan',
+                    'Laporan Penjualan Detail Dokter',
+                    'Laporan Penjualan Detail Sales',
+                    'Laporan Penjualan Operator',
+                    'Laporan Penjualan Kasir',
+                    'Laporan Penjualan per Tanggal',
+                    'Laporan Penjualan per Barang',
+                    'Laporan Penjualan per Kategori',
+                    'Laporan Penjualan per Pelanggan',
+                    'Laporan Penjualan per Dokter',
+                    'Laporan Penjualan Tunai',
+                    'Laporan Penjualan Debit',
+                    'Laporan Penjualan Kredit',
+                    'Laporan Penjualan Transfer',
+                    'Laporan Penjualan QRIS',
+                    'Laporan Penjualan Biasa',
+                    'Laporan Penjualan Resep',
+                    'Laporan Penjualan Pajak',
+                    'Laporan Penjualan Grafik',
+                ],
+            ],
+            [
+                'key' => 'ar_ap_suite',
+                'title' => 'AR/AP Suite (Hutang & Piutang)',
+                'description' => 'Gabungan aging hutang dan piutang agar monitoring kewajiban dan tagihan dalam satu layar.',
+                'status' => 'ready',
+                'primary_link' => '/reports/hutang-piutang',
+                'secondary_link' => '/kasir',
+                'contains' => [
+                    'Laporan Hutang',
+                    'Laporan Hutang Lunas',
+                    'Laporan Hutang Belum-Lunas',
+                    'Laporan Piutang',
+                    'Laporan Piutang Lunas',
+                    'Laporan Piutang Belum-Lunas',
+                ],
+            ],
+            [
+                'key' => 'cashflow_suite',
+                'title' => 'Cashflow Suite',
+                'description' => 'Kas masuk/keluar disatukan dari transaksi untuk pemantauan arus kas bersih.',
+                'status' => 'ready',
+                'primary_link' => '/reports/cashflow',
+                'secondary_link' => '/transaksi',
+                'contains' => [
+                    'Laporan Cashflow',
+                    'Laporan Cashflow Masuk',
+                    'Laporan Cashflow Keluar',
+                ],
+            ],
+            [
+                'key' => 'obat_suite',
+                'title' => 'Obat Intelligence Suite',
+                'description' => 'Semua laporan obat digabung dalam satu paket stok, mutasi, laris/tidak laku, dan expired.',
+                'status' => 'ready',
+                'primary_link' => '/reports/obat',
+                'secondary_link' => '/reports/expiry',
+                'contains' => [
+                    'Lap. Obat Terlaris',
+                    'Lap. Obat Tidak Laku',
+                    'Lap. Obat Expired',
+                    'Lap. Obat Stok',
+                    'Lap. Obat Stok Total',
+                    'Lap. Obat Stok Minimal',
+                    'Lap. Obat Stok Habis',
+                    'Lap. Obat Keluar Masuk',
+                    'Lap. Obat Keluar',
+                    'Lap. Obat Masuk',
+                    'Lap. Obat Kartu Stok',
+                ],
+            ],
+            [
+                'key' => 'keuangan_suite',
+                'title' => 'Keuangan Suite',
+                'description' => 'Ringkasan laba rugi dan modal barang dikonsolidasikan untuk pengambilan keputusan cepat.',
+                'status' => 'ready',
+                'primary_link' => '/reports/keuangan',
+                'secondary_link' => '/reports/transactions',
+                'contains' => [
+                    'Laba Rugi',
+                    'Modal Barang',
+                ],
+            ],
+        ];
+
+        return Inertia::render('laporan/index/index', [
+            'overview' => $overview,
+            'mergedReports' => $mergedReports,
+        ]);
+    }
+
+    public function pembelian(Request $request): Response
+    {
+        return $this->renderSuitePage($request, 'pembelian_suite', '/reports/pembelian', '/reports/pembelian/export', 'laporan/pembelian/index');
+    }
+
+    public function pembelianExport(Request $request)
+    {
+        return $this->exportSuitePage($request, 'pembelian_suite');
+    }
+
+    public function penjualan(Request $request): Response
+    {
+        return $this->renderSuitePage($request, 'penjualan_suite', '/reports/penjualan', '/reports/penjualan/export', 'laporan/penjualan/index');
+    }
+
+    public function penjualanExport(Request $request)
+    {
+        return $this->exportSuitePage($request, 'penjualan_suite');
+    }
+
+    public function hutangPiutang(Request $request): Response
+    {
+        return $this->renderSuitePage($request, 'ar_ap_suite', '/reports/hutang-piutang', '/reports/hutang-piutang/export', 'laporan/hutang-piutang/index');
+    }
+
+    public function hutangPiutangExport(Request $request)
+    {
+        return $this->exportSuitePage($request, 'ar_ap_suite');
+    }
+
+    public function cashflow(Request $request): Response
+    {
+        return $this->renderSuitePage($request, 'cashflow_suite', '/reports/cashflow', '/reports/cashflow/export', 'laporan/cashflow/index');
+    }
+
+    public function cashflowExport(Request $request)
+    {
+        return $this->exportSuitePage($request, 'cashflow_suite');
+    }
+
+    public function obat(Request $request): Response
+    {
+        return $this->renderSuitePage($request, 'obat_suite', '/reports/obat', '/reports/obat/export', 'laporan/obat/index');
+    }
+
+    public function obatExport(Request $request)
+    {
+        return $this->exportSuitePage($request, 'obat_suite');
+    }
+
+    public function keuangan(Request $request): Response
+    {
+        return $this->renderSuitePage($request, 'keuangan_suite', '/reports/keuangan', '/reports/keuangan/export', 'laporan/keuangan/index');
+    }
+
+    public function keuanganExport(Request $request)
+    {
+        return $this->exportSuitePage($request, 'keuangan_suite');
+    }
+
+    public function suite(Request $request, string $suite): Response
+    {
+        return $this->renderSuitePage($request, $suite, '/reports/suite/'.$suite, '/reports/suite/'.$suite.'/export', 'laporan/suite/index');
+    }
+
+    public function suiteExport(Request $request, string $suite)
+    {
+        return $this->exportSuitePage($request, $suite);
+    }
+
+    private function renderSuitePage(Request $request, string $suite, string $routeBase, string $exportUrl, string $view): Response
+    {
+        abort_unless(in_array($suite, $this->allowedSuiteKeys(), true), 404);
+
+        [$startDate, $endDate] = $this->resolveDateFilter($request);
+
+        $base = Transaksi::query()
+            ->with(['obat.kategori', 'batch'])
+            ->whereDate('tanggal_transaksi', '>=', $startDate)
+            ->whereDate('tanggal_transaksi', '<=', $endDate);
+
+        $payload = $this->buildSuitePayload($suite, $base, $startDate, $endDate);
+
+        return Inertia::render($view, [
+            'suite' => $suite,
+            'title' => $payload['title'],
+            'description' => $payload['description'],
+            'summaryCards' => $payload['summaryCards'],
+            'sections' => $payload['sections'],
+            'filters' => [
+                'tanggal_dari' => $startDate,
+                'tanggal_sampai' => $endDate,
+                'route_base' => $routeBase,
+                'export_url' => $exportUrl,
+            ],
+        ]);
+    }
+
+    private function exportSuitePage(Request $request, string $suite)
+    {
+        abort_unless(in_array($suite, $this->allowedSuiteKeys(), true), 404);
+
+        [$startDate, $endDate] = $this->resolveDateFilter($request);
+
+        $base = Transaksi::query()
+            ->with(['obat.kategori', 'batch'])
+            ->whereDate('tanggal_transaksi', '>=', $startDate)
+            ->whereDate('tanggal_transaksi', '<=', $endDate);
+
+        $payload = $this->buildSuitePayload($suite, $base, $startDate, $endDate);
+        $filename = 'laporan-'.$suite.'-'.$startDate.'-'.$endDate.'.csv';
+
+        return response()->streamDownload(function () use ($payload) {
+            $handle = fopen('php://output', 'w');
+
+            fputcsv($handle, ['Suite', $payload['title']]);
+            fputcsv($handle, ['Generated At', now()->toDateTimeString()]);
+            fputcsv($handle, []);
+
+            foreach ($payload['sections'] as $section) {
+                fputcsv($handle, [$section['title']]);
+
+                $columns = $section['columns'];
+                fputcsv($handle, $columns);
+
+                foreach ($section['rows'] as $row) {
+                    $line = [];
+                    foreach ($columns as $col) {
+                        $line[] = $row[$col] ?? null;
+                    }
+                    fputcsv($handle, $line);
+                }
+
+                fputcsv($handle, []);
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv',
+        ]);
+    }
+
+    private function resolveDateFilter(Request $request): array
+    {
+        $startDate = $request->string('tanggal_dari')->toString() ?: now()->startOfMonth()->toDateString();
+        $endDate = $request->string('tanggal_sampai')->toString() ?: now()->toDateString();
+
+        return [$startDate, $endDate];
+    }
+
+    private function allowedSuiteKeys(): array
+    {
+        return [
+            'pembelian_suite',
+            'penjualan_suite',
+            'ar_ap_suite',
+            'cashflow_suite',
+            'obat_suite',
+            'keuangan_suite',
+        ];
+    }
+
+    private function buildSuitePayload(string $suite, $base, string $startDate, string $endDate): array
+    {
+        return match ($suite) {
+            'pembelian_suite' => $this->buildPembelianSuite($base),
+            'penjualan_suite' => $this->buildPenjualanSuite($base),
+            'ar_ap_suite' => $this->buildArApSuite($base),
+            'cashflow_suite' => $this->buildCashflowSuite($base),
+            'obat_suite' => $this->buildObatSuite($base, $startDate, $endDate),
+            default => $this->buildKeuanganSuite($base),
+        };
+    }
+
+    private function buildPembelianSuite($base): array
+    {
+        $rows = (clone $base)
+            ->where('jenis_transaksi', Transaksi::JENIS_MASUK)
+            ->get();
+
+        $summaryCards = [
+            ['label' => 'Total Pembelian', 'value' => $rows->count()],
+            ['label' => 'Total Qty', 'value' => (int) $rows->sum('jumlah')],
+            ['label' => 'Nilai Pembelian', 'value' => (float) $rows->sum('total_harga')],
+        ];
+
+        return [
+            'title' => 'Pembelian Suite',
+            'description' => 'Konsolidasi detail, supplier, barang, dan metode pembayaran pembelian.',
+            'summaryCards' => $summaryCards,
+            'sections' => [
+                [
+                    'key' => 'metode',
+                    'title' => 'Pembelian per Metode',
+                    'columns' => ['Metode', 'Jumlah Transaksi', 'Nilai'],
+                    'rows' => $rows->groupBy(fn ($r) => $r->metode_pembayaran ?: 'tanpa_metode')->map(function ($group, $key) {
+                        return [
+                            'Metode' => Str::upper((string) $key),
+                            'Jumlah Transaksi' => $group->count(),
+                            'Nilai' => (float) $group->sum('total_harga'),
+                        ];
+                    })->values()->all(),
+                ],
+                [
+                    'key' => 'barang',
+                    'title' => 'Pembelian per Barang',
+                    'columns' => ['Barang', 'Qty', 'Nilai'],
+                    'rows' => $rows->groupBy(fn ($r) => $r->obat?->nama_obat ?: 'Tanpa Obat')->map(function ($group, $key) {
+                        return [
+                            'Barang' => $key,
+                            'Qty' => (int) $group->sum('jumlah'),
+                            'Nilai' => (float) $group->sum('total_harga'),
+                        ];
+                    })->values()->all(),
+                ],
+                [
+                    'key' => 'supplier',
+                    'title' => 'Pembelian per Supplier',
+                    'columns' => ['Supplier', 'Jumlah Transaksi', 'Nilai'],
+                    'rows' => $rows->groupBy(fn ($r) => $r->supplier_nama ?: 'Tanpa Supplier')->map(function ($group, $key) {
+                        return [
+                            'Supplier' => $key,
+                            'Jumlah Transaksi' => $group->count(),
+                            'Nilai' => (float) $group->sum('total_harga'),
+                        ];
+                    })->values()->all(),
+                ],
+            ],
+        ];
+    }
+
+    private function buildPenjualanSuite($base): array
+    {
+        $rows = (clone $base)->where('jenis_transaksi', Transaksi::JENIS_PENJUALAN)->get();
+
+        return [
+            'title' => 'Penjualan Suite',
+            'description' => 'Detail penjualan per metode, barang, kategori, aktor, dan tipe.',
+            'summaryCards' => [
+                ['label' => 'Total Penjualan', 'value' => $rows->count()],
+                ['label' => 'Total Qty', 'value' => (int) $rows->sum('jumlah')],
+                ['label' => 'Omzet', 'value' => (float) $rows->sum('total_harga')],
+            ],
+            'sections' => [
+                [
+                    'key' => 'metode',
+                    'title' => 'Penjualan per Metode Bayar',
+                    'columns' => ['Metode', 'Jumlah Transaksi', 'Omzet'],
+                    'rows' => $rows->groupBy(fn ($r) => $r->metode_pembayaran ?: 'tanpa_metode')->map(function ($group, $key) {
+                        return [
+                            'Metode' => Str::upper((string) $key),
+                            'Jumlah Transaksi' => $group->count(),
+                            'Omzet' => (float) $group->sum('total_harga'),
+                        ];
+                    })->values()->all(),
+                ],
+                [
+                    'key' => 'barang',
+                    'title' => 'Penjualan per Barang',
+                    'columns' => ['Barang', 'Qty', 'Omzet'],
+                    'rows' => $rows->groupBy(fn ($r) => $r->obat?->nama_obat ?: 'Tanpa Obat')->map(function ($group, $key) {
+                        return [
+                            'Barang' => $key,
+                            'Qty' => (int) $group->sum('jumlah'),
+                            'Omzet' => (float) $group->sum('total_harga'),
+                        ];
+                    })->values()->all(),
+                ],
+                [
+                    'key' => 'kategori',
+                    'title' => 'Penjualan per Kategori',
+                    'columns' => ['Kategori', 'Qty', 'Omzet'],
+                    'rows' => $rows->groupBy(fn ($r) => $r->obat?->kategori?->nama_kategori ?: 'Tanpa Kategori')->map(function ($group, $key) {
+                        return [
+                            'Kategori' => $key,
+                            'Qty' => (int) $group->sum('jumlah'),
+                            'Omzet' => (float) $group->sum('total_harga'),
+                        ];
+                    })->values()->all(),
+                ],
+                [
+                    'key' => 'aktor',
+                    'title' => 'Penjualan per Aktor',
+                    'columns' => ['Dimensi', 'Nama', 'Jumlah Transaksi', 'Omzet'],
+                    'rows' => collect([
+                        ['dim' => 'Pelanggan', 'field' => 'pelanggan_nama'],
+                        ['dim' => 'Dokter', 'field' => 'dokter_nama'],
+                        ['dim' => 'Sales', 'field' => 'sales_nama'],
+                        ['dim' => 'Operator', 'field' => 'operator_nama'],
+                        ['dim' => 'Kasir', 'field' => 'kasir_nama'],
+                    ])->flatMap(function ($meta) use ($rows) {
+                        return $rows->groupBy(fn ($r) => $r->{$meta['field']} ?: 'Tanpa Nama')->map(function ($group, $name) use ($meta) {
+                            return [
+                                'Dimensi' => $meta['dim'],
+                                'Nama' => $name,
+                                'Jumlah Transaksi' => $group->count(),
+                                'Omzet' => (float) $group->sum('total_harga'),
+                            ];
+                        })->values();
+                    })->all(),
+                ],
+            ],
+        ];
+    }
+
+    private function buildArApSuite($base): array
+    {
+        $rows = (clone $base)->whereIn('kategori_keuangan', ['hutang', 'piutang'])->get();
+
+        return [
+            'title' => 'AR/AP Suite',
+            'description' => 'Aging hutang/piutang berdasarkan status pelunasan dan jatuh tempo.',
+            'summaryCards' => [
+                ['label' => 'Total AR/AP', 'value' => $rows->count()],
+                ['label' => 'Belum Lunas', 'value' => (int) $rows->where('status_pelunasan', 'belum_lunas')->count()],
+                ['label' => 'Nilai Outstanding', 'value' => (float) $rows->where('status_pelunasan', 'belum_lunas')->sum('total_harga')],
+            ],
+            'sections' => [
+                [
+                    'key' => 'aging',
+                    'title' => 'AR/AP per Status',
+                    'columns' => ['Kategori', 'Status', 'Jumlah', 'Nilai'],
+                    'rows' => $rows->groupBy(fn ($r) => ($r->kategori_keuangan ?: 'none').'|'.($r->status_pelunasan ?: 'lunas'))->map(function ($group, $key) {
+                        [$kategori, $status] = explode('|', $key);
+                        return [
+                            'Kategori' => Str::upper($kategori),
+                            'Status' => Str::upper($status),
+                            'Jumlah' => $group->count(),
+                            'Nilai' => (float) $group->sum('total_harga'),
+                        ];
+                    })->values()->all(),
+                ],
+                [
+                    'key' => 'tempo',
+                    'title' => 'Daftar Belum Lunas',
+                    'columns' => ['Kode', 'Kategori', 'Jatuh Tempo', 'Nilai'],
+                    'rows' => $rows->where('status_pelunasan', 'belum_lunas')->map(function ($row) {
+                        return [
+                            'Kode' => $row->kode_transaksi,
+                            'Kategori' => Str::upper((string) $row->kategori_keuangan),
+                            'Jatuh Tempo' => optional($row->jatuh_tempo)->toDateString() ?: '-',
+                            'Nilai' => (float) $row->total_harga,
+                        ];
+                    })->values()->all(),
+                ],
+            ],
+        ];
+    }
+
+    private function buildCashflowSuite($base): array
+    {
+        $rows = (clone $base)->get();
+        $cashIn = (float) $rows->whereIn('jenis_transaksi', [Transaksi::JENIS_MASUK, Transaksi::JENIS_PENJUALAN])->sum('total_harga');
+        $cashOut = (float) $rows->where('jenis_transaksi', Transaksi::JENIS_KELUAR)->sum('total_harga');
+
+        return [
+            'title' => 'Cashflow Suite',
+            'description' => 'Arus kas masuk dan keluar berdasarkan transaksi serta metode pembayaran.',
+            'summaryCards' => [
+                ['label' => 'Cash In', 'value' => $cashIn],
+                ['label' => 'Cash Out', 'value' => $cashOut],
+                ['label' => 'Net Cashflow', 'value' => $cashIn - $cashOut],
+            ],
+            'sections' => [
+                [
+                    'key' => 'arah_kas',
+                    'title' => 'Ringkasan Cashflow',
+                    'columns' => ['Arah', 'Nilai'],
+                    'rows' => [
+                        ['Arah' => 'Masuk', 'Nilai' => $cashIn],
+                        ['Arah' => 'Keluar', 'Nilai' => $cashOut],
+                        ['Arah' => 'Net', 'Nilai' => $cashIn - $cashOut],
+                    ],
+                ],
+                [
+                    'key' => 'metode',
+                    'title' => 'Cashflow per Metode',
+                    'columns' => ['Metode', 'Jumlah', 'Nilai'],
+                    'rows' => $rows->groupBy(fn ($r) => $r->metode_pembayaran ?: 'tanpa_metode')->map(function ($group, $key) {
+                        return [
+                            'Metode' => Str::upper((string) $key),
+                            'Jumlah' => $group->count(),
+                            'Nilai' => (float) $group->sum('total_harga'),
+                        ];
+                    })->values()->all(),
+                ],
+            ],
+        ];
+    }
+
+    private function buildObatSuite($base, string $startDate, string $endDate): array
+    {
+        $rows = (clone $base)->get();
+        $salesRows = $rows->where('jenis_transaksi', Transaksi::JENIS_PENJUALAN);
+
+        $activeIds = Obat::query()->pluck('id');
+        $soldIds = $salesRows->pluck('obat_id')->filter()->unique();
+        $notSold = Obat::query()->whereIn('id', $activeIds->diff($soldIds))->limit(20)->get(['nama_obat']);
+
+        return [
+            'title' => 'Obat Intelligence Suite',
+            'description' => 'Gabungan laporan obat laris, tidak laku, expired, stok, dan mutasi masuk/keluar.',
+            'summaryCards' => [
+                ['label' => 'Obat Terjual', 'value' => $soldIds->count()],
+                ['label' => 'Obat Tidak Laku', 'value' => $notSold->count()],
+                ['label' => 'Batch Expired', 'value' => (int) BatchObat::query()->whereDate('tanggal_expired', '<', now())->where('stok_tersedia', '>', 0)->count()],
+            ],
+            'sections' => [
+                [
+                    'key' => 'terlaris',
+                    'title' => 'Obat Terlaris',
+                    'columns' => ['Obat', 'Qty Keluar', 'Nilai'],
+                    'rows' => $salesRows->groupBy(fn ($r) => $r->obat?->nama_obat ?: 'Tanpa Obat')->map(function ($group, $key) {
+                        return [
+                            'Obat' => $key,
+                            'Qty Keluar' => (int) $group->sum('jumlah'),
+                            'Nilai' => (float) $group->sum('total_harga'),
+                        ];
+                    })->sortByDesc('Qty Keluar')->values()->take(20)->all(),
+                ],
+                [
+                    'key' => 'tidak_laku',
+                    'title' => 'Obat Tidak Laku',
+                    'columns' => ['Obat'],
+                    'rows' => $notSold->map(fn ($row) => ['Obat' => $row->nama_obat])->values()->all(),
+                ],
+                [
+                    'key' => 'mutasi',
+                    'title' => 'Mutasi Obat Keluar/Masuk',
+                    'columns' => ['Obat', 'Qty Masuk', 'Qty Keluar'],
+                    'rows' => $rows->groupBy(fn ($r) => $r->obat?->nama_obat ?: 'Tanpa Obat')->map(function ($group, $key) {
+                        return [
+                            'Obat' => $key,
+                            'Qty Masuk' => (int) $group->where('jenis_transaksi', Transaksi::JENIS_MASUK)->sum('jumlah'),
+                            'Qty Keluar' => (int) $group->whereIn('jenis_transaksi', [Transaksi::JENIS_KELUAR, Transaksi::JENIS_PENJUALAN])->sum('jumlah'),
+                        ];
+                    })->values()->all(),
+                ],
+                [
+                    'key' => 'stok',
+                    'title' => 'Stok Obat',
+                    'columns' => ['Obat', 'Stok Total', 'Stok Minimum', 'Status'],
+                    'rows' => Obat::query()->limit(100)->get(['nama_obat', 'stok_total', 'stok_minimum'])->map(function ($row) {
+                        return [
+                            'Obat' => $row->nama_obat,
+                            'Stok Total' => (int) $row->stok_total,
+                            'Stok Minimum' => (int) $row->stok_minimum,
+                            'Status' => $row->stok_total <= 0 ? 'Habis' : ($row->stok_total <= $row->stok_minimum ? 'Minimum' : 'Aman'),
+                        ];
+                    })->values()->all(),
+                ],
+            ],
+        ];
+    }
+
+    private function buildKeuanganSuite($base): array
+    {
+        $rows = (clone $base)->get();
+        $revenue = (float) $rows->where('jenis_transaksi', Transaksi::JENIS_PENJUALAN)->sum('total_harga');
+        $purchaseCost = (float) $rows->where('jenis_transaksi', Transaksi::JENIS_MASUK)->sum('total_harga');
+        $operationalOut = (float) $rows->where('jenis_transaksi', Transaksi::JENIS_KELUAR)->sum('total_harga');
+        $grossProfit = $revenue - ($purchaseCost + $operationalOut);
+        $modalBarang = (float) BatchObat::query()
+            ->where('stok_tersedia', '>', 0)
+            ->select(DB::raw('SUM(stok_tersedia * harga_beli) as total'))
+            ->value('total');
+
+        return [
+            'title' => 'Keuangan Suite',
+            'description' => 'Estimasi laba rugi operasional dan modal barang aktif.',
+            'summaryCards' => [
+                ['label' => 'Revenue', 'value' => $revenue],
+                ['label' => 'Biaya Pembelian', 'value' => $purchaseCost],
+                ['label' => 'Laba/Rugi', 'value' => $grossProfit],
+                ['label' => 'Modal Barang', 'value' => $modalBarang],
+            ],
+            'sections' => [
+                [
+                    'key' => 'lr',
+                    'title' => 'Laba Rugi Ringkas',
+                    'columns' => ['Komponen', 'Nilai'],
+                    'rows' => [
+                        ['Komponen' => 'Revenue Penjualan', 'Nilai' => $revenue],
+                        ['Komponen' => 'Pembelian', 'Nilai' => $purchaseCost],
+                        ['Komponen' => 'Keluar Operasional', 'Nilai' => $operationalOut],
+                        ['Komponen' => 'Laba / Rugi', 'Nilai' => $grossProfit],
+                    ],
+                ],
+                [
+                    'key' => 'modal',
+                    'title' => 'Modal Barang',
+                    'columns' => ['Komponen', 'Nilai'],
+                    'rows' => [
+                        ['Komponen' => 'Nilai Modal Barang Aktif', 'Nilai' => $modalBarang],
+                    ],
+                ],
+            ],
+        ];
+    }
 
     /**
      * Display stock report
@@ -74,7 +719,7 @@ class ReportController extends Controller
 
         $kategori = KategoriObat::orderBy('nama_kategori')->get(['id', 'nama_kategori']);
 
-        return Inertia::render('laporan/stok', [
+        return Inertia::render('laporan/stok/index', [
             'obat' => $obat,
             'stats' => $stats,
             'kategori' => $kategori,
@@ -151,7 +796,7 @@ class ReportController extends Controller
             'total_value' => $statsQuery->sum('total_harga') ?? 0,
         ];
 
-        return Inertia::render('laporan/transaksi', [
+        return Inertia::render('laporan/transaksi/index', [
             'transaksi' => $transaksi,
             'stats' => $stats,
             'filters' => $request->only(['search', 'jenis', 'tanggal_dari', 'tanggal_sampai']),
@@ -251,7 +896,7 @@ class ReportController extends Controller
 
         $kategori = KategoriObat::orderBy('nama_kategori')->get(['id', 'nama_kategori']);
 
-        return Inertia::render('laporan/kadaluarsa', [
+        return Inertia::render('laporan/kadaluarsa/index', [
             'batches' => $batches,
             'stats' => $stats,
             'kategori' => $kategori,
@@ -263,7 +908,7 @@ class ReportController extends Controller
     {
         $margin = $this->insights->buildMarginSummary();
 
-        return Inertia::render('laporan/operasional', [
+        return Inertia::render('laporan/operasional/index', [
             'reorderSuggestions' => ReorderSuggestion::query()->with('obat:id,nama_obat,kode_obat')->latest()->limit(20)->get(),
             'demandForecasts' => DemandForecast::query()->with('obat:id,nama_obat,kode_obat')->latest()->limit(20)->get(),
             'pendingApprovals' => ApprovalRequest::query()->with(['obat:id,nama_obat,kode_obat', 'requestedBy:id,name'])->where('status', 'pending')->latest()->limit(20)->get(),

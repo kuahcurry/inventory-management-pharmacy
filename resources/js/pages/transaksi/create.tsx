@@ -58,6 +58,18 @@ export default function TransaksiCreate({ obat, batches }: Props) {
         tanggal_transaksi: new Date().toISOString().split('T')[0],
         keterangan: '',
         nomor_referensi: '',
+        supplier_nama: '',
+        pelanggan_nama: '',
+        dokter_nama: '',
+        sales_nama: '',
+        operator_nama: '',
+        kasir_nama: '',
+        metode_pembayaran: '',
+        tipe_penjualan: '',
+        kategori_keuangan: 'none',
+        status_pelunasan: 'lunas',
+        jatuh_tempo: '',
+        is_taxed: false,
     });
 
     // QR Scanner states
@@ -442,6 +454,87 @@ export default function TransaksiCreate({ obat, batches }: Props) {
                                 {errors.keterangan && (
                                     <p className="text-sm text-destructive">{errors.keterangan}</p>
                                 )}
+                            </div>
+
+                            <div className="grid gap-4 md:grid-cols-3">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="metode_pembayaran">Metode Pembayaran</Label>
+                                    <Input
+                                        id="metode_pembayaran"
+                                        value={data.metode_pembayaran}
+                                        onChange={(e) => setData('metode_pembayaran', e.target.value)}
+                                        placeholder="cash / transfer / qris / kredit"
+                                    />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="kategori_keuangan">Kategori Keuangan</Label>
+                                    <Select value={data.kategori_keuangan} onValueChange={(value) => setData('kategori_keuangan', value)}>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="none">None</SelectItem>
+                                            <SelectItem value="hutang">Hutang</SelectItem>
+                                            <SelectItem value="piutang">Piutang</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="status_pelunasan">Status Pelunasan</Label>
+                                    <Select value={data.status_pelunasan} onValueChange={(value) => setData('status_pelunasan', value)}>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="lunas">Lunas</SelectItem>
+                                            <SelectItem value="belum_lunas">Belum Lunas</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="supplier_nama">Supplier</Label>
+                                    <Input id="supplier_nama" value={data.supplier_nama} onChange={(e) => setData('supplier_nama', e.target.value)} />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="pelanggan_nama">Pelanggan</Label>
+                                    <Input id="pelanggan_nama" value={data.pelanggan_nama} onChange={(e) => setData('pelanggan_nama', e.target.value)} />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="dokter_nama">Dokter</Label>
+                                    <Input id="dokter_nama" value={data.dokter_nama} onChange={(e) => setData('dokter_nama', e.target.value)} />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="sales_nama">Sales</Label>
+                                    <Input id="sales_nama" value={data.sales_nama} onChange={(e) => setData('sales_nama', e.target.value)} />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="operator_nama">Operator</Label>
+                                    <Input id="operator_nama" value={data.operator_nama} onChange={(e) => setData('operator_nama', e.target.value)} />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="kasir_nama">Kasir</Label>
+                                    <Input id="kasir_nama" value={data.kasir_nama} onChange={(e) => setData('kasir_nama', e.target.value)} />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="tipe_penjualan">Tipe Penjualan</Label>
+                                    <Select value={data.tipe_penjualan || undefined} onValueChange={(value) => setData('tipe_penjualan', value)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Pilih tipe" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="biasa">Biasa</SelectItem>
+                                            <SelectItem value="resep">Resep</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="jatuh_tempo">Jatuh Tempo</Label>
+                                    <Input id="jatuh_tempo" type="date" value={data.jatuh_tempo} onChange={(e) => setData('jatuh_tempo', e.target.value)} />
+                                </div>
+                                <label className="md:col-span-3 flex items-center gap-2 text-sm">
+                                    <input type="checkbox" checked={data.is_taxed} onChange={(e) => setData('is_taxed', e.target.checked)} />
+                                    Transaksi dikenakan pajak
+                                </label>
                             </div>
                         </div>
                     </div>
