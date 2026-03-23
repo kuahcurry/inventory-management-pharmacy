@@ -53,6 +53,7 @@ type Props = {
     paymentMethodsByMode: {
         penjualan: Record<string, string>;
         masuk: Record<string, string>;
+        biaya: Record<string, string>;
     };
 };
 
@@ -90,6 +91,9 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
         ppn_persen: '11',
         pembayaran_diterima: '',
         tempo_jatuh_tempo: '',
+        biaya_kategori: 'pajak',
+        biaya_nominal: '',
+        biaya_keterangan: '',
         items: [] as Array<{
             obat_id: number;
             batch_id: number;
@@ -99,8 +103,13 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
     });
 
     const paymentMethods = useMemo(
-        () => (data.mode === 'masuk' ? paymentMethodsByMode.masuk : paymentMethodsByMode.penjualan),
-        [data.mode, paymentMethodsByMode.masuk, paymentMethodsByMode.penjualan],
+        () =>
+            data.mode === 'masuk'
+                ? paymentMethodsByMode.masuk
+                : data.mode === 'biaya'
+                  ? paymentMethodsByMode.biaya
+                  : paymentMethodsByMode.penjualan,
+        [data.mode, paymentMethodsByMode.biaya, paymentMethodsByMode.masuk, paymentMethodsByMode.penjualan],
     );
 
     const filteredBatches = useMemo(() => {
@@ -189,6 +198,7 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
     const dasarPajak = Math.max(subtotal - diskonNominal, 0);
     const ppnNominal = dasarPajak * (ppnPersen / 100);
     const grandTotal = dasarPajak + ppnNominal;
+    const biayaNominal = Math.max(0, Number(data.biaya_nominal || 0));
     const pembayaranDiterima = Number(data.pembayaran_diterima || 0);
     const kembalian = Math.max(pembayaranDiterima - grandTotal, 0);
 
@@ -221,7 +231,7 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
         const metodePembayaran = params.get('metode_pembayaran');
         const tipePenjualan = params.get('tipe_penjualan');
 
-        if (mode === 'penjualan' || mode === 'masuk') {
+        if (mode === 'penjualan' || mode === 'masuk' || mode === 'biaya') {
             setData('mode', mode);
         }
         if (metodePembayaran) {
@@ -236,11 +246,18 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
         const defaults = {
             penjualan: 'qris',
             masuk: 'cash',
+            biaya: 'cash',
         };
 
-        const allowed = Object.keys(data.mode === 'masuk' ? paymentMethodsByMode.masuk : paymentMethodsByMode.penjualan);
+        const allowed = Object.keys(
+            data.mode === 'masuk'
+                ? paymentMethodsByMode.masuk
+                : data.mode === 'biaya'
+                  ? paymentMethodsByMode.biaya
+                  : paymentMethodsByMode.penjualan,
+        );
         if (!allowed.includes(data.metode_pembayaran)) {
-            const nextMethod = defaults[data.mode as 'penjualan' | 'masuk'];
+            const nextMethod = defaults[data.mode as 'penjualan' | 'masuk' | 'biaya'];
             setData('metode_pembayaran', nextMethod);
         }
 
@@ -252,8 +269,18 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
             setData('tipe_penjualan', 'biasa');
             setData('resep_id', '');
             setData('dokter_nama', '');
+            setData('pelanggan_nama', '');
         }
-    }, [data.metode_pembayaran, data.mode, paymentMethodsByMode.masuk, paymentMethodsByMode.penjualan, setData]);
+
+        if (data.mode !== 'masuk') {
+            setData('supplier_nama', '');
+        }
+
+        if (data.mode !== 'biaya') {
+            setData('biaya_nominal', '');
+            setData('biaya_keterangan', '');
+        }
+    }, [data.metode_pembayaran, data.mode, paymentMethodsByMode.biaya, paymentMethodsByMode.masuk, paymentMethodsByMode.penjualan, setData]);
 
     useEffect(() => {
         if (data.mode !== 'penjualan' || data.tipe_penjualan !== 'resep') {
@@ -341,6 +368,7 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                                     <SelectContent>
                                         <SelectItem value="penjualan">Penjualan</SelectItem>
                                         <SelectItem value="masuk">Masuk</SelectItem>
+                                        <SelectItem value="biaya">Biaya Operasional</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -379,7 +407,7 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                                         placeholder="Nama supplier"
                                     />
                                 </div>
-                            ) : (
+                            ) : data.mode === 'penjualan' ? (
                                 <div className="grid gap-2">
                                     <Label htmlFor="pelanggan-nama">Pelanggan</Label>
                                     <Input
@@ -389,6 +417,8 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                                         placeholder="Nama pelanggan"
                                     />
                                 </div>
+                            ) : (
+                                <div />
                             )}
 
                             <div className="grid gap-2">
@@ -483,46 +513,51 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                             </div>
                         )}
 
-                        <div className="space-y-2">
-                            <Label htmlFor="search-batch">Cari Batch / Obat</Label>
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                                <Input
-                                    id="search-batch"
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    className="pl-9"
-                                    placeholder="Nama obat, kode, batch"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="max-h-[500px] space-y-2 overflow-y-auto pr-1">
-                            {filteredBatches.map((batch) => (
-                                <div key={batch.id} className="rounded-lg border border-sidebar-border/70 p-3">
-                                    <div className="flex items-start justify-between gap-3">
-                                        <div>
-                                            <p className="font-medium">
-                                                {batch.obat.nama_obat} - {batch.nomor_batch}
-                                            </p>
-                                            <p className="text-xs text-muted-foreground">
-                                                {batch.obat.kode_obat} - Stok {batch.stok_tersedia}
-                                            </p>
-                                        </div>
-                                        <Button size="sm" onClick={() => addToCart(batch)}>
-                                            Tambah
-                                        </Button>
+                        {data.mode !== 'biaya' && (
+                            <>
+                                <div className="space-y-2">
+                                    <Label htmlFor="search-batch">Cari Batch / Obat</Label>
+                                    <div className="relative">
+                                        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                                        <Input
+                                            id="search-batch"
+                                            value={search}
+                                            onChange={(e) => setSearch(e.target.value)}
+                                            className="pl-9"
+                                            placeholder="Nama obat, kode, batch"
+                                        />
                                     </div>
                                 </div>
-                            ))}
-                        </div>
+
+                                <div className="max-h-[500px] space-y-2 overflow-y-auto pr-1">
+                                    {filteredBatches.map((batch) => (
+                                        <div key={batch.id} className="rounded-lg border border-sidebar-border/70 p-3">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div>
+                                                    <p className="font-medium">
+                                                        {batch.obat.nama_obat} - {batch.nomor_batch}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {batch.obat.kode_obat} - Stok {batch.stok_tersedia}
+                                                    </p>
+                                                </div>
+                                                <Button size="sm" onClick={() => addToCart(batch)}>
+                                                    Tambah
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     <div className="space-y-4 rounded-xl border border-sidebar-border/70 bg-card p-4">
-                        <h2 className="text-lg font-semibold">Keranjang</h2>
+                        <h2 className="text-lg font-semibold">{data.mode === 'biaya' ? 'Input Biaya Operasional' : 'Keranjang'}</h2>
 
-                        <div className="max-h-[500px] space-y-3 overflow-y-auto pr-1">
-                            {cart.map((item) => {
+                        {data.mode !== 'biaya' ? (
+                            <div className="max-h-[500px] space-y-3 overflow-y-auto pr-1">
+                                {cart.map((item) => {
                                 const batch = findBatch(item.batch_id);
                                 if (!batch) return null;
 
@@ -578,20 +613,65 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                                 );
                             })}
 
-                            {!cart.length && (
-                                <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-                                    Belum ada item di keranjang.
+                                {!cart.length && (
+                                    <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+                                        Belum ada item di keranjang.
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="space-y-3 rounded-lg border border-sidebar-border/70 p-3">
+                                <div className="grid gap-2">
+                                    <Label>Kategori Biaya</Label>
+                                    <Select value={data.biaya_kategori} onValueChange={(value) => setData('biaya_kategori', value)}>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="pajak">Pajak</SelectItem>
+                                            <SelectItem value="bunga">Bunga</SelectItem>
+                                            <SelectItem value="sewa">Sewa / Rent</SelectItem>
+                                            <SelectItem value="lainnya">Lainnya</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.biaya_kategori && <p className="text-sm text-destructive">{errors.biaya_kategori}</p>}
                                 </div>
-                            )}
-                        </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="biaya-nominal">Nominal</Label>
+                                    <Input
+                                        id="biaya-nominal"
+                                        type="number"
+                                        min={1}
+                                        value={data.biaya_nominal}
+                                        onChange={(e) => setData('biaya_nominal', e.target.value)}
+                                        placeholder="Nominal biaya"
+                                    />
+                                    {errors.biaya_nominal && <p className="text-sm text-destructive">{errors.biaya_nominal}</p>}
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="biaya-keterangan">Keterangan</Label>
+                                    <Input
+                                        id="biaya-keterangan"
+                                        value={data.biaya_keterangan}
+                                        onChange={(e) => setData('biaya_keterangan', e.target.value)}
+                                        placeholder="Catatan biaya (opsional)"
+                                    />
+                                    {errors.biaya_keterangan && <p className="text-sm text-destructive">{errors.biaya_keterangan}</p>}
+                                </div>
+                            </div>
+                        )}
 
                         <div className="grid gap-2 border-t pt-4">
-                            <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">Subtotal</span>
-                                <span className="font-semibold">{formatCurrency(subtotal)}</span>
-                            </div>
+                            {data.mode !== 'biaya' ? (
+                                <>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-muted-foreground">Subtotal</span>
+                                        <span className="font-semibold">{formatCurrency(subtotal)}</span>
+                                    </div>
 
-                            <div className="grid gap-3 rounded-lg border p-3">
+                                    <div className="grid gap-3 rounded-lg border p-3">
                                 <div className="grid gap-1">
                                     <Label htmlFor="diskon-persen">Diskon (%)</Label>
                                     <Input
@@ -642,7 +722,16 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                                         <span>{formatCurrency(grandTotal)}</span>
                                     </div>
                                 </div>
-                            </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="grid gap-3 rounded-lg border p-3">
+                                    <div className="flex items-center justify-between font-semibold">
+                                        <span>Total Biaya</span>
+                                        <span>{formatCurrency(biayaNominal)}</span>
+                                    </div>
+                                </div>
+                            )}
 
                             {data.mode === 'penjualan' && (
                                 <div className="grid gap-1">
@@ -668,7 +757,7 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                                 <p className="text-sm text-destructive">{errors.items || errors.mode}</p>
                             )}
 
-                            <Button onClick={checkout} disabled={processing || !cart.length}>
+                            <Button onClick={checkout} disabled={processing || (data.mode === 'biaya' ? biayaNominal <= 0 : !cart.length)}>
                                 {processing ? 'Memproses...' : 'Checkout'}
                             </Button>
                         </div>

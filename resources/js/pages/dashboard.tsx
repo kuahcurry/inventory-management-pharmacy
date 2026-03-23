@@ -71,6 +71,14 @@ interface DashboardProps {
         masuk: number;
         keluar: number;
     }>;
+    topMovingMedicines: Array<{
+        obat_id: number;
+        nama_obat: string;
+        kategori?: string | null;
+        satuan?: string | null;
+        total_keluar: number;
+        frekuensi: number;
+    }>;
 }
 
 export default function Dashboard({
@@ -78,6 +86,7 @@ export default function Dashboard({
     lowStock,
     expiringSoon,
     transactionTrend7d,
+    topMovingMedicines,
 }: DashboardProps) {
     const lowStockChartData = lowStock.slice(0, 5).map((item) => ({
         nama: item.nama_obat.length > 20 ? `${item.nama_obat.slice(0, 20)}...` : item.nama_obat,
@@ -113,6 +122,11 @@ export default function Dashboard({
     const transactionDelta = stats.today_transactions - (stats.yesterday_transactions || 0);
     const incomingDelta = stats.today_incoming - (stats.yesterday_incoming || 0);
     const outgoingDelta = stats.today_outgoing - (stats.yesterday_outgoing || 0);
+
+    const topMovingChartData = topMovingMedicines.map((item) => ({
+        nama: item.nama_obat.length > 20 ? `${item.nama_obat.slice(0, 20)}...` : item.nama_obat,
+        total_keluar: item.total_keluar,
+    }));
 
     const fmtDelta = (value: number) => {
         if (value === 0) return 'Sama dengan kemarin';
@@ -187,6 +201,52 @@ export default function Dashboard({
                     </div>
                 </div>
 
+                <div className="grid gap-4 md:grid-cols-2">
+                    <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 dark:border-sidebar-border">
+                        <h3 className="mb-2 text-lg font-semibold">Tren Transaksi 7 Hari</h3>
+                        <p className="mb-4 text-xs text-muted-foreground">Satu garis total transaksi agar mudah dipahami sekilas.</p>
+                        <div className="h-72 w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={transactionTrend7d} margin={{ left: 0, right: 8, top: 8, bottom: 8 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                                    <XAxis dataKey="label" tick={{ fontSize: 11 }} />
+                                    <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                                    <Tooltip />
+                                    <Line
+                                        type="monotone"
+                                        dataKey="total"
+                                        name="Total Transaksi"
+                                        stroke="#0f766e"
+                                        strokeWidth={3}
+                                        dot={{ r: 4 }}
+                                        activeDot={{ r: 6 }}
+                                    />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 dark:border-sidebar-border">
+                        <h3 className="mb-2 text-lg font-semibold">Obat Paling Banyak Keluar (30 Hari)</h3>
+                        <p className="mb-4 text-xs text-muted-foreground">Membantu apoteker prioritaskan restock dan membantu owner membaca demand aktual.</p>
+                        {topMovingChartData.length > 0 ? (
+                            <div className="h-72 w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={topMovingChartData} margin={{ left: 12, right: 8, top: 8, bottom: 12 }} layout="vertical">
+                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                                        <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
+                                        <YAxis type="category" dataKey="nama" width={140} tick={{ fontSize: 11 }} />
+                                        <Tooltip formatter={(value: number) => [value, 'Unit Keluar']} />
+                                        <Bar dataKey="total_keluar" fill="#1d4ed8" name="Unit Keluar" radius={[0, 6, 6, 0]} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        ) : (
+                            <p className="text-sm text-muted-foreground">Belum ada data obat keluar dalam 30 hari terakhir.</p>
+                        )}
+                    </div>
+                </div>
+
                 <div className="grid gap-4 md:grid-cols-3">
                     <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 dark:border-sidebar-border md:col-span-2">
                         <h3 className="mb-2 text-lg font-semibold">Top 5 Stok Kritis</h3>
@@ -208,37 +268,6 @@ export default function Dashboard({
                         )}
                     </div>
 
-                    <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 dark:border-sidebar-border">
-                        <h3 className="mb-2 text-lg font-semibold">Aktivitas Hari Ini</h3>
-                        <p className="mb-4 text-xs text-muted-foreground">Perbandingan jumlah barang masuk vs keluar.</p>
-                        {activityPieData.length > 0 ? (
-                            <div className="h-72 w-full">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={activityPieData}
-                                            dataKey="value"
-                                            nameKey="name"
-                                            innerRadius={52}
-                                            outerRadius={88}
-                                            paddingAngle={3}
-                                        >
-                                            {activityPieData.map((entry) => (
-                                                <Cell key={entry.name} fill={entry.color} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip />
-                                        <Legend />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            </div>
-                        ) : (
-                            <p className="text-sm text-muted-foreground">Belum ada aktivitas masuk/keluar hari ini.</p>
-                        )}
-                    </div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
                     <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 dark:border-sidebar-border">
                         <h3 className="mb-2 text-lg font-semibold">Kadaluarsa 30 Hari</h3>
                         <p className="mb-4 text-xs text-muted-foreground">Kelompok waktu agar prioritas penanganan lebih jelas.</p>
@@ -273,30 +302,6 @@ export default function Dashboard({
                             <p className="text-sm text-muted-foreground">Tidak ada batch yang masuk window kadaluarsa 30 hari.</p>
                         )}
                     </div>
-
-                    <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 dark:border-sidebar-border">
-                        <h3 className="mb-2 text-lg font-semibold">Tren Transaksi 7 Hari</h3>
-                        <p className="mb-4 text-xs text-muted-foreground">Satu garis total transaksi agar mudah dipahami sekilas.</p>
-                        <div className="h-72 w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={transactionTrend7d} margin={{ left: 0, right: 8, top: 8, bottom: 8 }}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                                    <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-                                    <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                                    <Tooltip />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="total"
-                                        name="Total Transaksi"
-                                        stroke="#0f766e"
-                                        strokeWidth={3}
-                                        dot={{ r: 4 }}
-                                        activeDot={{ r: 6 }}
-                                    />
-                                </LineChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
@@ -330,30 +335,32 @@ export default function Dashboard({
                     </div>
 
                     <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 dark:border-sidebar-border">
-                        <h3 className="mb-4 text-lg font-semibold">Daftar Segera Kadaluarsa</h3>
-                        <div className="space-y-2">
-                            {expiringSoon.length > 0 ? (
-                                expiringSoon.map((item) => (
-                                    <div
-                                        key={item.id}
-                                        className="flex items-center justify-between rounded-lg border border-sidebar-border/50 p-3"
-                                    >
-                                        <div>
-                                            <p className="font-medium">{item.obat.nama_obat}</p>
-                                            <p className="text-xs text-muted-foreground">Batch: {item.nomor_batch}</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="font-semibold text-red-600">
-                                                {new Date(item.tanggal_expired).toLocaleDateString('id-ID')}
-                                            </p>
-                                            <p className="text-xs text-muted-foreground">Stok: {item.stok_batch}</p>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <p className="text-sm text-muted-foreground">Tidak ada yang kadaluarsa</p>
-                            )}
-                        </div>
+                        <h3 className="mb-2 text-lg font-semibold">Aktivitas Hari Ini</h3>
+                        <p className="mb-4 text-xs text-muted-foreground">Perbandingan jumlah barang masuk vs keluar.</p>
+                        {activityPieData.length > 0 ? (
+                            <div className="h-72 w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie
+                                            data={activityPieData}
+                                            dataKey="value"
+                                            nameKey="name"
+                                            innerRadius={52}
+                                            outerRadius={88}
+                                            paddingAngle={3}
+                                        >
+                                            {activityPieData.map((entry) => (
+                                                <Cell key={entry.name} fill={entry.color} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip />
+                                        <Legend />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                        ) : (
+                            <p className="text-sm text-muted-foreground">Belum ada aktivitas masuk/keluar hari ini.</p>
+                        )}
                     </div>
                 </div>
             </div>

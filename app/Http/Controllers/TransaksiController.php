@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ApprovalRequest;
 use App\Models\BatchObat;
+use App\Models\BiayaOperasional;
 use App\Models\Obat;
 use App\Models\Resep;
 use App\Models\Transaksi;
@@ -53,6 +54,11 @@ class TransaksiController extends Controller
                     'konsinyasi' => 'Konsinyasi',
                     'tempo' => 'Tempo',
                 ],
+                'biaya' => [
+                    'cash' => 'Cash',
+                    'transfer' => 'Transfer',
+                    'debit' => 'Debit',
+                ],
             ],
         ]);
     }
@@ -62,6 +68,30 @@ class TransaksiController extends Controller
      */
     public function kasirCheckout(Request $request)
     {
+        if ($request->input('mode') === 'biaya') {
+            $validatedBiaya = $request->validate([
+                'mode' => 'required|in:biaya',
+                'metode_pembayaran' => 'required|string|in:cash,transfer,debit',
+                'tanggal_transaksi' => 'required|date',
+                'kasir_nama' => 'nullable|string|max:255',
+                'biaya_kategori' => 'required|in:pajak,bunga,sewa,lainnya',
+                'biaya_nominal' => 'required|numeric|min:1',
+                'biaya_keterangan' => 'nullable|string|max:2000',
+            ]);
+
+            BiayaOperasional::query()->create([
+                'tanggal_biaya' => $validatedBiaya['tanggal_transaksi'],
+                'kategori' => $validatedBiaya['biaya_kategori'],
+                'nominal' => (float) $validatedBiaya['biaya_nominal'],
+                'keterangan' => $validatedBiaya['biaya_keterangan'] ?? null,
+                'metode_pembayaran' => $validatedBiaya['metode_pembayaran'],
+                'kasir_nama' => $validatedBiaya['kasir_nama'] ?? auth()->user()?->name,
+                'user_id' => auth()->id(),
+            ]);
+
+            return back()->with('success', 'Biaya operasional berhasil dicatat.');
+        }
+
         $validated = $request->validate([
             'mode' => 'required|in:penjualan,masuk',
             'metode_pembayaran' => 'required|string',

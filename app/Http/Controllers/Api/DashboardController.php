@@ -93,11 +93,40 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // Top moving medicines for the last 30 days (outgoing + sales)
+        $topMovingMedicines = Transaksi::query()
+            ->with(['obat.kategori', 'obat.satuan'])
+            ->whereIn('jenis_transaksi', [Transaksi::JENIS_KELUAR, Transaksi::JENIS_PENJUALAN])
+            ->whereDate('tanggal_transaksi', '>=', now()->subDays(30)->toDateString())
+            ->get()
+            ->groupBy('obat_id')
+            ->map(function ($transactions) {
+                $obat = $transactions->first()?->obat;
+
+                if (! $obat) {
+                    return null;
+                }
+
+                return [
+                    'obat_id' => $obat->id,
+                    'nama_obat' => $obat->nama_obat,
+                    'kategori' => $obat->kategori?->nama_kategori,
+                    'satuan' => $obat->satuan?->nama_satuan,
+                    'total_keluar' => (int) $transactions->sum('jumlah'),
+                    'frekuensi' => (int) $transactions->count(),
+                ];
+            })
+            ->filter()
+            ->sortByDesc('total_keluar')
+            ->take(6)
+            ->values();
+
         return Inertia::render('dashboard', [
             'stats' => $stats,
             'lowStock' => $lowStock,
             'expiringSoon' => $expiringSoon,
             'transactionTrend7d' => $this->buildTransactionTrend7d(),
+            'topMovingMedicines' => $topMovingMedicines,
         ]);
     }
 

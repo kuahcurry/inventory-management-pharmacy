@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\BuildOperationalInsights;
 use App\Models\ApprovalRequest;
 use App\Models\BatchObat;
+use App\Models\BiayaOperasional;
 use App\Models\DemandForecast;
 use App\Models\KategoriObat;
 use App\Models\Obat;
@@ -243,24 +244,32 @@ class ReportController extends Controller
         abort_unless(in_array($suite, $this->allowedSuiteKeys(), true), 404);
 
         [$startDate, $endDate] = $this->resolveDateFilter($request);
+        $includeTaxExpense = $request->boolean('include_pajak', true);
+        $includeInterestExpense = $request->boolean('include_bunga', true);
 
         $base = Transaksi::query()
             ->with(['obat.kategori', 'batch'])
             ->whereDate('tanggal_transaksi', '>=', $startDate)
             ->whereDate('tanggal_transaksi', '<=', $endDate);
 
-        $payload = $this->buildSuitePayload($suite, $base, $startDate, $endDate);
+        $payload = $this->buildSuitePayload($suite, $base, $startDate, $endDate, [
+            'include_pajak' => $includeTaxExpense,
+            'include_bunga' => $includeInterestExpense,
+        ]);
 
         return Inertia::render($view, [
             'suite' => $suite,
             'title' => $payload['title'],
             'description' => $payload['description'],
             'summaryCards' => $payload['summaryCards'],
+            'expenseComposition' => $payload['expenseComposition'] ?? [],
             'sections' => $payload['sections'],
             'quickActions' => $this->suiteQuickActions($suite),
             'filters' => [
                 'tanggal_dari' => $startDate,
                 'tanggal_sampai' => $endDate,
+                'include_pajak' => $includeTaxExpense,
+                'include_bunga' => $includeInterestExpense,
                 'route_base' => $routeBase,
                 'export_url' => $exportUrl,
             ],
@@ -272,13 +281,18 @@ class ReportController extends Controller
         abort_unless(in_array($suite, $this->allowedSuiteKeys(), true), 404);
 
         [$startDate, $endDate] = $this->resolveDateFilter($request);
+        $includeTaxExpense = $request->boolean('include_pajak', true);
+        $includeInterestExpense = $request->boolean('include_bunga', true);
 
         $base = Transaksi::query()
             ->with(['obat.kategori', 'batch'])
             ->whereDate('tanggal_transaksi', '>=', $startDate)
             ->whereDate('tanggal_transaksi', '<=', $endDate);
 
-        $payload = $this->buildSuitePayload($suite, $base, $startDate, $endDate);
+        $payload = $this->buildSuitePayload($suite, $base, $startDate, $endDate, [
+            'include_pajak' => $includeTaxExpense,
+            'include_bunga' => $includeInterestExpense,
+        ]);
         $spreadsheet = $this->buildSpreadsheetFromSections(
             $payload['title'],
             $payload['sections'],
@@ -310,7 +324,7 @@ class ReportController extends Controller
         ];
     }
 
-    private function buildSuitePayload(string $suite, $base, string $startDate, string $endDate): array
+    private function buildSuitePayload(string $suite, $base, string $startDate, string $endDate, array $options = []): array
     {
         return match ($suite) {
             'pembelian_suite' => $this->buildPembelianSuite($base),
@@ -318,7 +332,7 @@ class ReportController extends Controller
             'ar_ap_suite' => $this->buildArApSuite($base),
             'cashflow_suite' => $this->buildCashflowSuite($base),
             'obat_suite' => $this->buildObatSuite($base, $startDate, $endDate),
-            default => $this->buildKeuanganSuite($base),
+            default => $this->buildKeuanganSuite($base, $startDate, $endDate, $options),
         };
     }
 
@@ -535,23 +549,19 @@ class ReportController extends Controller
                 [
                     'key' => 'aktor',
                     'title' => 'Penjualan per Aktor',
-                    'columns' => ['Dimensi', 'Nama', 'Jumlah Transaksi', 'Omzet'],
-                    'rows' => collect([
-                        ['dim' => 'Pelanggan', 'field' => 'pelanggan_nama'],
-                        ['dim' => 'Dokter', 'field' => 'dokter_nama'],
-                        ['dim' => 'Sales', 'field' => 'sales_nama'],
-                        ['dim' => 'Operator', 'field' => 'operator_nama'],
-                        ['dim' => 'Kasir', 'field' => 'kasir_nama'],
-                    ])->flatMap(function ($meta) use ($rows) {
-                        return $rows->groupBy(fn ($r) => $r->{$meta['field']} ?: 'Tanpa Nama')->map(function ($group, $name) use ($meta) {
+                    'columns' => ['Kasir', 'Jumlah Transaksi', 'Omzet'],
+                    'rows' => $rows
+                        ->filter(fn ($r) => filled($r->kasir_nama))
+                        ->groupBy(fn ($r) => $r->kasir_nama)
+                        ->map(function ($group, $kasirNama) {
                             return [
-                                'Dimensi' => $meta['dim'],
-                                'Nama' => $name,
+                                'Kasir' => $kasirNama,
                                 'Jumlah Transaksi' => $group->count(),
                                 'Omzet' => (float) $group->sum('total_harga'),
                             ];
-                        })->values();
-                    })->all(),
+                        })
+                        ->values()
+                        ->all(),
                 ],
             ],
         ];
@@ -720,13 +730,36 @@ class ReportController extends Controller
         ];
     }
 
-    private function buildKeuanganSuite($base): array
+    private function buildKeuanganSuite($base, string $startDate, string $endDate, array $options = []): array
     {
         $rows = (clone $base)->get();
-        $revenue = (float) $rows->where('jenis_transaksi', Transaksi::JENIS_PENJUALAN)->sum('total_harga');
-        $purchaseCost = (float) $rows->where('jenis_transaksi', Transaksi::JENIS_MASUK)->sum('total_harga');
-        $operationalOut = (float) $rows->where('jenis_transaksi', Transaksi::JENIS_KELUAR)->sum('total_harga');
-        $grossProfit = $revenue - ($purchaseCost + $operationalOut);
+        $penjualanRows = $rows->where('jenis_transaksi', Transaksi::JENIS_PENJUALAN);
+        $includeTaxExpense = (bool) ($options['include_pajak'] ?? true);
+        $includeInterestExpense = (bool) ($options['include_bunga'] ?? true);
+
+        $revenue = (float) $penjualanRows->sum('total_harga');
+        $hpp = (float) $penjualanRows->sum(function ($row) {
+            $costPerUnit = (float) ($row->batch?->harga_beli ?? $row->obat?->harga_beli ?? 0);
+            return $costPerUnit * (int) $row->jumlah;
+        });
+
+        $expenseRows = BiayaOperasional::query()
+            ->whereDate('tanggal_biaya', '>=', $startDate)
+            ->whereDate('tanggal_biaya', '<=', $endDate)
+            ->get();
+
+        $taxExpense = (float) $expenseRows->where('kategori', 'pajak')->sum('nominal');
+        $interestExpense = (float) $expenseRows->where('kategori', 'bunga')->sum('nominal');
+        $rentExpense = (float) $expenseRows->where('kategori', 'sewa')->sum('nominal');
+        $otherOperatingExpense = (float) $expenseRows->where('kategori', 'lainnya')->sum('nominal');
+
+        $taxExpenseApplied = $includeTaxExpense ? $taxExpense : 0.0;
+        $interestExpenseApplied = $includeInterestExpense ? $interestExpense : 0.0;
+        $grossProfit = $revenue - $hpp;
+        $operatingExpense = $rentExpense + $otherOperatingExpense;
+        $operatingProfit = $grossProfit - $operatingExpense;
+        $netProfit = $operatingProfit - $taxExpenseApplied - $interestExpenseApplied;
+
         $modalBarang = (float) BatchObat::query()
             ->where('stok_tersedia', '>', 0)
             ->select(DB::raw('SUM(stok_tersedia * harga_beli) as total'))
@@ -734,12 +767,19 @@ class ReportController extends Controller
 
         return [
             'title' => 'Keuangan Suite',
-            'description' => 'Estimasi laba rugi operasional dan modal barang aktif.',
+            'description' => 'Ringkasan laba kotor, laba operasional, laba bersih, dan modal barang aktif.',
             'summaryCards' => [
                 ['label' => 'Revenue', 'value' => $revenue],
-                ['label' => 'Biaya Pembelian', 'value' => $purchaseCost],
-                ['label' => 'Laba/Rugi', 'value' => $grossProfit],
+                ['label' => 'Laba Kotor', 'value' => $grossProfit],
+                ['label' => 'Laba Operasional', 'value' => $operatingProfit],
+                ['label' => 'Laba Bersih', 'value' => $netProfit],
                 ['label' => 'Modal Barang', 'value' => $modalBarang],
+            ],
+            'expenseComposition' => [
+                ['name' => 'Pajak', 'value' => $taxExpense],
+                ['name' => 'Bunga', 'value' => $interestExpense],
+                ['name' => 'Sewa', 'value' => $rentExpense],
+                ['name' => 'Lainnya', 'value' => $otherOperatingExpense],
             ],
             'sections' => [
                 [
@@ -748,10 +788,44 @@ class ReportController extends Controller
                     'columns' => ['Komponen', 'Nilai'],
                     'rows' => [
                         ['Komponen' => 'Revenue Penjualan', 'Nilai' => $revenue],
-                        ['Komponen' => 'Pembelian', 'Nilai' => $purchaseCost],
-                        ['Komponen' => 'Keluar Operasional', 'Nilai' => $operationalOut],
-                        ['Komponen' => 'Laba / Rugi', 'Nilai' => $grossProfit],
+                        ['Komponen' => 'HPP Penjualan', 'Nilai' => $hpp],
+                        ['Komponen' => 'Laba Kotor', 'Nilai' => $grossProfit],
+                        ['Komponen' => 'Biaya Operasional (Sewa + Lainnya)', 'Nilai' => $operatingExpense],
+                        ['Komponen' => 'Laba Operasional', 'Nilai' => $operatingProfit],
+                        ['Komponen' => $includeTaxExpense ? 'Pajak' : 'Pajak (dikecualikan)', 'Nilai' => $taxExpenseApplied],
+                        ['Komponen' => $includeInterestExpense ? 'Bunga' : 'Bunga (dikecualikan)', 'Nilai' => $interestExpenseApplied],
+                        ['Komponen' => 'Laba Bersih', 'Nilai' => $netProfit],
                     ],
+                ],
+                [
+                    'key' => 'beban_operasional',
+                    'title' => 'Beban Operasional (Input Kasir)',
+                    'columns' => ['Kategori', 'Nilai'],
+                    'rows' => [
+                        ['Kategori' => 'Pajak', 'Nilai' => $taxExpense],
+                        ['Kategori' => 'Bunga', 'Nilai' => $interestExpense],
+                        ['Kategori' => 'Sewa', 'Nilai' => $rentExpense],
+                        ['Kategori' => 'Lainnya', 'Nilai' => $otherOperatingExpense],
+                    ],
+                ],
+                [
+                    'key' => 'detail_beban_operasional',
+                    'title' => 'Detail Biaya Operasional',
+                    'columns' => ['Tanggal', 'Kategori', 'Kasir', 'Metode', 'Nominal', 'Keterangan'],
+                    'rows' => $expenseRows
+                        ->sortByDesc('tanggal_biaya')
+                        ->values()
+                        ->map(function ($row) {
+                            return [
+                                'Tanggal' => optional($row->tanggal_biaya)->toDateString() ?: '-',
+                                'Kategori' => Str::upper((string) $row->kategori),
+                                'Kasir' => $row->kasir_nama ?: '-',
+                                'Metode' => Str::upper((string) ($row->metode_pembayaran ?: '-')),
+                                'Nominal' => (float) $row->nominal,
+                                'Keterangan' => $row->keterangan ?: '-',
+                            ];
+                        })
+                        ->all(),
                 ],
                 [
                     'key' => 'modal',
