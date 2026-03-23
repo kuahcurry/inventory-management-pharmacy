@@ -30,6 +30,7 @@ class TransaksiController extends Controller
 
         $reseps = Resep::query()
             ->select(['id', 'nomor_resep', 'nama_pasien', 'nama_dokter', 'tanggal_resep'])
+            ->with(['details:id,resep_id,obat_id'])
             ->where('status', Resep::STATUS_PENDING)
             ->orderByDesc('tanggal_resep')
             ->orderByDesc('id')
@@ -113,10 +114,28 @@ class TransaksiController extends Controller
                 ]);
             }
 
-            $selectedResep = Resep::query()->find($validated['resep_id']);
+            $selectedResep = Resep::query()->with(['details:id,resep_id,obat_id'])->find($validated['resep_id']);
             if (! $selectedResep || $selectedResep->status !== Resep::STATUS_PENDING) {
                 throw ValidationException::withMessages([
                     'resep_id' => 'Resep tidak valid atau sudah tidak pending.',
+                ]);
+            }
+
+            $cartObatIds = collect($validated['items'])
+                ->pluck('obat_id')
+                ->map(fn ($id) => (int) $id)
+                ->filter()
+                ->unique();
+
+            $resepObatIds = $selectedResep->details
+                ->pluck('obat_id')
+                ->map(fn ($id) => (int) $id)
+                ->filter()
+                ->unique();
+
+            if ($cartObatIds->diff($resepObatIds)->isNotEmpty()) {
+                throw ValidationException::withMessages([
+                    'resep_id' => 'Semua obat dalam keranjang harus sesuai dengan detail resep yang dipilih.',
                 ]);
             }
         }

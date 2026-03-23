@@ -257,6 +257,7 @@ class ReportController extends Controller
             'description' => $payload['description'],
             'summaryCards' => $payload['summaryCards'],
             'sections' => $payload['sections'],
+            'quickActions' => $this->suiteQuickActions($suite),
             'filters' => [
                 'tanggal_dari' => $startDate,
                 'tanggal_sampai' => $endDate,
@@ -318,6 +319,25 @@ class ReportController extends Controller
             'cashflow_suite' => $this->buildCashflowSuite($base),
             'obat_suite' => $this->buildObatSuite($base, $startDate, $endDate),
             default => $this->buildKeuanganSuite($base),
+        };
+    }
+
+    private function suiteQuickActions(string $suite): array
+    {
+        return match ($suite) {
+            'ar_ap_suite' => [
+                [
+                    'label' => 'Tambah Hutang',
+                    'href' => '/kasir?mode=masuk&metode_pembayaran=tempo',
+                    'variant' => 'default',
+                ],
+                [
+                    'label' => 'Tambah Piutang',
+                    'href' => '/kasir?mode=penjualan&metode_pembayaran=kredit',
+                    'variant' => 'outline',
+                ],
+            ],
+            default => [],
         };
     }
 
@@ -586,6 +606,17 @@ class ReportController extends Controller
         $rows = (clone $base)->get();
         $cashIn = (float) $rows->whereIn('jenis_transaksi', [Transaksi::JENIS_MASUK, Transaksi::JENIS_PENJUALAN])->sum('total_harga');
         $cashOut = (float) $rows->where('jenis_transaksi', Transaksi::JENIS_KELUAR)->sum('total_harga');
+        $ppnCollected = (float) $rows
+            ->where('jenis_transaksi', Transaksi::JENIS_PENJUALAN)
+            ->where('is_taxed', true)
+            ->sum(function ($row) {
+                $ppnPercent = 11.0;
+                if (preg_match('/PPN:\s*([0-9]+(?:\.[0-9]+)?)%/i', (string) ($row->keterangan ?? ''), $matches) === 1) {
+                    $ppnPercent = (float) ($matches[1] ?? 11.0);
+                }
+
+                return ((float) $row->total_harga) * ($ppnPercent / 100);
+            });
 
         return [
             'title' => 'Cashflow Suite',
@@ -594,6 +625,7 @@ class ReportController extends Controller
                 ['label' => 'Cash In', 'value' => $cashIn],
                 ['label' => 'Cash Out', 'value' => $cashOut],
                 ['label' => 'Net Cashflow', 'value' => $cashIn - $cashOut],
+                ['label' => 'PPN Terkumpul', 'value' => $ppnCollected],
             ],
             'sections' => [
                 [
@@ -604,6 +636,7 @@ class ReportController extends Controller
                         ['Arah' => 'Masuk', 'Nilai' => $cashIn],
                         ['Arah' => 'Keluar', 'Nilai' => $cashOut],
                         ['Arah' => 'Net', 'Nilai' => $cashIn - $cashOut],
+                        ['Arah' => 'PPN Terkumpul', 'Nilai' => $ppnCollected],
                     ],
                 ],
                 [

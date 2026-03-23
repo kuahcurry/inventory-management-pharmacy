@@ -46,6 +46,9 @@ type Props = {
         nama_pasien: string;
         nama_dokter: string;
         tanggal_resep: string;
+        details: Array<{
+            obat_id: number;
+        }>;
     }>;
     paymentMethodsByMode: {
         penjualan: Record<string, string>;
@@ -118,13 +121,29 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
     }, [batches, search]);
 
     const findBatch = (batchId: number) => batches.find((b) => b.id === batchId);
+    const cartObatIds = useMemo(
+        () => new Set(cart.map((item) => item.obat_id)),
+        [cart],
+    );
+
+    const filteredReseps = useMemo(() => {
+        if (cartObatIds.size === 0) {
+            return reseps;
+        }
+
+        return reseps.filter((resep) => {
+            const resepObatIds = new Set(resep.details.map((detail) => detail.obat_id));
+            return Array.from(cartObatIds).every((obatId) => resepObatIds.has(obatId));
+        });
+    }, [cartObatIds, reseps]);
+
     const selectedResep = useMemo(() => {
         if (!data.resep_id) {
             return null;
         }
 
-        return reseps.find((resep) => String(resep.id) === data.resep_id) ?? null;
-    }, [data.resep_id, reseps]);
+        return filteredReseps.find((resep) => String(resep.id) === data.resep_id) ?? null;
+    }, [data.resep_id, filteredReseps]);
 
     const addToCart = (batch: Batch) => {
         const defaultPrice =
@@ -197,13 +216,33 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
     }, [banner]);
 
     useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const mode = params.get('mode');
+        const metodePembayaran = params.get('metode_pembayaran');
+        const tipePenjualan = params.get('tipe_penjualan');
+
+        if (mode === 'penjualan' || mode === 'masuk') {
+            setData('mode', mode);
+        }
+        if (metodePembayaran) {
+            setData('metode_pembayaran', metodePembayaran);
+        }
+        if (tipePenjualan === 'biasa' || tipePenjualan === 'resep') {
+            setData('tipe_penjualan', tipePenjualan);
+        }
+    }, [setData]);
+
+    useEffect(() => {
         const defaults = {
             penjualan: 'qris',
             masuk: 'cash',
         };
 
-        const nextMethod = defaults[data.mode as 'penjualan' | 'masuk'];
-        setData('metode_pembayaran', nextMethod);
+        const allowed = Object.keys(data.mode === 'masuk' ? paymentMethodsByMode.masuk : paymentMethodsByMode.penjualan);
+        if (!allowed.includes(data.metode_pembayaran)) {
+            const nextMethod = defaults[data.mode as 'penjualan' | 'masuk'];
+            setData('metode_pembayaran', nextMethod);
+        }
 
         if (data.mode !== 'masuk') {
             setData('tempo_jatuh_tempo', '');
@@ -214,7 +253,7 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
             setData('resep_id', '');
             setData('dokter_nama', '');
         }
-    }, [data.mode, setData]);
+    }, [data.metode_pembayaran, data.mode, paymentMethodsByMode.masuk, paymentMethodsByMode.penjualan, setData]);
 
     useEffect(() => {
         if (data.mode !== 'penjualan' || data.tipe_penjualan !== 'resep') {
@@ -226,6 +265,18 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
             setData('dokter_nama', selectedResep.nama_dokter);
         }
     }, [data.mode, data.tipe_penjualan, selectedResep, setData]);
+
+    useEffect(() => {
+        if (data.tipe_penjualan !== 'resep' || !data.resep_id) {
+            return;
+        }
+
+        const stillValid = filteredReseps.some((resep) => String(resep.id) === data.resep_id);
+        if (!stillValid) {
+            setData('resep_id', '');
+            setData('dokter_nama', '');
+        }
+    }, [data.resep_id, data.tipe_penjualan, filteredReseps, setData]);
 
     const checkout = () => {
         const payloadItems = cart.map((item) => ({
@@ -376,13 +427,18 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                                                 <SelectValue placeholder="Pilih resep" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {reseps.map((resep) => (
+                                                {filteredReseps.map((resep) => (
                                                     <SelectItem key={resep.id} value={String(resep.id)}>
                                                         {resep.nomor_resep} - {resep.nama_pasien}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
+                                        <p className="text-xs text-muted-foreground">
+                                            {cartObatIds.size > 0
+                                                ? `${filteredReseps.length} resep mencakup semua obat di keranjang.`
+                                                : 'Tambahkan obat ke keranjang untuk menyaring resep yang relevan.'}
+                                        </p>
                                         {errors.resep_id && <p className="text-sm text-destructive">{errors.resep_id}</p>}
                                     </div>
                                 ) : (

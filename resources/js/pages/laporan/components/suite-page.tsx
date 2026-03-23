@@ -19,12 +19,19 @@ interface Section {
     rows: Array<Record<string, string | number | null>>;
 }
 
+interface QuickAction {
+    label: string;
+    href: string;
+    variant?: 'default' | 'outline';
+}
+
 export interface ReportSuitePageProps {
     suite: string;
     title: string;
     description: string;
     summaryCards: SummaryCard[];
     sections: Section[];
+    quickActions?: QuickAction[];
     filters: {
         tanggal_dari: string;
         tanggal_sampai: string;
@@ -39,12 +46,20 @@ const maybeCurrency = (label: string, value: string | number | null) => {
     }
 
     const key = label.toLowerCase();
-    const isCurrency = key.includes('nilai') || key.includes('omzet') || key.includes('laba') || key.includes('biaya') || key.includes('revenue');
+    const isCurrency =
+        key.includes('nilai') ||
+        key.includes('omzet') ||
+        key.includes('laba') ||
+        key.includes('biaya') ||
+        key.includes('revenue') ||
+        key.includes('cash') ||
+        key.includes('ppn') ||
+        key.includes('modal');
 
     return isCurrency ? formatCurrency(value) : value.toLocaleString('id-ID');
 };
 
-export default function ReportSuitePage({ suite, title, description, summaryCards, sections, filters }: ReportSuitePageProps) {
+export default function ReportSuitePage({ suite, title, description, summaryCards, sections, quickActions = [], filters }: ReportSuitePageProps) {
     const routeBase = filters.route_base || `/reports/suite/${suite}`;
     const exportUrl = filters.export_url || `/reports/suite/${suite}/export`;
     const breadcrumbs: BreadcrumbItem[] = [
@@ -109,6 +124,24 @@ export default function ReportSuitePage({ suite, title, description, summaryCard
                             </Button>
                         </div>
                     </div>
+
+                    {quickActions.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2 border-t pt-3">
+                            {quickActions.map((action) => (
+                                <Button
+                                    key={action.label}
+                                    type="button"
+                                    variant={action.variant === 'outline' ? 'outline' : 'default'}
+                                    className="w-full md:w-auto"
+                                    onClick={() => {
+                                        window.location.href = action.href;
+                                    }}
+                                >
+                                    {action.label}
+                                </Button>
+                            ))}
+                        </div>
+                    )}
                 </form>
 
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -116,7 +149,7 @@ export default function ReportSuitePage({ suite, title, description, summaryCard
                         <div key={card.label} className="rounded-lg border bg-card p-4">
                             <p className="text-xs uppercase tracking-wide text-muted-foreground">{card.label}</p>
                             <p className="mt-1 text-xl font-semibold">
-                                {typeof card.value === 'number' ? card.value.toLocaleString('id-ID') : card.value}
+                                {typeof card.value === 'number' ? maybeCurrency(card.label, card.value) : card.value}
                             </p>
                         </div>
                     ))}

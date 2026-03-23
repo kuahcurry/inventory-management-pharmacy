@@ -57,7 +57,7 @@ export default function StokOpnameCreate({ units, batches }: Props) {
     const [selectedBatches, setSelectedBatches] = useState<Map<number, { batch: Batch; stok_fisik: number; keterangan_selisih: string }>>(new Map());
     const [searchBatch, setSearchBatch] = useState('');
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors, transform } = useForm({
         unit_id: '',
         tanggal_opname: new Date().toISOString().split('T')[0],
         catatan: '',
@@ -118,15 +118,12 @@ export default function StokOpnameCreate({ units, batches }: Props) {
             keterangan_selisih: item.keterangan_selisih,
         }));
 
-        // Post with form data and details combined
-        post('/stok-opname', {
-            data: {
-                unit_id: data.unit_id,
-                tanggal_opname: data.tanggal_opname,
-                catatan: data.catatan,
-                details,
-            },
-        });
+        transform((current) => ({
+            ...current,
+            details,
+        }));
+
+        post('/stok-opname');
     };
 
     const calculateSelisih = (stokSistem: number, stokFisik: number) => {
