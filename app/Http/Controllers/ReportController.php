@@ -15,6 +15,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
@@ -262,7 +266,7 @@ class ReportController extends Controller
         ]);
     }
 
-    private function exportSuitePage(Request $request, string $suite)
+    private function exportSuitePage(Request $request, string $suite): StreamedResponse
     {
         abort_unless(in_array($suite, $this->allowedSuiteKeys(), true), 404);
 
@@ -274,36 +278,15 @@ class ReportController extends Controller
             ->whereDate('tanggal_transaksi', '<=', $endDate);
 
         $payload = $this->buildSuitePayload($suite, $base, $startDate, $endDate);
-        $filename = 'laporan-'.$suite.'-'.$startDate.'-'.$endDate.'.csv';
+        $spreadsheet = $this->buildSpreadsheetFromSections(
+            $payload['title'],
+            $payload['sections'],
+            [['Generated At', now()->toDateTimeString()]]
+        );
 
-        return response()->streamDownload(function () use ($payload) {
-            $handle = fopen('php://output', 'w');
+        $filename = 'laporan-'.$suite.'-'.$startDate.'-'.$endDate.'.xlsx';
 
-            fputcsv($handle, ['Suite', $payload['title']]);
-            fputcsv($handle, ['Generated At', now()->toDateTimeString()]);
-            fputcsv($handle, []);
-
-            foreach ($payload['sections'] as $section) {
-                fputcsv($handle, [$section['title']]);
-
-                $columns = $section['columns'];
-                fputcsv($handle, $columns);
-
-                foreach ($section['rows'] as $row) {
-                    $line = [];
-                    foreach ($columns as $col) {
-                        $line[] = $row[$col] ?? null;
-                    }
-                    fputcsv($handle, $line);
-                }
-
-                fputcsv($handle, []);
-            }
-
-            fclose($handle);
-        }, $filename, [
-            'Content-Type' => 'text/csv',
-        ]);
+        return $this->downloadSpreadsheet($spreadsheet, $filename);
     }
 
     private function resolveDateFilter(Request $request): array
@@ -336,6 +319,91 @@ class ReportController extends Controller
             'obat_suite' => $this->buildObatSuite($base, $startDate, $endDate),
             default => $this->buildKeuanganSuite($base),
         };
+    }
+
+    private function buildSpreadsheetFromSections(string $title, array $sections, array $summaryRows = []): Spreadsheet
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle(Str::limit(Str::slug($title, ' '), 31, ''));
+
+        $rowIndex = 1;
+        $sheet->setCellValue('A'.$rowIndex, $title);
+        $sheet->getStyle('A'.$rowIndex)->getFont()->setBold(true)->setSize(14);
+        $rowIndex++;
+
+        foreach ($summaryRows as $summaryRow) {
+            $sheet->setCellValue('A'.$rowIndex, (string) ($summaryRow[0] ?? ''));
+            $sheet->setCellValue('B'.$rowIndex, $this->normalizeExportValue($summaryRow[1] ?? ''));
+            $sheet->getStyle('A'.$rowIndex)->getFont()->setBold(true);
+            $rowIndex++;
+        }
+
+        if ($summaryRows !== []) {
+            $rowIndex++;
+        }
+
+        $maxColumns = 1;
+
+        foreach ($sections as $section) {
+            $columns = $section['columns'] ?? [];
+            $rows = $section['rows'] ?? [];
+
+            $sheet->setCellValue('A'.$rowIndex, (string) ($section['title'] ?? 'Section'));
+            $sheet->getStyle('A'.$rowIndex)->getFont()->setBold(true);
+            $rowIndex++;
+
+            foreach ($columns as $colIndex => $column) {
+                $cell = Coordinate::stringFromColumnIndex($colIndex + 1).$rowIndex;
+                $sheet->setCellValue($cell, (string) $column);
+                $sheet->getStyle($cell)->getFont()->setBold(true);
+            }
+            $maxColumns = max($maxColumns, count($columns));
+            $rowIndex++;
+
+            foreach ($rows as $row) {
+                foreach ($columns as $colIndex => $column) {
+                    $cell = Coordinate::stringFromColumnIndex($colIndex + 1).$rowIndex;
+                    $sheet->setCellValue($cell, $this->normalizeExportValue($row[$column] ?? null));
+                }
+                $rowIndex++;
+            }
+
+            $rowIndex++;
+        }
+
+        for ($i = 1; $i <= $maxColumns; $i++) {
+            $sheet->getColumnDimension(Coordinate::stringFromColumnIndex($i))->setAutoSize(true);
+        }
+
+        return $spreadsheet;
+    }
+
+    private function normalizeExportValue(mixed $value): mixed
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('Y-m-d H:i:s');
+        }
+
+        if (is_bool($value)) {
+            return $value ? 'Yes' : 'No';
+        }
+
+        if ($value === null) {
+            return '';
+        }
+
+        return $value;
+    }
+
+    private function downloadSpreadsheet(Spreadsheet $spreadsheet, string $filename): StreamedResponse
+    {
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
     }
 
     private function buildPembelianSuite($base): array
@@ -727,6 +795,66 @@ class ReportController extends Controller
         ]);
     }
 
+    public function stockExport(Request $request): StreamedResponse
+    {
+        $query = Obat::with(['kategori', 'satuan']);
+
+        if ($request->filled('kategori_id')) {
+            $query->where('kategori_id', $request->kategori_id);
+        }
+
+        if ($request->filled('status')) {
+            switch ($request->status) {
+                case 'habis':
+                    $query->where('stok_total', '=', 0);
+                    break;
+                case 'minimum':
+                    $query->where('stok_total', '>', 0)
+                        ->whereRaw('stok_total <= stok_minimum');
+                    break;
+                case 'tersedia':
+                    $query->whereRaw('stok_total > stok_minimum');
+                    break;
+            }
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_obat', 'like', "%{$search}%")
+                    ->orWhere('kode_obat', 'like', "%{$search}%");
+            });
+        }
+
+        $rows = $query->orderBy('nama_obat')->get();
+
+        $sections = [[
+            'title' => 'Data Stok Obat',
+            'columns' => ['Kode Obat', 'Nama Obat', 'Kategori', 'Satuan', 'Stok Total', 'Stok Minimum', 'Status'],
+            'rows' => $rows->map(function ($obat) {
+                return [
+                    'Kode Obat' => $obat->kode_obat,
+                    'Nama Obat' => $obat->nama_obat,
+                    'Kategori' => $obat->kategori?->nama_kategori ?? '-',
+                    'Satuan' => $obat->satuan?->nama_satuan ?? '-',
+                    'Stok Total' => (int) $obat->stok_total,
+                    'Stok Minimum' => (int) $obat->stok_minimum,
+                    'Status' => $obat->stok_total === 0 ? 'Habis' : ($obat->stok_total <= $obat->stok_minimum ? 'Minimum' : 'Tersedia'),
+                ];
+            })->all(),
+        ]];
+
+        $spreadsheet = $this->buildSpreadsheetFromSections('Laporan Stok', $sections, [
+            ['Total Obat', Obat::count()],
+            ['Total Stok', (int) Obat::sum('stok_total')],
+            ['Stok Minimum', Obat::whereRaw('stok_total > 0 AND stok_total <= stok_minimum')->count()],
+            ['Stok Habis', Obat::where('stok_total', 0)->count()],
+            ['Nilai Stok', (float) (BatchObat::where('stok_tersedia', '>', 0)->select(DB::raw('SUM(stok_tersedia * harga_beli) as total'))->value('total') ?? 0)],
+        ]);
+
+        return $this->downloadSpreadsheet($spreadsheet, 'laporan-stok-'.now()->format('Ymd-His').'.xlsx');
+    }
+
     public function transactions(Request $request): Response
     {
         $query = Transaksi::with(['obat', 'batch', 'user']);
@@ -801,6 +929,70 @@ class ReportController extends Controller
             'stats' => $stats,
             'filters' => $request->only(['search', 'jenis', 'tanggal_dari', 'tanggal_sampai']),
         ]);
+    }
+
+    public function transactionsExport(Request $request): StreamedResponse
+    {
+        $query = Transaksi::with(['obat', 'batch', 'user']);
+
+        if ($request->filled('jenis')) {
+            $query->where('jenis_transaksi', $request->jenis);
+        }
+
+        if ($request->filled('tanggal_dari') && $request->filled('tanggal_sampai')) {
+            $query->whereBetween('tanggal_transaksi', [
+                $request->tanggal_dari,
+                $request->tanggal_sampai,
+            ]);
+        } elseif ($request->filled('tanggal_dari')) {
+            $query->whereDate('tanggal_transaksi', '>=', $request->tanggal_dari);
+        } elseif ($request->filled('tanggal_sampai')) {
+            $query->whereDate('tanggal_transaksi', '<=', $request->tanggal_sampai);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('kode_transaksi', 'like', "%{$search}%")
+                    ->orWhereHas('obat', function ($q) use ($search) {
+                        $q->where('nama_obat', 'like', "%{$search}%")
+                            ->orWhere('kode_obat', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $rows = $query->orderBy('tanggal_transaksi', 'desc')
+            ->orderBy('waktu_transaksi', 'desc')
+            ->get();
+
+        $sections = [[
+            'title' => 'Data Transaksi',
+            'columns' => ['Kode', 'Tanggal', 'Waktu', 'Jenis', 'Obat', 'Batch', 'Jumlah', 'Harga Satuan', 'Total', 'User', 'Keterangan'],
+            'rows' => $rows->map(function ($trx) {
+                return [
+                    'Kode' => $trx->kode_transaksi,
+                    'Tanggal' => optional($trx->tanggal_transaksi)->toDateString(),
+                    'Waktu' => (string) $trx->waktu_transaksi,
+                    'Jenis' => Str::upper((string) $trx->jenis_transaksi),
+                    'Obat' => $trx->obat?->nama_obat ?? '-',
+                    'Batch' => $trx->batch?->nomor_batch ?? '-',
+                    'Jumlah' => (int) $trx->jumlah,
+                    'Harga Satuan' => (float) $trx->harga_satuan,
+                    'Total' => (float) $trx->total_harga,
+                    'User' => $trx->user?->name ?? '-',
+                    'Keterangan' => $trx->keterangan ?? '-',
+                ];
+            })->all(),
+        ]];
+
+        $spreadsheet = $this->buildSpreadsheetFromSections('Laporan Transaksi', $sections, [
+            ['Total Transaksi', $rows->count()],
+            ['Transaksi Masuk', $rows->where('jenis_transaksi', Transaksi::JENIS_MASUK)->count()],
+            ['Transaksi Keluar', $rows->where('jenis_transaksi', Transaksi::JENIS_KELUAR)->count()],
+            ['Total Nilai', (float) $rows->sum('total_harga')],
+        ]);
+
+        return $this->downloadSpreadsheet($spreadsheet, 'laporan-transaksi-'.now()->format('Ymd-His').'.xlsx');
     }
 
     public function expiry(Request $request): Response
@@ -902,6 +1094,76 @@ class ReportController extends Controller
             'kategori' => $kategori,
             'filters' => $request->only(['search', 'kategori_id', 'months_ahead', 'status']),
         ]);
+    }
+
+    public function expiryExport(Request $request): StreamedResponse
+    {
+        $monthsAhead = $request->get('months_ahead', 3);
+        $maxDate = now()->addMonths($monthsAhead);
+
+        $query = BatchObat::with(['obat.kategori'])
+            ->where('stok_tersedia', '>', 0)
+            ->whereDate('tanggal_expired', '<=', $maxDate);
+
+        if ($request->filled('kategori_id')) {
+            $query->whereHas('obat', function ($q) use ($request) {
+                $q->where('kategori_id', $request->kategori_id);
+            });
+        }
+
+        if ($request->filled('status')) {
+            if ($request->status === 'expired') {
+                $query->whereDate('tanggal_expired', '<', now());
+            } elseif ($request->status === 'expiring_soon') {
+                $query->whereDate('tanggal_expired', '>=', now());
+            }
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nomor_batch', 'like', "%{$search}%")
+                    ->orWhereHas('obat', function ($q) use ($search) {
+                        $q->where('nama_obat', 'like', "%{$search}%")
+                            ->orWhere('kode_obat', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $rows = $query->orderBy('tanggal_expired', 'asc')->get()->map(function ($batch) {
+            $days = now()->diffInDays($batch->tanggal_expired, false);
+
+            return [
+                'Nomor Batch' => $batch->nomor_batch,
+                'Kode Obat' => $batch->obat?->kode_obat ?? '-',
+                'Nama Obat' => $batch->obat?->nama_obat ?? '-',
+                'Kategori' => $batch->obat?->kategori?->nama_kategori ?? '-',
+                'Tanggal Expired' => optional($batch->tanggal_expired)->toDateString(),
+                'Hari ke Expired' => $days,
+                'Stok Tersedia' => (int) $batch->stok_tersedia,
+                'Harga Beli' => (float) $batch->harga_beli,
+                'Nilai Risiko' => (float) ($batch->stok_tersedia * $batch->harga_beli),
+            ];
+        });
+
+        $now = now();
+        $thisMonthEnd = now()->endOfMonth();
+        $nextMonthEnd = now()->addMonth()->endOfMonth();
+
+        $spreadsheet = $this->buildSpreadsheetFromSections('Laporan Kadaluarsa', [[
+            'title' => 'Data Batch Kadaluarsa',
+            'columns' => ['Nomor Batch', 'Kode Obat', 'Nama Obat', 'Kategori', 'Tanggal Expired', 'Hari ke Expired', 'Stok Tersedia', 'Harga Beli', 'Nilai Risiko'],
+            'rows' => $rows->all(),
+        ]], [
+            ['Sudah Kadaluarsa', $rows->where('Hari ke Expired', '<', 0)->count()],
+            ['Kadaluarsa Bulan Ini', $rows->filter(fn ($r) => ($r['Hari ke Expired'] ?? 0) >= 0 && $r['Tanggal Expired'] <= $thisMonthEnd->toDateString())->count()],
+            ['Kadaluarsa Bulan Depan', $rows->filter(fn ($r) => $r['Tanggal Expired'] > $thisMonthEnd->toDateString() && $r['Tanggal Expired'] <= $nextMonthEnd->toDateString())->count()],
+            ['Total Batch', $rows->count()],
+            ['Total Nilai Berisiko', (float) $rows->sum('Nilai Risiko')],
+            ['Generated At', $now->toDateTimeString()],
+        ]);
+
+        return $this->downloadSpreadsheet($spreadsheet, 'laporan-kadaluarsa-'.now()->format('Ymd-His').'.xlsx');
     }
 
     public function operational(): Response

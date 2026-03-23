@@ -28,6 +28,7 @@ class Transaksi extends Model
         'batch_id',
         'user_id',
         'unit_id',
+        'resep_id',
         'jenis_transaksi',
         'jumlah',
         'harga_satuan',

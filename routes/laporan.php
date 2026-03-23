@@ -30,12 +30,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Laporan Stok (Stock Reports)
     Route::get('reports/stock', [\App\Http\Controllers\ReportController::class, 'stock'])->name('reports.stock');
+    Route::get('reports/stock/export', [\App\Http\Controllers\ReportController::class, 'stockExport'])->name('reports.stock.export');
 
     // Laporan Transaksi (Transaction Reports)
     Route::get('reports/transactions', [\App\Http\Controllers\ReportController::class, 'transactions'])->name('reports.transactions');
+    Route::get('reports/transactions/export', [\App\Http\Controllers\ReportController::class, 'transactionsExport'])->name('reports.transactions.export');
 
     // Laporan Kadaluarsa (Expiry Reports)
     Route::get('reports/expiry', [\App\Http\Controllers\ReportController::class, 'expiry'])->name('reports.expiry');
+    Route::get('reports/expiry/export', [\App\Http\Controllers\ReportController::class, 'expiryExport'])->name('reports.expiry.export');
 
     // Laporan Operasional Cerdas
     Route::get('reports/operational', [\App\Http\Controllers\ReportController::class, 'operational'])->name('reports.operational');

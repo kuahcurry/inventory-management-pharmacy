@@ -63,7 +63,7 @@ export default function ReportSuitePage({ suite, title, description, summaryCard
         });
     };
 
-    const exportCsv = () => {
+    const exportExcel = () => {
         const params = new URLSearchParams({
             tanggal_dari: filters.tanggal_dari,
             tanggal_sampai: filters.tanggal_sampai,
@@ -103,9 +103,9 @@ export default function ReportSuitePage({ suite, title, description, summaryCard
                                 <Search className="mr-2 size-4" />
                                 Terapkan
                             </Button>
-                            <Button type="button" variant="outline" className="w-full md:w-auto" onClick={exportCsv}>
+                            <Button type="button" variant="outline" className="w-full md:w-auto" onClick={exportExcel}>
                                 <Download className="mr-2 size-4" />
-                                Export CSV
+                                Export Excel
                             </Button>
                         </div>
                     </div>

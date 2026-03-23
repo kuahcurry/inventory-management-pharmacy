@@ -40,6 +40,13 @@ type CartItem = {
 
 type Props = {
     batches: Batch[];
+    reseps: Array<{
+        id: number;
+        nomor_resep: string;
+        nama_pasien: string;
+        nama_dokter: string;
+        tanggal_resep: string;
+    }>;
     paymentMethodsByMode: {
         penjualan: Record<string, string>;
         masuk: Record<string, string>;
@@ -59,8 +66,8 @@ const formatCurrency = (value: number): string =>
         maximumFractionDigits: 0,
     }).format(value);
 
-export default function Kasir({ batches, paymentMethodsByMode }: Props) {
-    const { flash } = usePage<SharedData>().props;
+export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) {
+    const { flash, auth } = usePage<SharedData>().props;
     const [search, setSearch] = useState('');
     const [cart, setCart] = useState<CartItem[]>([]);
     const [banner, setBanner] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -72,8 +79,8 @@ export default function Kasir({ batches, paymentMethodsByMode }: Props) {
         supplier_nama: '',
         pelanggan_nama: '',
         dokter_nama: '',
-        sales_nama: '',
-        operator_nama: '',
+        kasir_nama: auth.user.name,
+        resep_id: '',
         tipe_penjualan: 'biasa',
         is_taxed: false,
         diskon_persen: '0',
@@ -111,6 +118,13 @@ export default function Kasir({ batches, paymentMethodsByMode }: Props) {
     }, [batches, search]);
 
     const findBatch = (batchId: number) => batches.find((b) => b.id === batchId);
+    const selectedResep = useMemo(() => {
+        if (!data.resep_id) {
+            return null;
+        }
+
+        return reseps.find((resep) => String(resep.id) === data.resep_id) ?? null;
+    }, [data.resep_id, reseps]);
 
     const addToCart = (batch: Batch) => {
         const defaultPrice =
@@ -194,7 +208,24 @@ export default function Kasir({ batches, paymentMethodsByMode }: Props) {
         if (data.mode !== 'masuk') {
             setData('tempo_jatuh_tempo', '');
         }
+
+        if (data.mode !== 'penjualan') {
+            setData('tipe_penjualan', 'biasa');
+            setData('resep_id', '');
+            setData('dokter_nama', '');
+        }
     }, [data.mode, setData]);
+
+    useEffect(() => {
+        if (data.mode !== 'penjualan' || data.tipe_penjualan !== 'resep') {
+            setData('resep_id', '');
+            return;
+        }
+
+        if (selectedResep) {
+            setData('dokter_nama', selectedResep.nama_dokter);
+        }
+    }, [data.mode, data.tipe_penjualan, selectedResep, setData]);
 
     const checkout = () => {
         const payloadItems = cart.map((item) => ({
@@ -206,6 +237,7 @@ export default function Kasir({ batches, paymentMethodsByMode }: Props) {
 
         transform((current) => ({
             ...current,
+            resep_id: current.resep_id ? Number(current.resep_id) : null,
             items: payloadItems,
         }));
 
@@ -308,38 +340,18 @@ export default function Kasir({ batches, paymentMethodsByMode }: Props) {
                             )}
 
                             <div className="grid gap-2">
-                                <Label htmlFor="operator-nama">Operator</Label>
+                                <Label htmlFor="kasir-nama">Kasir</Label>
                                 <Input
-                                    id="operator-nama"
-                                    value={data.operator_nama}
-                                    onChange={(e) => setData('operator_nama', e.target.value)}
-                                    placeholder="Operator transaksi"
+                                    id="kasir-nama"
+                                    value={data.kasir_nama}
+                                    onChange={(e) => setData('kasir_nama', e.target.value)}
+                                    placeholder="Nama kasir"
                                 />
                             </div>
                         </div>
 
                         {data.mode === 'penjualan' && (
-                            <div className="grid gap-2 md:grid-cols-3">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="dokter-nama">Dokter</Label>
-                                    <Input
-                                        id="dokter-nama"
-                                        value={data.dokter_nama}
-                                        onChange={(e) => setData('dokter_nama', e.target.value)}
-                                        placeholder="Opsional"
-                                    />
-                                </div>
-
-                                <div className="grid gap-2">
-                                    <Label htmlFor="sales-nama">Sales</Label>
-                                    <Input
-                                        id="sales-nama"
-                                        value={data.sales_nama}
-                                        onChange={(e) => setData('sales_nama', e.target.value)}
-                                        placeholder="Opsional"
-                                    />
-                                </div>
-
+                            <div className="grid gap-2 md:grid-cols-2">
                                 <div className="grid gap-2">
                                     <Label>Tipe Penjualan</Label>
                                     <Select value={data.tipe_penjualan} onValueChange={(value) => setData('tipe_penjualan', value)}>
@@ -353,7 +365,51 @@ export default function Kasir({ batches, paymentMethodsByMode }: Props) {
                                     </Select>
                                 </div>
 
-                                <label className="col-span-3 flex items-center gap-2 text-sm">
+                                {data.tipe_penjualan === 'resep' ? (
+                                    <div className="grid gap-2">
+                                        <Label>Resep</Label>
+                                        <Select
+                                            value={data.resep_id || undefined}
+                                            onValueChange={(value) => setData('resep_id', value)}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Pilih resep" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {reseps.map((resep) => (
+                                                    <SelectItem key={resep.id} value={String(resep.id)}>
+                                                        {resep.nomor_resep} - {resep.nama_pasien}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        {errors.resep_id && <p className="text-sm text-destructive">{errors.resep_id}</p>}
+                                    </div>
+                                ) : (
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="dokter-nama">Dokter</Label>
+                                        <Input
+                                            id="dokter-nama"
+                                            value={data.dokter_nama}
+                                            onChange={(e) => setData('dokter_nama', e.target.value)}
+                                            placeholder="Opsional"
+                                        />
+                                    </div>
+                                )}
+
+                                {data.tipe_penjualan === 'resep' && (
+                                    <div className="grid gap-2 md:col-span-2">
+                                        <Label htmlFor="dokter-dari-resep">Dokter (dari resep)</Label>
+                                        <Input
+                                            id="dokter-dari-resep"
+                                            value={selectedResep?.nama_dokter || ''}
+                                            readOnly
+                                            placeholder="Pilih resep terlebih dahulu"
+                                        />
+                                    </div>
+                                )}
+
+                                <label className="md:col-span-2 flex items-center gap-2 text-sm">
                                     <input
                                         type="checkbox"
                                         checked={data.is_taxed}

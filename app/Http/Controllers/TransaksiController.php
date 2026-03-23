@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ApprovalRequest;
 use App\Models\BatchObat;
 use App\Models\Obat;
+use App\Models\Resep;
 use App\Models\Transaksi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,8 +28,17 @@ class TransaksiController extends Controller
             ->orderBy('tanggal_expired')
             ->get();
 
+        $reseps = Resep::query()
+            ->select(['id', 'nomor_resep', 'nama_pasien', 'nama_dokter', 'tanggal_resep'])
+            ->where('status', Resep::STATUS_PENDING)
+            ->orderByDesc('tanggal_resep')
+            ->orderByDesc('id')
+            ->limit(200)
+            ->get();
+
         return Inertia::render('transaksi/kasir', [
             'batches' => $batches,
+            'reseps' => $reseps,
             'paymentMethodsByMode' => [
                 'penjualan' => [
                     'qris' => 'QRIS',
@@ -62,8 +72,8 @@ class TransaksiController extends Controller
             'supplier_nama' => 'nullable|string|max:255',
             'pelanggan_nama' => 'nullable|string|max:255',
             'dokter_nama' => 'nullable|string|max:255',
-            'sales_nama' => 'nullable|string|max:255',
-            'operator_nama' => 'nullable|string|max:255',
+            'resep_id' => 'nullable|exists:resep,id',
+            'kasir_nama' => 'nullable|string|max:255',
             'tipe_penjualan' => 'nullable|in:biasa,resep',
             'is_taxed' => 'nullable|boolean',
             'items' => 'required|array|min:1',
@@ -93,6 +103,22 @@ class TransaksiController extends Controller
             throw ValidationException::withMessages([
                 'tempo_jatuh_tempo' => 'Tanggal jatuh tempo hanya boleh diisi untuk mode Masuk dengan metode Tempo.',
             ]);
+        }
+
+        $selectedResep = null;
+        if (($validated['mode'] ?? null) === 'penjualan' && ($validated['tipe_penjualan'] ?? 'biasa') === 'resep') {
+            if (empty($validated['resep_id'])) {
+                throw ValidationException::withMessages([
+                    'resep_id' => 'Resep wajib dipilih untuk tipe penjualan resep.',
+                ]);
+            }
+
+            $selectedResep = Resep::query()->find($validated['resep_id']);
+            if (! $selectedResep || $selectedResep->status !== Resep::STATUS_PENDING) {
+                throw ValidationException::withMessages([
+                    'resep_id' => 'Resep tidak valid atau sudah tidak pending.',
+                ]);
+            }
         }
 
         $subtotal = collect($validated['items'])->sum(function (array $item): float {
@@ -148,7 +174,7 @@ class TransaksiController extends Controller
             }
         }
 
-        DB::transaction(function () use ($validated): void {
+        DB::transaction(function () use ($validated, $diskonPersen, $ppnPersen, $grandTotal, $selectedResep): void {
             $jenisTransaksi = $validated['mode'] === 'masuk' ? Transaksi::JENIS_MASUK : Transaksi::JENIS_PENJUALAN;
 
             foreach ($validated['items'] as $index => $item) {
@@ -169,6 +195,7 @@ class TransaksiController extends Controller
                     'batch_id' => $batchId,
                     'user_id' => auth()->id(),
                     'unit_id' => null,
+                    'resep_id' => $selectedResep?->id,
                     'jenis_transaksi' => $jenisTransaksi,
                     'jumlah' => (int) $item['jumlah'],
                     'harga_satuan' => (float) $item['harga_satuan'],
@@ -178,6 +205,7 @@ class TransaksiController extends Controller
                     'keterangan' => implode(' | ', array_filter([
                         'Checkout kasir',
                         'Metode: '.strtoupper($validated['metode_pembayaran']),
+                        $selectedResep ? 'Resep: '.$selectedResep->nomor_resep : null,
                         $validated['metode_pembayaran'] === 'tempo' ? 'Jatuh tempo: '.$validated['tempo_jatuh_tempo'] : null,
                         'Diskon: '.number_format($diskonPersen, 2).'%',
                         'PPN: '.number_format($ppnPersen, 2).'%',
@@ -186,10 +214,10 @@ class TransaksiController extends Controller
                     'nomor_referensi' => null,
                     'supplier_nama' => $validated['supplier_nama'] ?? null,
                     'pelanggan_nama' => $validated['pelanggan_nama'] ?? null,
-                    'dokter_nama' => $validated['dokter_nama'] ?? null,
-                    'sales_nama' => $validated['sales_nama'] ?? null,
-                    'operator_nama' => $validated['operator_nama'] ?? null,
-                    'kasir_nama' => auth()->user()?->name,
+                    'dokter_nama' => $selectedResep?->nama_dokter ?? ($validated['dokter_nama'] ?? null),
+                    'sales_nama' => null,
+                    'operator_nama' => null,
+                    'kasir_nama' => $validated['kasir_nama'] ?? auth()->user()?->name,
                     'metode_pembayaran' => $validated['metode_pembayaran'],
                     'tipe_penjualan' => $validated['mode'] === 'penjualan' ? ($validated['tipe_penjualan'] ?? 'biasa') : null,
                     'kategori_keuangan' => $validated['mode'] === 'masuk' && $validated['metode_pembayaran'] === 'tempo'
