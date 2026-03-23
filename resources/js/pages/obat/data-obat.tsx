@@ -232,7 +232,21 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
                     {obats.last_page > 1 && (
                         <div className="flex items-center justify-between border-t border-sidebar-border/70 p-4">
                             <p className="text-sm text-muted-foreground">Menampilkan {obatFrom}-{obatTo} dari {obats.total} obat</p>
-                            <div className="flex gap-2">
+                            <div className="flex max-w-[58vw] items-center gap-2 overflow-x-auto pb-1 sm:max-w-none">
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    disabled={obats.current_page <= 1}
+                                    onClick={() =>
+                                        router.get(
+                                            '/obat',
+                                            { search, page: Math.max(1, obats.current_page - 1), batch_page: batches.current_page },
+                                            { preserveState: true },
+                                        )
+                                    }
+                                >
+                                    Prev
+                                </Button>
                                 {obatPageTokens.map((token, index) =>
                                     typeof token === 'number' ? (
                                         <Button
@@ -249,6 +263,20 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
                                         </span>
                                     ),
                                 )}
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    disabled={obats.current_page >= obats.last_page}
+                                    onClick={() =>
+                                        router.get(
+                                            '/obat',
+                                            { search, page: Math.min(obats.last_page, obats.current_page + 1), batch_page: batches.current_page },
+                                            { preserveState: true },
+                                        )
+                                    }
+                                >
+                                    Next
+                                </Button>
                             </div>
                         </div>
                     )}
@@ -311,7 +339,21 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
                     {batches.last_page > 1 && (
                         <div className="flex items-center justify-between border-t border-sidebar-border/70 p-4">
                             <p className="text-sm text-muted-foreground">Menampilkan {batchFrom}-{batchTo} dari {batches.total} batch</p>
-                            <div className="flex gap-2">
+                            <div className="flex max-w-[58vw] items-center gap-2 overflow-x-auto pb-1 sm:max-w-none">
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    disabled={batches.current_page <= 1}
+                                    onClick={() =>
+                                        router.get(
+                                            '/obat',
+                                            { search, page: obats.current_page, batch_page: Math.max(1, batches.current_page - 1) },
+                                            { preserveState: true },
+                                        )
+                                    }
+                                >
+                                    Prev
+                                </Button>
                                 {batchPageTokens.map((token, index) =>
                                     typeof token === 'number' ? (
                                         <Button
@@ -328,6 +370,20 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
                                         </span>
                                     ),
                                 )}
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    disabled={batches.current_page >= batches.last_page}
+                                    onClick={() =>
+                                        router.get(
+                                            '/obat',
+                                            { search, page: obats.current_page, batch_page: Math.min(batches.last_page, batches.current_page + 1) },
+                                            { preserveState: true },
+                                        )
+                                    }
+                                >
+                                    Next
+                                </Button>
                             </div>
                         </div>
                     )}
