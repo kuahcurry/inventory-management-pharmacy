@@ -11,8 +11,8 @@ import type { FormEventHandler } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
-    { title: 'Batch Obat', href: '/batch' },
-    { title: 'Tambah Batch', href: '/batch/create' },
+    { title: 'Batch Obat', href: '/obat/batch' },
+    { title: 'Tambah Batch', href: '/obat/batch/create' },
 ];
 
 interface Obat {
@@ -60,7 +60,7 @@ export default function BatchCreate({ obat, suppliers }: Props) {
             catatan: data.catatan || '',
         });
         
-        post('/batch', {
+        post('/obat/batch', {
             onSuccess: () => {
                 console.log('Batch saved successfully');
             },
@@ -291,7 +291,7 @@ export default function BatchCreate({ obat, suppliers }: Props) {
                             {processing ? 'Menyimpan...' : 'Simpan Batch'}
                         </Button>
                         <Button type="button" variant="outline" asChild>
-                            <Link href="/batch">
+                            <Link href="/obat/batch">
                                 <X className="mr-2 size-4" />
                                 Batal
                             </Link>

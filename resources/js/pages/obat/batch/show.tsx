@@ -26,7 +26,7 @@ import axios from 'axios';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
-    { title: 'Batch Obat', href: '/batch' },
+    { title: 'Batch Obat', href: '/obat/batch' },
     { title: 'Detail Batch', href: '#' },
 ];
 
@@ -188,7 +188,7 @@ export default function BatchShow({ batch }: Props) {
                     <div>
                         <div className="flex items-center gap-2 mb-2">
                             <Button variant="ghost" size="sm" asChild>
-                                <Link href="/batch">
+                                <Link href="/obat/batch">
                                     <ArrowLeft className="h-4 w-4 mr-1" />
                                     Kembali
                                 </Link>
@@ -208,7 +208,7 @@ export default function BatchShow({ batch }: Props) {
                             {generatingQr ? 'Generating...' : 'QR Code'}
                         </Button>
                         <Button variant="outline" asChild>
-                            <Link href={`/batch/${batch.id}/edit`}>
+                            <Link href={`/obat/batch/${batch.id}/edit`}>
                                 <Pencil className="h-4 w-4 mr-2" />
                                 Edit
                             </Link>

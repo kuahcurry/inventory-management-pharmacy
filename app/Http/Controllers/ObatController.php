@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BatchObat;
 use App\Models\Obat;
 use App\Models\KategoriObat;
 use App\Models\JenisObat;
 use App\Models\SatuanObat;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\RedirectResponse;
@@ -32,8 +35,22 @@ class ObatController extends Controller
             ->paginate(15)
             ->withQueryString();
 
+        $batches = BatchObat::with(['obat.satuan', 'supplier'])
+            ->when($request->search, function ($query, $search) {
+                $query->where('nomor_batch', 'like', "%{$search}%")
+                    ->orWhereHas('obat', function ($obatQuery) use ($search) {
+                        $obatQuery->where('nama_obat', 'like', "%{$search}%")
+                            ->orWhere('kode_obat', 'like', "%{$search}%");
+                    });
+            })
+            ->latest('tanggal_masuk')
+            ->latest('created_at')
+            ->paginate(10, ['*'], 'batch_page')
+            ->withQueryString();
+
         return Inertia::render('obat/data-obat', [
             'obats' => $obats,
+            'batches' => $batches,
             'filters' => $request->only(['search']),
         ]);
     }
@@ -47,6 +64,7 @@ class ObatController extends Controller
             'kategori' => KategoriObat::where('is_active', true)->get(),
             'jenis' => JenisObat::where('is_active', true)->get(),
             'satuan' => SatuanObat::where('is_active', true)->get(),
+            'suppliers' => Supplier::where('status', 'active')->orderBy('nama_supplier')->get(['id', 'nama_supplier']),
         ]);
     }
 
@@ -55,73 +73,106 @@ class ObatController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        // Debug: Log incoming request data
-        \Log::info('ObatController@store - Incoming Request Data:', [
-            'all_data' => $request->all(),
-            'method' => $request->method(),
-            'content_type' => $request->header('Content-Type'),
+        $validated = $request->validate([
+            'kode_obat' => 'required|string|max:50|unique:obat,kode_obat',
+            'nama_obat' => 'required|string|max:191',
+            'nama_generik' => 'nullable|string|max:191',
+            'nama_brand' => 'nullable|string|max:191',
+            'kategori_id' => 'required|exists:kategori_obat,id',
+            'jenis_id' => 'required|exists:jenis_obat,id',
+            'satuan_id' => 'required|exists:satuan_obat,id',
+            'stok_minimum' => 'required|integer|min:0',
+            'harga_beli' => 'nullable|numeric|min:0',
+            'harga_jual' => 'nullable|numeric|min:0',
+            'lokasi_penyimpanan' => 'nullable|string|max:100',
+            'deskripsi' => 'nullable|string',
+            'efek_samping' => 'nullable|string',
+            'indikasi' => 'nullable|string',
+            'kontraindikasi' => 'nullable|string',
+            'initial_supplier_id' => 'nullable|exists:supplier,id',
+            'initial_nomor_batch' => 'nullable|string|max:100',
+            'initial_tanggal_produksi' => 'nullable|date',
+            'initial_tanggal_expired' => 'nullable|date|after:today',
+            'initial_tanggal_masuk' => 'nullable|date',
+            'initial_stok_awal' => 'nullable|integer|min:1',
+            'initial_harga_beli' => 'nullable|numeric|min:0',
+            'initial_catatan' => 'nullable|string',
         ]);
 
-        try {
-            $validated = $request->validate([
-                'kode_obat' => 'required|string|max:50|unique:obat,kode_obat',
-                'nama_obat' => 'required|string|max:191',
-                'nama_generik' => 'nullable|string|max:191',
-                'nama_brand' => 'nullable|string|max:191',
-                'kategori_id' => 'required|exists:kategori_obat,id',
-                'jenis_id' => 'required|exists:jenis_obat,id',
-                'satuan_id' => 'required|exists:satuan_obat,id',
-                'stok_minimum' => 'required|integer|min:0',
-                'harga_beli' => 'nullable|numeric|min:0',
-                'harga_jual' => 'nullable|numeric|min:0',
-                'lokasi_penyimpanan' => 'nullable|string|max:100',
-                'deskripsi' => 'nullable|string',
-                'efek_samping' => 'nullable|string',
-                'indikasi' => 'nullable|string',
-                'kontraindikasi' => 'nullable|string',
-            ]);
+        $hasInitialBatch = collect([
+            $validated['initial_nomor_batch'] ?? null,
+            $validated['initial_tanggal_expired'] ?? null,
+            $validated['initial_tanggal_masuk'] ?? null,
+            $validated['initial_stok_awal'] ?? null,
+            $validated['initial_harga_beli'] ?? null,
+        ])->contains(fn ($value) => filled($value));
 
-            // Debug: Log validated data
-            \Log::info('ObatController@store - Validated Data:', $validated);
+        if ($hasInitialBatch) {
+            $batchFieldErrors = [];
 
-            // Set default values
-            $validated['stok_total'] = 0;
-            $validated['is_active'] = true;
+            if (empty($validated['initial_nomor_batch'])) {
+                $batchFieldErrors['initial_nomor_batch'] = 'Nomor batch wajib diisi jika ingin menambahkan batch awal.';
+            }
+            if (empty($validated['initial_tanggal_expired'])) {
+                $batchFieldErrors['initial_tanggal_expired'] = 'Tanggal expired batch awal wajib diisi.';
+            }
+            if (empty($validated['initial_tanggal_masuk'])) {
+                $batchFieldErrors['initial_tanggal_masuk'] = 'Tanggal masuk batch awal wajib diisi.';
+            }
+            if (empty($validated['initial_stok_awal'])) {
+                $batchFieldErrors['initial_stok_awal'] = 'Stok awal batch wajib diisi.';
+            }
+            if (! array_key_exists('initial_harga_beli', $validated) || $validated['initial_harga_beli'] === null) {
+                $batchFieldErrors['initial_harga_beli'] = 'Harga beli batch awal wajib diisi.';
+            }
 
-            // Debug: Log data before creation
-            \Log::info('ObatController@store - Data Before Creation:', $validated);
-
-            $obat = Obat::create($validated);
-
-            // Debug: Log created obat
-            \Log::info('ObatController@store - Created Obat:', [
-                'id' => $obat->id,
-                'kode_obat' => $obat->kode_obat,
-                'nama_obat' => $obat->nama_obat,
-            ]);
-
-            return redirect()->route('obat.index')
-                ->with('success', 'Obat berhasil ditambahkan');
-                
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Debug: Log validation errors
-            \Log::error('ObatController@store - Validation Failed:', [
-                'errors' => $e->errors(),
-                'input' => $request->all(),
-            ]);
-            throw $e;
-            
-        } catch (\Exception $e) {
-            // Debug: Log any other errors
-            \Log::error('ObatController@store - Exception:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-            
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            if (! empty($batchFieldErrors)) {
+                throw \Illuminate\Validation\ValidationException::withMessages($batchFieldErrors);
+            }
         }
+
+        DB::transaction(function () use ($validated, $hasInitialBatch): void {
+            $obatData = [
+                'kode_obat' => $validated['kode_obat'],
+                'nama_obat' => $validated['nama_obat'],
+                'nama_generik' => $validated['nama_generik'] ?? null,
+                'nama_brand' => $validated['nama_brand'] ?? null,
+                'kategori_id' => $validated['kategori_id'],
+                'jenis_id' => $validated['jenis_id'],
+                'satuan_id' => $validated['satuan_id'],
+                'stok_minimum' => $validated['stok_minimum'],
+                'harga_beli' => $validated['harga_beli'] ?? 0,
+                'harga_jual' => $validated['harga_jual'] ?? 0,
+                'lokasi_penyimpanan' => $validated['lokasi_penyimpanan'] ?? null,
+                'deskripsi' => $validated['deskripsi'] ?? null,
+                'efek_samping' => $validated['efek_samping'] ?? null,
+                'indikasi' => $validated['indikasi'] ?? null,
+                'kontraindikasi' => $validated['kontraindikasi'] ?? null,
+                'stok_total' => $hasInitialBatch ? (int) $validated['initial_stok_awal'] : 0,
+                'is_active' => true,
+            ];
+
+            $obat = Obat::create($obatData);
+
+            if ($hasInitialBatch) {
+                BatchObat::create([
+                    'obat_id' => $obat->id,
+                    'supplier_id' => $validated['initial_supplier_id'] ?? null,
+                    'nomor_batch' => $validated['initial_nomor_batch'],
+                    'tanggal_produksi' => $validated['initial_tanggal_produksi'] ?? null,
+                    'tanggal_expired' => $validated['initial_tanggal_expired'],
+                    'tanggal_masuk' => $validated['initial_tanggal_masuk'],
+                    'stok_awal' => (int) $validated['initial_stok_awal'],
+                    'stok_tersedia' => (int) $validated['initial_stok_awal'],
+                    'harga_beli' => (float) $validated['initial_harga_beli'],
+                    'status' => 'active',
+                    'catatan' => $validated['initial_catatan'] ?? null,
+                ]);
+            }
+        });
+
+        return redirect()->route('obat.index')
+            ->with('success', 'Obat berhasil ditambahkan');
     }
 
     /**

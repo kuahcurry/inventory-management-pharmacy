@@ -11,7 +11,7 @@ import axios from 'axios';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
-    { title: 'Batch Obat', href: '/batch' },
+    { title: 'Batch Obat', href: '/obat/batch' },
 ];
 
 interface Batch {
@@ -56,7 +56,7 @@ export default function BatchIndex({ batches }: Props) {
 
     const handleDelete = (id: number) => {
         if (confirm('Apakah Anda yakin ingin menghapus batch ini?')) {
-            router.delete(`/batch/${id}`);
+            router.delete(`/obat/batch/${id}`);
         }
     };
 
@@ -173,7 +173,7 @@ export default function BatchIndex({ batches }: Props) {
                         </p>
                     </div>
                     <Button asChild>
-                        <Link href="/batch/create">
+                        <Link href="/obat/batch/create">
                             <Plus className="mr-2 size-4" />
                             Tambah Batch
                         </Link>
@@ -288,12 +288,12 @@ export default function BatchIndex({ batches }: Props) {
                                             <TableCell className="text-right">
                                                 <div className="flex justify-end gap-2">
                                                     <Button variant="ghost" size="sm" asChild>
-                                                        <Link href={`/batch/${batch.id}`}>
+                                                        <Link href={`/obat/batch/${batch.id}`}>
                                                             <Eye className="size-4" />
                                                         </Link>
                                                     </Button>
                                                     <Button variant="ghost" size="sm" asChild>
-                                                        <Link href={`/batch/${batch.id}/edit`}>
+                                                        <Link href={`/obat/batch/${batch.id}/edit`}>
                                                             <Pencil className="size-4" />
                                                         </Link>
                                                     </Button>
@@ -324,7 +324,7 @@ export default function BatchIndex({ batches }: Props) {
                                 <Button 
                                     variant="outline" 
                                     size="sm"
-                                    onClick={() => router.get(`/batch?page=${batches.current_page - 1}`)}
+                                    onClick={() => router.get(`/obat/batch?page=${batches.current_page - 1}`)}
                                 >
                                     Previous
                                 </Button>
@@ -333,7 +333,7 @@ export default function BatchIndex({ batches }: Props) {
                                 <Button 
                                     variant="outline" 
                                     size="sm"
-                                    onClick={() => router.get(`/batch?page=${batches.current_page + 1}`)}
+                                    onClick={() => router.get(`/obat/batch?page=${batches.current_page + 1}`)}
                                 >
                                     Next
                                 </Button>

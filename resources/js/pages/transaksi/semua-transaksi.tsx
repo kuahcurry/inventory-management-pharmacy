@@ -49,10 +49,6 @@ interface User {
     name: string;
 }
 
-interface Unit {
-    nama_unit: string;
-}
-
 interface TransaksiItem {
     id: number;
     kode_transaksi: string;
@@ -67,7 +63,6 @@ interface TransaksiItem {
     obat: Obat;
     batch?: Batch;
     user: User;
-    unit?: Unit;
 }
 
 interface Stats {
@@ -353,7 +348,6 @@ export default function SemuaTransaksi({ transaksi, stats, filters }: Props) {
                                     <TableHead className="text-right">Jumlah</TableHead>
                                     <TableHead className="text-right">Harga Satuan</TableHead>
                                     <TableHead className="text-right">Total</TableHead>
-                                    <TableHead>Unit/Tujuan</TableHead>
                                     <TableHead>Petugas</TableHead>
                                     <TableHead className="text-right">Aksi</TableHead>
                                 </TableRow>
@@ -361,7 +355,7 @@ export default function SemuaTransaksi({ transaksi, stats, filters }: Props) {
                             <TableBody>
                                 {transaksi.data.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={11} className="text-center py-8">
+                                        <TableCell colSpan={10} className="text-center py-8">
                                             <Package className="mx-auto mb-2 size-12 text-muted-foreground" />
                                             <p className="text-muted-foreground">Belum ada transaksi</p>
                                         </TableCell>
@@ -402,9 +396,6 @@ export default function SemuaTransaksi({ transaksi, stats, filters }: Props) {
                                             </TableCell>
                                             <TableCell className="text-right font-bold">
                                                 {formatCurrency(item.total_harga)}
-                                            </TableCell>
-                                            <TableCell>
-                                                {item.unit?.nama_unit || '-'}
                                             </TableCell>
                                             <TableCell>{item.user.name}</TableCell>
                                             <TableCell className="text-right">

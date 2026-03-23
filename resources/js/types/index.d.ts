@@ -31,6 +31,25 @@ export interface SharedData {
     quote: { message: string; author: string };
     auth: Auth;
     sidebarOpen: boolean;
+    flash?: {
+        success?: string | null;
+        error?: string | null;
+    };
+    onboarding?: {
+        tutorial?: {
+            should_show?: boolean;
+            version?: string;
+            completed_at?: string | null;
+            skipped_at?: string | null;
+        };
+        preferences?: {
+            shortcuts_enabled?: boolean;
+            show_contextual_tooltips?: boolean;
+            browser_push_enabled?: boolean;
+            notify_low_stock?: boolean;
+            notify_expiry?: boolean;
+        };
+    };
     [key: string]: unknown;
 }
 

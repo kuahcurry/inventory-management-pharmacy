@@ -21,7 +21,6 @@ class Notifikasi extends Model
     const KATEGORI_STOK_RENDAH = 'stok_rendah';
     const KATEGORI_EXPIRED_SOON = 'expired_soon';
     const KATEGORI_EXPIRED = 'expired';
-    const KATEGORI_PERMINTAAN_BARU = 'permintaan_baru';
     const KATEGORI_SISTEM = 'sistem';
     const KATEGORI_LAINNYA = 'lainnya';
 
@@ -134,22 +133,6 @@ class Notifikasi extends Model
             user: $user,
             model: $batch,
             link: "/obat/{$obat->id}/batch/{$batch->id}"
-        );
-    }
-
-    /**
-     * Create a new request notification
-     */
-    public static function notifyPermintaanBaru(PermintaanUnit $permintaan, User $user = null): self
-    {
-        return self::notify(
-            judul: 'Permintaan Obat Baru',
-            pesan: "{$permintaan->unit->nama_unit} meminta {$permintaan->jumlah_diminta} {$permintaan->obat->nama_obat}",
-            tipe: $permintaan->isUrgent() ? self::TIPE_DANGER : self::TIPE_INFO,
-            kategori: self::KATEGORI_PERMINTAAN_BARU,
-            user: $user,
-            model: $permintaan,
-            link: "/permintaan/{$permintaan->id}"
         );
     }
 

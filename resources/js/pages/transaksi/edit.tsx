@@ -39,17 +39,10 @@ interface Batch {
     };
 }
 
-interface Unit {
-    id: number;
-    kode_unit: string;
-    nama_unit: string;
-}
-
 interface Transaksi {
     id: number;
     obat_id: number;
     batch_id: number | null;
-    unit_id: number | null;
     jenis_transaksi: string;
     jumlah: number;
     harga_satuan: number;
@@ -62,14 +55,12 @@ interface Props {
     transaksi: Transaksi;
     obat: Obat[];
     batches: Batch[];
-    units: Unit[];
 }
 
-export default function TransaksiEdit({ transaksi, obat, batches, units }: Props) {
+export default function TransaksiEdit({ transaksi, obat, batches }: Props) {
     const { data, setData, put, processing, errors } = useForm({
         obat_id: transaksi.obat_id.toString(),
         batch_id: transaksi.batch_id?.toString() || '',
-        unit_id: transaksi.unit_id?.toString() || '',
         jenis_transaksi: transaksi.jenis_transaksi,
         jumlah: transaksi.jumlah.toString(),
         harga_satuan: transaksi.harga_satuan.toString(),
@@ -250,24 +241,6 @@ export default function TransaksiEdit({ transaksi, obat, batches, units }: Props
                                 )}
                             </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="unit_id">Unit Tujuan (Opsional)</Label>
-                                <Select value={data.unit_id} onValueChange={(value) => setData('unit_id', value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Pilih unit (opsional)" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {units.map((unit) => (
-                                            <SelectItem key={unit.id} value={unit.id.toString()}>
-                                                {unit.nama_unit} ({unit.kode_unit})
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {errors.unit_id && (
-                                    <p className="text-sm text-destructive">{errors.unit_id}</p>
-                                )}
-                            </div>
                         </div>
                     </div>
 

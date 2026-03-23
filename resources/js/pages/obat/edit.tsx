@@ -6,6 +6,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Save, X } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -54,7 +55,18 @@ interface EditProps {
     satuan: SatuanObat[];
 }
 
+type InfoTab = 'indikasi' | 'kontraindikasi' | 'efek_samping' | 'deskripsi';
+
+const infoTabs: Array<{ key: InfoTab; label: string }> = [
+    { key: 'indikasi', label: 'Indikasi' },
+    { key: 'kontraindikasi', label: 'Kontraindikasi' },
+    { key: 'efek_samping', label: 'Efek Samping' },
+    { key: 'deskripsi', label: 'Deskripsi' },
+];
+
 export default function EditObat({ obat, kategori, jenis, satuan }: EditProps) {
+    const [activeInfoTab, setActiveInfoTab] = useState<InfoTab>('indikasi');
+
     const { data, setData, put, processing, errors } = useForm({
         kode_obat: obat.kode_obat,
         nama_obat: obat.nama_obat,
@@ -73,258 +85,158 @@ export default function EditObat({ obat, kategori, jenis, satuan }: EditProps) {
         kontraindikasi: obat.kontraindikasi || '',
     });
 
+    const hargaBeli = Number(data.harga_beli || 0);
+    const hargaJual = Number(data.harga_jual || 0);
+
+    const estimasiLaba = useMemo(() => {
+        if (hargaBeli <= 0 || hargaJual <= 0) {
+            return { nominal: 0, persen: 0 };
+        }
+
+        const nominal = hargaJual - hargaBeli;
+        const persen = (nominal / hargaBeli) * 100;
+        return { nominal, persen };
+    }, [hargaBeli, hargaJual]);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         put(`/obat/${obat.id}`);
     };
 
+    const infoValue = data[activeInfoTab] ?? '';
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Edit Obat" />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold">Edit Obat</h1>
-                        <p className="text-sm text-muted-foreground">
-                            Perbarui data obat
-                        </p>
-                    </div>
+                <div className="rounded-xl border border-slate-300 bg-gradient-to-r from-slate-100 via-white to-slate-100 p-4">
+                    <h1 className="text-2xl font-bold tracking-tight text-slate-800">Edit Obat</h1>
+                    <p className="text-sm text-slate-600">Layout panel disetarakan dengan form operasional untuk update data lebih cepat.</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="rounded-xl border border-sidebar-border/70 bg-card p-6">
-                    <div className="grid gap-6 md:grid-cols-2">
-                        {/* Kode Obat */}
-                        <div className="space-y-2">
-                            <Label htmlFor="kode_obat">
-                                Kode Obat <span className="text-destructive">*</span>
-                            </Label>
-                            <Input
-                                id="kode_obat"
-                                value={data.kode_obat}
-                                onChange={(e) => setData('kode_obat', e.target.value)}
-                                required
-                            />
-                            {errors.kode_obat && (
-                                <p className="text-sm text-destructive">{errors.kode_obat}</p>
-                            )}
-                        </div>
+                <form onSubmit={handleSubmit} className="rounded-xl border border-slate-300 bg-card p-4 shadow-sm">
+                    <div className="grid gap-4 lg:grid-cols-12">
+                        <section className="space-y-3 rounded-lg border border-slate-300 p-3 lg:col-span-7">
+                            <h2 className="border-b border-slate-200 pb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">Barang</h2>
 
-                        {/* Nama Obat */}
-                        <div className="space-y-2">
-                            <Label htmlFor="nama_obat">
-                                Nama Obat <span className="text-destructive">*</span>
-                            </Label>
-                            <Input
-                                id="nama_obat"
-                                value={data.nama_obat}
-                                onChange={(e) => setData('nama_obat', e.target.value)}
-                                required
-                            />
-                            {errors.nama_obat && (
-                                <p className="text-sm text-destructive">{errors.nama_obat}</p>
-                            )}
-                        </div>
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="kode_obat">Kode *</Label>
+                                    <Input id="kode_obat" value={data.kode_obat} onChange={(e) => setData('kode_obat', e.target.value)} required />
+                                    {errors.kode_obat && <p className="text-xs text-destructive">{errors.kode_obat}</p>}
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="nama_obat">Nama *</Label>
+                                    <Input id="nama_obat" value={data.nama_obat} onChange={(e) => setData('nama_obat', e.target.value)} required />
+                                    {errors.nama_obat && <p className="text-xs text-destructive">{errors.nama_obat}</p>}
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="nama_generik">Generik</Label>
+                                    <Input id="nama_generik" value={data.nama_generik} onChange={(e) => setData('nama_generik', e.target.value)} />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="nama_brand">Brand</Label>
+                                    <Input id="nama_brand" value={data.nama_brand} onChange={(e) => setData('nama_brand', e.target.value)} />
+                                </div>
+                            </div>
 
-                        {/* Nama Generik */}
-                        <div className="space-y-2">
-                            <Label htmlFor="nama_generik">Nama Generik</Label>
-                            <Input
-                                id="nama_generik"
-                                value={data.nama_generik}
-                                onChange={(e) => setData('nama_generik', e.target.value)}
-                            />
-                        </div>
+                            <div className="grid gap-3 sm:grid-cols-3">
+                                <div className="space-y-1.5">
+                                    <Label>Kategori *</Label>
+                                    <Select value={data.kategori_id} onValueChange={(v) => setData('kategori_id', v)} required>
+                                        <SelectTrigger><SelectValue placeholder="Pilih" /></SelectTrigger>
+                                        <SelectContent>
+                                            {kategori.map((item) => (
+                                                <SelectItem key={item.id} value={item.id.toString()}>{item.nama_kategori}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.kategori_id && <p className="text-xs text-destructive">{errors.kategori_id}</p>}
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label>Jenis *</Label>
+                                    <Select value={data.jenis_id} onValueChange={(v) => setData('jenis_id', v)} required>
+                                        <SelectTrigger><SelectValue placeholder="Pilih" /></SelectTrigger>
+                                        <SelectContent>
+                                            {jenis.map((item) => (
+                                                <SelectItem key={item.id} value={item.id.toString()}>{item.nama_jenis}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.jenis_id && <p className="text-xs text-destructive">{errors.jenis_id}</p>}
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label>Satuan *</Label>
+                                    <Select value={data.satuan_id} onValueChange={(v) => setData('satuan_id', v)} required>
+                                        <SelectTrigger><SelectValue placeholder="Pilih" /></SelectTrigger>
+                                        <SelectContent>
+                                            {satuan.map((item) => (
+                                                <SelectItem key={item.id} value={item.id.toString()}>{item.nama_satuan}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.satuan_id && <p className="text-xs text-destructive">{errors.satuan_id}</p>}
+                                </div>
+                            </div>
+                        </section>
 
-                        {/* Nama Brand */}
-                        <div className="space-y-2">
-                            <Label htmlFor="nama_brand">Nama Brand</Label>
-                            <Input
-                                id="nama_brand"
-                                value={data.nama_brand}
-                                onChange={(e) => setData('nama_brand', e.target.value)}
-                            />
-                        </div>
+                        <section className="space-y-3 rounded-lg border border-slate-300 p-3 lg:col-span-5">
+                            <h2 className="border-b border-slate-200 pb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">Keterangan</h2>
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="stok_minimum">Stok Min. *</Label>
+                                    <Input id="stok_minimum" type="number" value={data.stok_minimum} onChange={(e) => setData('stok_minimum', e.target.value)} required />
+                                    {errors.stok_minimum && <p className="text-xs text-destructive">{errors.stok_minimum}</p>}
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="lokasi_penyimpanan">Lokasi</Label>
+                                    <Input id="lokasi_penyimpanan" value={data.lokasi_penyimpanan} onChange={(e) => setData('lokasi_penyimpanan', e.target.value)} />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="harga_beli">Harga Beli</Label>
+                                    <Input id="harga_beli" type="number" step="0.01" value={data.harga_beli} onChange={(e) => setData('harga_beli', e.target.value)} />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="harga_jual">Harga Jual</Label>
+                                    <Input id="harga_jual" type="number" step="0.01" value={data.harga_jual} onChange={(e) => setData('harga_jual', e.target.value)} />
+                                </div>
+                            </div>
 
-                        {/* Kategori */}
-                        <div className="space-y-2">
-                            <Label htmlFor="kategori_id">
-                                Kategori <span className="text-destructive">*</span>
-                            </Label>
-                            <Select
-                                value={data.kategori_id}
-                                onValueChange={(value) => setData('kategori_id', value)}
-                                required
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Pilih kategori" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {kategori.map((item) => (
-                                        <SelectItem key={item.id} value={item.id.toString()}>
-                                            {item.nama_kategori}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            {errors.kategori_id && (
-                                <p className="text-sm text-destructive">{errors.kategori_id}</p>
-                            )}
-                        </div>
+                            <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
+                                <div className="text-muted-foreground">Estimasi Laba Saat Ini</div>
+                                <div className={`font-semibold ${estimasiLaba.nominal < 0 ? 'text-red-600' : 'text-emerald-700'}`}>
+                                    Rp {Math.abs(estimasiLaba.nominal).toLocaleString('id-ID')}
+                                </div>
+                                <div className="text-xs text-muted-foreground">{estimasiLaba.persen.toFixed(1)}%</div>
+                            </div>
+                        </section>
 
-                        {/* Jenis */}
-                        <div className="space-y-2">
-                            <Label htmlFor="jenis_id">
-                                Jenis <span className="text-destructive">*</span>
-                            </Label>
-                            <Select
-                                value={data.jenis_id}
-                                onValueChange={(value) => setData('jenis_id', value)}
-                                required
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Pilih jenis" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {jenis.map((item) => (
-                                        <SelectItem key={item.id} value={item.id.toString()}>
-                                            {item.nama_jenis}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            {errors.jenis_id && (
-                                <p className="text-sm text-destructive">{errors.jenis_id}</p>
-                            )}
-                        </div>
-
-                        {/* Satuan */}
-                        <div className="space-y-2">
-                            <Label htmlFor="satuan_id">
-                                Satuan <span className="text-destructive">*</span>
-                            </Label>
-                            <Select
-                                value={data.satuan_id}
-                                onValueChange={(value) => setData('satuan_id', value)}
-                                required
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Pilih satuan" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {satuan.map((item) => (
-                                        <SelectItem key={item.id} value={item.id.toString()}>
-                                            {item.nama_satuan}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            {errors.satuan_id && (
-                                <p className="text-sm text-destructive">{errors.satuan_id}</p>
-                            )}
-                        </div>
-
-                        {/* Stok Minimum */}
-                        <div className="space-y-2">
-                            <Label htmlFor="stok_minimum">
-                                Stok Minimum <span className="text-destructive">*</span>
-                            </Label>
-                            <Input
-                                id="stok_minimum"
-                                type="number"
-                                value={data.stok_minimum}
-                                onChange={(e) => setData('stok_minimum', e.target.value)}
-                                required
-                            />
-                            {errors.stok_minimum && (
-                                <p className="text-sm text-destructive">{errors.stok_minimum}</p>
-                            )}
-                        </div>
-
-                        {/* Harga Beli */}
-                        <div className="space-y-2">
-                            <Label htmlFor="harga_beli">Harga Beli</Label>
-                            <Input
-                                id="harga_beli"
-                                type="number"
-                                step="0.01"
-                                value={data.harga_beli}
-                                onChange={(e) => setData('harga_beli', e.target.value)}
-                            />
-                        </div>
-
-                        {/* Harga Jual */}
-                        <div className="space-y-2">
-                            <Label htmlFor="harga_jual">Harga Jual</Label>
-                            <Input
-                                id="harga_jual"
-                                type="number"
-                                step="0.01"
-                                value={data.harga_jual}
-                                onChange={(e) => setData('harga_jual', e.target.value)}
-                            />
-                        </div>
-
-                        {/* Lokasi Penyimpanan */}
-                        <div className="space-y-2">
-                            <Label htmlFor="lokasi_penyimpanan">Lokasi Penyimpanan</Label>
-                            <Input
-                                id="lokasi_penyimpanan"
-                                value={data.lokasi_penyimpanan}
-                                onChange={(e) => setData('lokasi_penyimpanan', e.target.value)}
-                            />
-                        </div>
-
-                        {/* Deskripsi */}
-                        <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor="deskripsi">Deskripsi</Label>
+                        <section className="rounded-lg border border-slate-300 p-3 lg:col-span-12">
+                            <div className="mb-3 flex flex-wrap gap-2">
+                                {infoTabs.map((tab) => (
+                                    <button
+                                        key={tab.key}
+                                        type="button"
+                                        onClick={() => setActiveInfoTab(tab.key)}
+                                        className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+                                            activeInfoTab === tab.key
+                                                ? 'bg-slate-800 text-white'
+                                                : 'border border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                        }`}
+                                    >
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
                             <textarea
-                                id="deskripsi"
-                                value={data.deskripsi}
-                                onChange={(e) => setData('deskripsi', e.target.value)}
-                                className="w-full rounded-lg border border-sidebar-border bg-background px-3 py-2 text-sm"
-                                rows={3}
+                                value={infoValue}
+                                onChange={(e) => setData(activeInfoTab, e.target.value)}
+                                className="h-28 w-full rounded-lg border border-sidebar-border bg-background px-3 py-2 text-sm"
                             />
-                        </div>
-
-                        {/* Indikasi */}
-                        <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor="indikasi">Indikasi</Label>
-                            <textarea
-                                id="indikasi"
-                                value={data.indikasi}
-                                onChange={(e) => setData('indikasi', e.target.value)}
-                                className="w-full rounded-lg border border-sidebar-border bg-background px-3 py-2 text-sm"
-                                rows={3}
-                            />
-                        </div>
-
-                        {/* Kontraindikasi */}
-                        <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor="kontraindikasi">Kontraindikasi</Label>
-                            <textarea
-                                id="kontraindikasi"
-                                value={data.kontraindikasi}
-                                onChange={(e) => setData('kontraindikasi', e.target.value)}
-                                className="w-full rounded-lg border border-sidebar-border bg-background px-3 py-2 text-sm"
-                                rows={3}
-                            />
-                        </div>
-
-                        {/* Efek Samping */}
-                        <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor="efek_samping">Efek Samping</Label>
-                            <textarea
-                                id="efek_samping"
-                                value={data.efek_samping}
-                                onChange={(e) => setData('efek_samping', e.target.value)}
-                                className="w-full rounded-lg border border-sidebar-border bg-background px-3 py-2 text-sm"
-                                rows={3}
-                            />
-                        </div>
+                        </section>
                     </div>
 
-                    {/* Actions */}
-                    <div className="mt-6 flex justify-end gap-2">
+                    <div className="mt-5 flex justify-end gap-2">
                         <Button type="button" variant="outline" asChild>
                             <a href="/obat">
                                 <X className="mr-2 size-4" />

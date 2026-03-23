@@ -10,10 +10,10 @@ export default function AppLogo() {
             </div>
             <div className="ml-1 grid flex-1 text-left text-sm" style={{ color: 'rgb(0, 0, 102)' }}>
                 <span className="mb-0.5 font-semibold leading-tight">
-                    SIMRS Apotek PKU
+                    Sistem Inventori
                 </span>
                 <span className="text-xs text-muted-foreground leading-tight">
-                    Muhammadiyah Gombong
+                    Apotek Sapari
                 </span>
             </div>
         </>

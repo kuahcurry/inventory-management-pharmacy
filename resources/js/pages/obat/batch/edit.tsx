@@ -11,7 +11,7 @@ import type { FormEventHandler } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
-    { title: 'Batch Obat', href: '/batch' },
+    { title: 'Batch Obat', href: '/obat/batch' },
     { title: 'Edit Batch', href: '#' },
 ];
 
@@ -67,7 +67,7 @@ export default function BatchEdit({ batch, obat, suppliers }: Props) {
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
         
-        put(`/batch/${batch.id}`, {
+        put(`/obat/batch/${batch.id}`, {
             onSuccess: () => {
                 console.log('Batch updated successfully');
             },
@@ -298,7 +298,7 @@ export default function BatchEdit({ batch, obat, suppliers }: Props) {
                             {processing ? 'Menyimpan...' : 'Update Batch'}
                         </Button>
                         <Button type="button" variant="outline" asChild>
-                            <Link href="/batch">
+                            <Link href="/obat/batch">
                                 <X className="mr-2 size-4" />
                                 Batal
                             </Link>

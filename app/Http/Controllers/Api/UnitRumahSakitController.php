@@ -15,7 +15,7 @@ class UnitRumahSakitController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = UnitRumahSakit::withCount('permintaan');
+        $query = UnitRumahSakit::query();
 
         // Search
         if ($request->has('search')) {
@@ -91,13 +91,6 @@ class UnitRumahSakitController extends Controller
      */
     public function show(UnitRumahSakit $unitRumahSakit): JsonResponse
     {
-        $unitRumahSakit->loadCount('permintaan');
-        $unitRumahSakit->load([
-            'permintaan' => function ($query) {
-                $query->latest()->limit(10);
-            },
-        ]);
-
         return response()->json($unitRumahSakit);
     }
 
@@ -135,10 +128,10 @@ class UnitRumahSakitController extends Controller
      */
     public function destroy(UnitRumahSakit $unitRumahSakit): JsonResponse
     {
-        // Check if unit has permintaan
-        if ($unitRumahSakit->permintaan()->count() > 0) {
+        // Do not delete units that are referenced by transaction history.
+        if ($unitRumahSakit->transaksi()->count() > 0) {
             return response()->json([
-                'message' => 'Unit tidak dapat dihapus karena memiliki riwayat permintaan',
+                'message' => 'Unit tidak dapat dihapus karena memiliki riwayat transaksi',
             ], 422);
         }
 
@@ -170,19 +163,10 @@ class UnitRumahSakitController extends Controller
     public function statistics(UnitRumahSakit $unitRumahSakit): JsonResponse
     {
         $stats = [
-            'total_permintaan' => $unitRumahSakit->permintaan()->count(),
-            'permintaan_pending' => $unitRumahSakit->permintaan()
-                ->where('status', 'pending')
-                ->count(),
-            'permintaan_processed' => $unitRumahSakit->permintaan()
-                ->where('status', 'processed')
-                ->count(),
-            'permintaan_completed' => $unitRumahSakit->permintaan()
-                ->where('status', 'completed')
-                ->count(),
-            'permintaan_rejected' => $unitRumahSakit->permintaan()
-                ->where('status', 'rejected')
-                ->count(),
+            'total_transaksi' => $unitRumahSakit->transaksi()->count(),
+            'transaksi_masuk' => $unitRumahSakit->transaksi()->where('jenis_transaksi', 'masuk')->count(),
+            'transaksi_keluar' => $unitRumahSakit->transaksi()->where('jenis_transaksi', 'keluar')->count(),
+            'transaksi_penjualan' => $unitRumahSakit->transaksi()->where('jenis_transaksi', 'penjualan')->count(),
         ];
 
         return response()->json($stats);

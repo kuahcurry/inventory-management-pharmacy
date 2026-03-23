@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Resep;
+use App\Actions\BuildOperationalInsights;
+use App\Models\DrugInteraction;
 use App\Models\Obat;
+use App\Models\Resep;
 use App\Models\UnitRumahSakit;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -11,6 +13,8 @@ use Inertia\Response;
 
 class ResepController extends Controller
 {
+    public function __construct(private BuildOperationalInsights $insights) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -64,6 +68,8 @@ class ResepController extends Controller
             'details.*.aturan_pakai' => 'nullable|string|max:200',
             'details.*.catatan' => 'nullable|string',
         ]);
+
+        $this->assertNoBlockingInteraction($validated['details']);
 
         $resep = Resep::create($validated);
 
@@ -146,6 +152,8 @@ class ResepController extends Controller
             'details.*.catatan' => 'nullable|string',
         ]);
 
+        $this->assertNoBlockingInteraction($validated['details']);
+
         $resep->update($validated);
 
         // Delete old details and create new ones
@@ -156,6 +164,38 @@ class ResepController extends Controller
 
         return redirect()->route('resep.index')
             ->with('success', 'Resep berhasil diupdate');
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $details
+     */
+    private function assertNoBlockingInteraction(array $details): void
+    {
+        $obatIds = collect($details)
+            ->pluck('obat_id')
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $interactions = $this->insights->checkDrugInteractions($obatIds);
+        $blocking = $interactions->filter(fn (DrugInteraction $interaction) => $interaction->isBlockingSeverity());
+
+        if ($blocking->isEmpty()) {
+            return;
+        }
+
+        $messages = $blocking->map(function (DrugInteraction $item) {
+            return sprintf(
+                '%s x %s (%s)',
+                $item->obat?->nama_obat,
+                $item->interactsWith?->nama_obat,
+                strtoupper($item->severity)
+            );
+        })->implode(', ');
+
+        abort(422, 'Interaksi obat berisiko terdeteksi: '.$messages);
     }
 
     /**

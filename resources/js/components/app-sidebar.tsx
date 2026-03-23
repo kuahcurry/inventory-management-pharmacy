@@ -15,21 +15,12 @@ import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { 
     BookOpen, 
-    Folder, 
     LayoutGrid,
     Pill,
-    Package,
+    ShoppingCart,
     TrendingUp,
-    TrendingDown,
-    Clipboard,
     ClipboardCheck,
-    Trash2,
-    QrCode,
     FileText,
-    Users,
-    Building2,
-    Truck,
-    Tags,
     Box,
     MessageCircleQuestion
 } from 'lucide-react';
@@ -42,6 +33,11 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
+        title: 'Kasir',
+        href: '/kasir',
+        icon: ShoppingCart,
+    },
+    {
         title: 'Obat',
         href: '#',
         icon: Pill,
@@ -49,10 +45,6 @@ const mainNavItems: NavItem[] = [
             {
                 title: 'Data Obat',
                 href: '/obat',
-            },
-            {
-                title: 'Batch Obat',
-                href: '/batch',
             },
             {
                 title: 'Resep',
@@ -86,11 +78,6 @@ const mainNavItems: NavItem[] = [
                 href: '/transaksi/keluar',
             },
         ],
-    },
-    {
-        title: 'Permintaan Unit',
-        href: '/permintaan',
-        icon: Clipboard,
     },
     {
         title: 'Stok Opname',

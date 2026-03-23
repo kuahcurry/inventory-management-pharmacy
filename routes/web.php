@@ -19,11 +19,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
     Route::get('dashboard', [\App\Http\Controllers\Api\DashboardController::class, 'index'])->name('dashboard');
     
-    // Permintaan Unit (Unit Requests)
-    Route::post('permintaan/{id}/process', [\App\Http\Controllers\PermintaanUnitController::class, 'process'])->name('permintaan.process');
-    Route::post('permintaan/{id}/complete', [\App\Http\Controllers\PermintaanUnitController::class, 'complete'])->name('permintaan.complete');
-    Route::resource('permintaan', \App\Http\Controllers\PermintaanUnitController::class);
-    
     // Stok Opname (Stock Taking)
     Route::post('stok-opname/{stokOpname}/start', [\App\Http\Controllers\StokOpnameController::class, 'startOpname'])->name('stok-opname.start');
     Route::post('stok-opname/{stokOpname}/complete', [\App\Http\Controllers\StokOpnameController::class, 'completeOpname'])->name('stok-opname.complete');

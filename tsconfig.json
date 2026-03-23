@@ -106,7 +106,6 @@
 
         /* Completeness */
         "skipLibCheck": true,
-        "baseUrl": ".",
         "paths": {
             "@/*": ["./resources/js/*"]
         },

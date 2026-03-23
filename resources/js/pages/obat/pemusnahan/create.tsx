@@ -218,7 +218,7 @@ export default function PemusnahanCreate({ batches, users }: Props) {
                                     id="lokasi_pemusnahan"
                                     value={data.lokasi_pemusnahan}
                                     onChange={(e) => setData('lokasi_pemusnahan', e.target.value)}
-                                    placeholder="Contoh: Incinerator Rumah Sakit"
+                                    placeholder="Contoh: Ruang pemusnahan apotek"
                                 />
                                 {errors.lokasi_pemusnahan && (
                                     <p className="text-sm text-destructive">{errors.lokasi_pemusnahan}</p>

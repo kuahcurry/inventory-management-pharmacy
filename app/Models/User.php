@@ -102,14 +102,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Get requests processed by this user
-     */
-    public function processedPermintaan(): HasMany
-    {
-        return $this->hasMany(PermintaanUnit::class, 'processed_by');
-    }
-
-    /**
      * Check if user is admin
      */
     public function isAdmin(): bool

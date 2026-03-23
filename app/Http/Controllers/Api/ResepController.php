@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Events\PermintaanCreated;
 use App\Http\Controllers\Controller;
 use App\Models\LogAktivitas;
 use App\Models\Notifikasi;

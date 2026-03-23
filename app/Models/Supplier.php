@@ -23,6 +23,7 @@ class Supplier extends Model
         'no_hp_kontak',
         'npwp',
         'status',
+        'lead_time_days',
         'catatan',
     ];
 

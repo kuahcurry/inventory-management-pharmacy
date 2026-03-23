@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\BatchObat;
 use App\Models\Obat;
-use App\Models\PermintaanUnit;
 use App\Models\Transaksi;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -131,51 +130,6 @@ class ReportController extends Controller
             'summary' => $summary,
             'expiring_soon' => $expiringSoon,
             'expired' => $expired,
-        ]);
-    }
-
-    /**
-     * Generate unit request report.
-     */
-    public function unitRequestReport(Request $request): JsonResponse
-    {
-        $query = PermintaanUnit::with(['unit:id,nama', 'obat:id,nama_obat', 'createdBy:id,name', 'processedBy:id,name']);
-
-        // Date range filter
-        if ($request->has('date_from')) {
-            $query->whereDate('tanggal_permintaan', '>=', $request->date_from);
-        }
-
-        if ($request->has('date_to')) {
-            $query->whereDate('tanggal_permintaan', '<=', $request->date_to);
-        }
-
-        // Filter by unit
-        if ($request->has('unit_id')) {
-            $query->where('unit_rumah_sakit_id', $request->unit_id);
-        }
-
-        // Filter by status
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        }
-
-        $permintaans = $query->latest('tanggal_permintaan')->get();
-
-        $summary = [
-            'total_requests' => $permintaans->count(),
-            'by_status' => [
-                'pending' => $permintaans->where('status', PermintaanUnit::STATUS_PENDING)->count(),
-                'processed' => $permintaans->where('status', PermintaanUnit::STATUS_PROCESSED)->count(),
-                'completed' => $permintaans->where('status', PermintaanUnit::STATUS_COMPLETED)->count(),
-                'rejected' => $permintaans->where('status', PermintaanUnit::STATUS_REJECTED)->count(),
-            ],
-            'urgent_requests' => $permintaans->where('is_urgent', true)->count(),
-        ];
-
-        return response()->json([
-            'summary' => $summary,
-            'data' => $permintaans,
         ]);
     }
 

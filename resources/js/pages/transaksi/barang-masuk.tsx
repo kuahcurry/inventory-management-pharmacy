@@ -44,11 +44,6 @@ interface User {
     name: string;
 }
 
-interface Unit {
-    id: number;
-    nama_unit: string;
-}
-
 interface TransaksiMasuk {
     id: number;
     kode_transaksi: string;
@@ -63,7 +58,6 @@ interface TransaksiMasuk {
     nomor_referensi: string | null;
     keterangan: string | null;
     user: User;
-    unit: Unit | null;
 }
 
 interface PaginatedData {
@@ -360,12 +354,7 @@ export default function BarangMasuk({ transaksi, stats, filters }: Props) {
                                             </TableCell>
                                             <TableCell>
                                                 {item.nomor_referensi ? (
-                                                    <div>
-                                                        <p className="text-sm">{item.nomor_referensi}</p>
-                                                        {item.unit && (
-                                                            <p className="text-xs text-muted-foreground">{item.unit.nama_unit}</p>
-                                                        )}
-                                                    </div>
+                                                    <p className="text-sm">{item.nomor_referensi}</p>
                                                 ) : (
                                                     <span className="text-xs text-muted-foreground">-</span>
                                                 )}

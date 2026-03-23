@@ -43,7 +43,7 @@ export default function Dokumentasi() {
                     <div>
                         <h1 className="text-3xl font-bold">Dokumentasi Sistem</h1>
                         <p className="text-muted-foreground">
-                            Panduan lengkap penggunaan SIMRS Apotek PKU Muhammadiyah Gombong
+                            Panduan lengkap penggunaan Sistem Inventori Manajemen
                         </p>
                     </div>
                 </div>
@@ -69,10 +69,9 @@ export default function Dokumentasi() {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div>
-                                    <h3 className="mb-2 font-semibold">Apa itu SIMRS Apotek PKU?</h3>
+                                    <h3 className="mb-2 font-semibold">Apa itu Sistem Inventori Manajemen?</h3>
                                     <p className="text-muted-foreground">
-                                        SIMRS Apotek PKU adalah Sistem Informasi Manajemen Rumah Sakit khusus untuk bagian 
-                                        farmasi/apotek di PKU Muhammadiyah Gombong. Sistem ini dirancang untuk mengotomatisasi 
+                                        Sistem Inventori Manajemen adalah platform operasional apotek yang dirancang untuk mengotomatisasi 
                                         dan mempermudah proses manajemen obat, transaksi, stok, resep, dan pelaporan secara 
                                         terintegrasi dan real-time.
                                     </p>

@@ -14,7 +14,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('obat', \App\Http\Controllers\ObatController::class);
     
     // Batch Obat
-    Route::resource('batch', \App\Http\Controllers\BatchObatController::class);
+    Route::resource('obat/batch', \App\Http\Controllers\BatchObatController::class)->names([
+        'index' => 'batch.index',
+        'create' => 'batch.create',
+        'store' => 'batch.store',
+        'show' => 'batch.show',
+        'edit' => 'batch.edit',
+        'update' => 'batch.update',
+        'destroy' => 'batch.destroy',
+    ]);
     
     // Resep (Prescriptions)
     Route::resource('resep', \App\Http\Controllers\ResepController::class);

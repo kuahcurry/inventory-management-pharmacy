@@ -9,7 +9,6 @@ import {
     Package, 
     User, 
     Calendar,
-    Hospital,
     Wallet,
     FileText,
     ArrowUpCircle,
@@ -44,11 +43,6 @@ interface User {
     email: string;
 }
 
-interface Unit {
-    nama_unit: string;
-    kode_unit: string;
-}
-
 interface Transaksi {
     id: number;
     kode_transaksi: string;
@@ -63,7 +57,6 @@ interface Transaksi {
     obat: Obat;
     batch?: Batch;
     user: User;
-    unit?: Unit;
     created_at: string;
 }
 
@@ -263,7 +256,7 @@ export default function TransaksiShow({ transaksi }: Props) {
                     <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 space-y-4">
                         <div className="flex items-center gap-2">
                             <User className="size-5 text-muted-foreground" />
-                            <h3 className="text-lg font-semibold">Info Petugas & Unit</h3>
+                            <h3 className="text-lg font-semibold">Info Petugas</h3>
                         </div>
                         
                         <div className="space-y-3 text-sm">
@@ -275,20 +268,6 @@ export default function TransaksiShow({ transaksi }: Props) {
                                 <span className="text-muted-foreground">Email:</span>
                                 <span>{transaksi.user.email}</span>
                             </div>
-                            {transaksi.unit && (
-                                <>
-                                    <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Unit Tujuan:</span>
-                                        <span className="font-medium">{transaksi.unit.nama_unit}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Kode Unit:</span>
-                                        <code className="font-mono text-xs bg-muted px-2 py-1 rounded">
-                                            {transaksi.unit.kode_unit}
-                                        </code>
-                                    </div>
-                                </>
-                            )}
                         </div>
                     </div>
                 </div>

@@ -170,14 +170,14 @@ export default function StokOpnameCreate({ units, batches }: Props) {
                             <div className="grid gap-6 md:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="unit_id">
-                                        Unit Rumah Sakit <span className="text-destructive">*</span>
+                                        Unit Layanan <span className="text-destructive">*</span>
                                     </Label>
                                     <Select
                                         value={data.unit_id}
                                         onValueChange={(value) => setData('unit_id', value)}
                                     >
                                         <SelectTrigger className={errors.unit_id ? 'border-destructive' : ''}>
-                                            <SelectValue placeholder="Pilih unit rumah sakit" />
+                                            <SelectValue placeholder="Pilih unit layanan" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {units.map((unit) => (

@@ -43,23 +43,15 @@ interface Batch {
     };
 }
 
-interface Unit {
-    id: number;
-    kode_unit: string;
-    nama_unit: string;
-}
-
 interface Props {
     obat: Obat[];
     batches: Batch[];
-    units: Unit[];
 }
 
-export default function TransaksiCreate({ obat, batches, units }: Props) {
+export default function TransaksiCreate({ obat, batches }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         obat_id: '',
         batch_id: '',
-        unit_id: '',
         jenis_transaksi: 'masuk',
         jumlah: '',
         harga_satuan: '',
@@ -325,24 +317,6 @@ export default function TransaksiCreate({ obat, batches, units }: Props) {
                                 )}
                             </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="unit_id">Unit Tujuan (Opsional)</Label>
-                                <Select value={data.unit_id} onValueChange={(value) => setData('unit_id', value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Pilih unit (opsional)" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {units.map((unit) => (
-                                            <SelectItem key={unit.id} value={unit.id.toString()}>
-                                                {unit.nama_unit} ({unit.kode_unit})
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {errors.unit_id && (
-                                    <p className="text-sm text-destructive">{errors.unit_id}</p>
-                                )}
-                            </div>
                         </div>
                     </div>
 

@@ -34,6 +34,10 @@ class Obat extends Model
         'kontraindikasi',
         'gambar',
         'is_active',
+        'is_high_risk_drug',
+        'supplier_lead_time_days',
+        'review_period_days',
+        'target_margin_percentage',
     ];
 
     protected $casts = [
@@ -42,6 +46,8 @@ class Obat extends Model
         'harga_beli' => 'decimal:2',
         'harga_jual' => 'decimal:2',
         'is_active' => 'boolean',
+        'is_high_risk_drug' => 'boolean',
+        'target_margin_percentage' => 'decimal:2',
     ];
 
     /**
@@ -96,14 +102,6 @@ class Obat extends Model
     }
 
     /**
-     * Get all unit requests for this medicine
-     */
-    public function permintaan(): HasMany
-    {
-        return $this->hasMany(PermintaanUnit::class, 'obat_id');
-    }
-
-    /**
      * Get activity logs
      */
     public function logAktivitas(): MorphMany
@@ -117,6 +115,21 @@ class Obat extends Model
     public function notifikasi(): MorphMany
     {
         return $this->morphMany(Notifikasi::class, 'notifiable');
+    }
+
+    public function reorderSuggestions(): HasMany
+    {
+        return $this->hasMany(ReorderSuggestion::class, 'obat_id');
+    }
+
+    public function demandForecasts(): HasMany
+    {
+        return $this->hasMany(DemandForecast::class, 'obat_id');
+    }
+
+    public function approvalRequests(): HasMany
+    {
+        return $this->hasMany(ApprovalRequest::class, 'obat_id');
     }
 
     /**

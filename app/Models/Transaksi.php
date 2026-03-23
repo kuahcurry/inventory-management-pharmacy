@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
@@ -16,7 +17,9 @@ class Transaksi extends Model
     protected $table = 'transaksi';
 
     const JENIS_MASUK = 'masuk';
+
     const JENIS_KELUAR = 'keluar';
+
     const JENIS_PENJUALAN = 'penjualan';
 
     protected $fillable = [
@@ -61,6 +64,48 @@ class Transaksi extends Model
                 $transaksi->waktu_transaksi = now()->toTimeString();
             }
         });
+
+        static::created(function (Transaksi $transaksi): void {
+            if (! auth()->check()) {
+                return;
+            }
+
+            LogAktivitas::log(
+                auth()->user(),
+                'Membuat transaksi '.$transaksi->kode_transaksi,
+                'transaksi',
+                LogAktivitas::AKSI_CREATE,
+                $transaksi,
+                null,
+                $transaksi->fresh()?->toArray()
+            );
+        });
+
+        static::updated(function (Transaksi $transaksi): void {
+            if (! auth()->check()) {
+                return;
+            }
+
+            $changes = $transaksi->getChanges();
+            if (empty($changes)) {
+                return;
+            }
+
+            $before = [];
+            foreach (array_keys($changes) as $key) {
+                $before[$key] = $transaksi->getOriginal($key);
+            }
+
+            LogAktivitas::log(
+                auth()->user(),
+                'Mengubah transaksi '.$transaksi->kode_transaksi,
+                'transaksi',
+                LogAktivitas::AKSI_UPDATE,
+                $transaksi,
+                $before,
+                $changes
+            );
+        });
     }
 
     /**
@@ -68,7 +113,7 @@ class Transaksi extends Model
      */
     public function generateKodeTransaksi(): string
     {
-        $prefix = match($this->jenis_transaksi) {
+        $prefix = match ($this->jenis_transaksi) {
             self::JENIS_MASUK => 'TRM',      // Transaksi Masuk
             self::JENIS_KELUAR => 'TRK',     // Transaksi Keluar
             self::JENIS_PENJUALAN => 'TRJ',  // Transaksi Jual
@@ -76,6 +121,7 @@ class Transaksi extends Model
         };
         $date = now()->format('Ymd');
         $random = strtoupper(Str::random(4));
+
         return "{$prefix}-{$date}-{$random}";
     }
 
@@ -125,6 +171,11 @@ class Transaksi extends Model
     public function logAktivitas(): MorphMany
     {
         return $this->morphMany(LogAktivitas::class, 'loggable');
+    }
+
+    public function approvalRequests(): HasMany
+    {
+        return $this->hasMany(ApprovalRequest::class, 'transaksi_id');
     }
 
     /**

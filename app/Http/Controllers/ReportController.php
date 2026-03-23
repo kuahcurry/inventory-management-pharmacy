@@ -2,17 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Obat;
+use App\Actions\BuildOperationalInsights;
+use App\Models\ApprovalRequest;
 use App\Models\BatchObat;
+use App\Models\DemandForecast;
 use App\Models\KategoriObat;
+use App\Models\Obat;
+use App\Models\ReorderSuggestion;
 use App\Models\Transaksi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
+    public function __construct(private BuildOperationalInsights $insights) {}
+
     /**
      * Display stock report
      */
@@ -20,7 +26,7 @@ class ReportController extends Controller
     {
         $query = Obat::with(['kategori', 'satuan', 'batches' => function ($q) {
             $q->where('stok_tersedia', '>', 0)
-              ->whereDate('tanggal_expired', '>', now());
+                ->whereDate('tanggal_expired', '>', now());
         }]);
 
         // Filter by kategori
@@ -36,7 +42,7 @@ class ReportController extends Controller
                     break;
                 case 'minimum':
                     $query->where('stok_total', '>', 0)
-                          ->whereRaw('stok_total <= stok_minimum');
+                        ->whereRaw('stok_total <= stok_minimum');
                     break;
                 case 'tersedia':
                     $query->whereRaw('stok_total > stok_minimum');
@@ -49,7 +55,7 @@ class ReportController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('nama_obat', 'like', "%{$search}%")
-                  ->orWhere('kode_obat', 'like', "%{$search}%");
+                    ->orWhere('kode_obat', 'like', "%{$search}%");
             });
         }
 
@@ -88,8 +94,8 @@ class ReportController extends Controller
         // Filter by date range
         if ($request->filled('tanggal_dari') && $request->filled('tanggal_sampai')) {
             $query->whereBetween('tanggal_transaksi', [
-                $request->tanggal_dari, 
-                $request->tanggal_sampai
+                $request->tanggal_dari,
+                $request->tanggal_sampai,
             ]);
         } elseif ($request->filled('tanggal_dari')) {
             $query->whereDate('tanggal_transaksi', '>=', $request->tanggal_dari);
@@ -102,10 +108,10 @@ class ReportController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('kode_transaksi', 'like', "%{$search}%")
-                  ->orWhereHas('obat', function ($q) use ($search) {
-                      $q->where('nama_obat', 'like', "%{$search}%")
-                        ->orWhere('kode_obat', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('obat', function ($q) use ($search) {
+                        $q->where('nama_obat', 'like', "%{$search}%")
+                            ->orWhere('kode_obat', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -116,25 +122,25 @@ class ReportController extends Controller
 
         // Calculate statistics
         $statsQuery = Transaksi::query();
-        
+
         // Apply same filters to statistics
         if ($request->filled('jenis')) {
             $statsQuery->where('jenis_transaksi', $request->jenis);
         }
         if ($request->filled('tanggal_dari') && $request->filled('tanggal_sampai')) {
             $statsQuery->whereBetween('tanggal_transaksi', [
-                $request->tanggal_dari, 
-                $request->tanggal_sampai
+                $request->tanggal_dari,
+                $request->tanggal_sampai,
             ]);
         }
         if ($request->filled('search')) {
             $search = $request->search;
             $statsQuery->where(function ($q) use ($search) {
                 $q->where('kode_transaksi', 'like', "%{$search}%")
-                  ->orWhereHas('obat', function ($q) use ($search) {
-                      $q->where('nama_obat', 'like', "%{$search}%")
-                        ->orWhere('kode_obat', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('obat', function ($q) use ($search) {
+                        $q->where('nama_obat', 'like', "%{$search}%")
+                            ->orWhere('kode_obat', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -182,10 +188,10 @@ class ReportController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('nomor_batch', 'like', "%{$search}%")
-                  ->orWhereHas('obat', function ($q) use ($search) {
-                      $q->where('nama_obat', 'like', "%{$search}%")
-                        ->orWhere('kode_obat', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('obat', function ($q) use ($search) {
+                        $q->where('nama_obat', 'like', "%{$search}%")
+                            ->orWhere('kode_obat', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -196,12 +202,13 @@ class ReportController extends Controller
         // Add days_until_expiry to each batch
         $batches->getCollection()->transform(function ($batch) {
             $batch->days_until_expiry = now()->diffInDays($batch->tanggal_expired, false);
+
             return $batch;
         });
 
         // Calculate statistics
         $statsQuery = BatchObat::where('stok_tersedia', '>', 0);
-        
+
         // Apply same filters to statistics
         if ($request->filled('kategori_id')) {
             $statsQuery->whereHas('obat', function ($q) use ($request) {
@@ -212,10 +219,10 @@ class ReportController extends Controller
             $search = $request->search;
             $statsQuery->where(function ($q) use ($search) {
                 $q->where('nomor_batch', 'like', "%{$search}%")
-                  ->orWhereHas('obat', function ($q) use ($search) {
-                      $q->where('nama_obat', 'like', "%{$search}%")
-                        ->orWhere('kode_obat', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('obat', function ($q) use ($search) {
+                        $q->where('nama_obat', 'like', "%{$search}%")
+                            ->orWhere('kode_obat', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -249,6 +256,18 @@ class ReportController extends Controller
             'stats' => $stats,
             'kategori' => $kategori,
             'filters' => $request->only(['search', 'kategori_id', 'months_ahead', 'status']),
+        ]);
+    }
+
+    public function operational(): Response
+    {
+        $margin = $this->insights->buildMarginSummary();
+
+        return Inertia::render('laporan/operasional', [
+            'reorderSuggestions' => ReorderSuggestion::query()->with('obat:id,nama_obat,kode_obat')->latest()->limit(20)->get(),
+            'demandForecasts' => DemandForecast::query()->with('obat:id,nama_obat,kode_obat')->latest()->limit(20)->get(),
+            'pendingApprovals' => ApprovalRequest::query()->with(['obat:id,nama_obat,kode_obat', 'requestedBy:id,name'])->where('status', 'pending')->latest()->limit(20)->get(),
+            'margin' => $margin,
         ]);
     }
 }

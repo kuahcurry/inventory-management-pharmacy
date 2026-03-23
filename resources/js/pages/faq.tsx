@@ -42,16 +42,16 @@ export default function FAQ() {
                             Pertanyaan Umum
                         </CardTitle>
                         <CardDescription>
-                            Informasi dasar tentang sistem SIMRS Apotek PKU
+                            Informasi dasar tentang sistem inventori apotek
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Accordion type="single" collapsible className="w-full">
                             <AccordionItem value="item-1">
-                                <AccordionTrigger>Apa itu SIMRS Apotek PKU?</AccordionTrigger>
+                                <AccordionTrigger>Apa itu Sistem Inventori Manajemen?</AccordionTrigger>
                                 <AccordionContent>
-                                    SIMRS Apotek PKU adalah Sistem Informasi Manajemen Rumah Sakit untuk bagian farmasi/apotek 
-                                    PKU Muhammadiyah Gombong. Sistem ini membantu mengelola inventori obat, transaksi, stok opname, 
+                                    Sistem Inventori Manajemen adalah platform operasional apotek untuk 
+                                    mengelola inventori obat, transaksi, stok opname, 
                                     resep, dan pelaporan secara terintegrasi.
                                 </AccordionContent>
                             </AccordionItem>
@@ -64,7 +64,7 @@ export default function FAQ() {
                                         <li><strong>Admin:</strong> Memiliki akses penuh ke semua fitur sistem</li>
                                         <li><strong>Apoteker:</strong> Dapat mengelola obat, transaksi, resep, dan laporan</li>
                                         <li><strong>Staff Farmasi:</strong> Dapat mengelola stok dan transaksi harian</li>
-                                        <li><strong>Unit Rumah Sakit:</strong> Dapat membuat permintaan obat dari apotek</li>
+                                        <li><strong>Unit Layanan:</strong> Dapat membuat permintaan obat dari apotek</li>
                                     </ul>
                                 </AccordionContent>
                             </AccordionItem>
@@ -621,7 +621,7 @@ export default function FAQ() {
                             <div className="rounded-lg border p-4">
                                 <h4 className="font-semibold">Administrator Sistem</h4>
                                 <p className="mt-1 text-sm text-muted-foreground">
-                                    Email: admin@pkugombong.ac.id
+                                    Email: admin@apoteksapari.id
                                 </p>
                             </div>
                             <div className="rounded-lg border p-4">

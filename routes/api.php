@@ -7,8 +7,9 @@ use App\Http\Controllers\Api\KategoriObatController;
 use App\Http\Controllers\Api\LogAktivitasController;
 use App\Http\Controllers\Api\NotifikasiController;
 use App\Http\Controllers\Api\ObatController;
+use App\Http\Controllers\Api\OnboardingController;
+use App\Http\Controllers\Api\OperationalInsightController;
 use App\Http\Controllers\Api\PemusnahanObatController;
-use App\Http\Controllers\Api\PermintaanUnitController;
 use App\Http\Controllers\Api\QrCodeController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\ResepController;
@@ -32,6 +33,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['auth:web'])->group(function () {
+    Route::prefix('onboarding')->group(function () {
+        Route::get('/status', [OnboardingController::class, 'status'])->name('api.onboarding.status');
+        Route::post('/tutorial', [OnboardingController::class, 'tutorial'])->name('api.onboarding.tutorial');
+        Route::patch('/preferences', [OnboardingController::class, 'updatePreferences'])->name('api.onboarding.preferences');
+    });
+
     // Dashboard & Analytics
     Route::prefix('dashboard')->group(function () {
         Route::get('/stats', [DashboardController::class, 'stats']);
@@ -40,7 +47,6 @@ Route::middleware(['auth:web'])->group(function () {
         Route::get('/expiring-soon', [DashboardController::class, 'expiringSoon']);
         Route::get('/low-stock', [DashboardController::class, 'lowStock']);
         Route::get('/top-medicines', [DashboardController::class, 'topMedicines']);
-        Route::get('/unit-requests', [DashboardController::class, 'unitRequests']);
         Route::get('/recent-transactions', [DashboardController::class, 'recentTransactions']);
     });
 
@@ -123,22 +129,6 @@ Route::middleware(['auth:web'])->group(function () {
         'show' => 'api.transaksi.show',
     ]);
 
-    // Permintaan Unit
-    Route::prefix('permintaan')->group(function () {
-        Route::get('/pending', [PermintaanUnitController::class, 'pending'])->name('api.permintaan.pending');
-        Route::get('/urgent', [PermintaanUnitController::class, 'urgent'])->name('api.permintaan.urgent');
-        Route::post('/{permintaan}/process', [PermintaanUnitController::class, 'process'])->name('api.permintaan.process');
-        Route::post('/{permintaan}/complete', [PermintaanUnitController::class, 'complete'])->name('api.permintaan.complete');
-        Route::post('/{permintaan}/cancel', [PermintaanUnitController::class, 'cancel'])->name('api.permintaan.cancel');
-    });
-    Route::apiResource('permintaan', PermintaanUnitController::class)->names([
-        'index' => 'api.permintaan.index',
-        'store' => 'api.permintaan.store',
-        'show' => 'api.permintaan.show',
-        'update' => 'api.permintaan.update',
-        'destroy' => 'api.permintaan.destroy',
-    ]);
-
     // QR Code
     Route::prefix('qr')->group(function () {
         Route::get('/generate/{batch}', [QrCodeController::class, 'generate'])->name('api.qr.generate');
@@ -204,8 +194,20 @@ Route::middleware(['auth:web'])->group(function () {
         Route::get('/stock', [ReportController::class, 'stockReport'])->name('api.reports.stock');
         Route::get('/transactions', [ReportController::class, 'transactionReport'])->name('api.reports.transactions');
         Route::get('/expiry', [ReportController::class, 'expiryReport'])->name('api.reports.expiry');
-        Route::get('/unit-requests', [ReportController::class, 'unitRequestReport'])->name('api.reports.unit-requests');
         Route::get('/export/{type}', [ReportController::class, 'export'])->name('api.reports.export');
+    });
+
+    Route::prefix('insights')->group(function () {
+        Route::get('/reorder-suggestions', [OperationalInsightController::class, 'reorderSuggestions'])->name('api.insights.reorder-suggestions');
+        Route::get('/forecasts', [OperationalInsightController::class, 'forecasts'])->name('api.insights.forecasts');
+        Route::post('/check-interactions', [OperationalInsightController::class, 'checkInteractions'])->name('api.insights.check-interactions');
+        Route::get('/approval-queue', [OperationalInsightController::class, 'approvalQueue'])->name('api.insights.approval-queue');
+        Route::post('/approvals/{approval}/decision', [OperationalInsightController::class, 'approve'])->name('api.insights.approvals.decision');
+        Route::get('/transaction-audit/{transaksiId}', [OperationalInsightController::class, 'transactionAudit'])->name('api.insights.transaction-audit');
+        Route::post('/stock-scan-sessions/start', [OperationalInsightController::class, 'startStockScanSession'])->name('api.insights.stock-scan.start');
+        Route::post('/stock-scan-sessions/{session}/scan', [OperationalInsightController::class, 'scanStockSession'])->name('api.insights.stock-scan.scan');
+        Route::post('/stock-scan-sessions/{session}/complete', [OperationalInsightController::class, 'completeStockScanSession'])->name('api.insights.stock-scan.complete');
+        Route::get('/margins', [OperationalInsightController::class, 'margins'])->name('api.insights.margins');
     });
 
     // Master Data Management

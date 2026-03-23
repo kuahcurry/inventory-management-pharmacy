@@ -1,4 +1,5 @@
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import { FirstTimeTutorial } from '@/components/onboarding/first-time-tutorial';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
@@ -17,8 +18,6 @@ interface DashboardStats {
     total_stok: number;
     low_stock_count: number;
     expired_soon_count: number;
-    pending_requests: number;
-    urgent_requests: number;
     today_transactions: number;
     today_incoming: number;
     today_outgoing: number;
@@ -44,31 +43,21 @@ interface ExpiringItem {
     };
 }
 
-interface PendingRequest {
-    id: number;
-    nomor_permintaan: string;
-    tanggal_permintaan: string;
-    status: string;
-    prioritas: string;
-    unit: { nama_unit: string };
-}
-
 interface DashboardProps {
     stats: DashboardStats;
     lowStock: LowStockItem[];
     expiringSoon: ExpiringItem[];
-    pendingRequests: PendingRequest[];
 }
 
 export default function Dashboard({
     stats,
     lowStock,
     expiringSoon,
-    pendingRequests,
 }: DashboardProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
+            <FirstTimeTutorial />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto p-4">
                 {/* Stats Cards */}
                 <div className="grid gap-4 md:grid-cols-3">

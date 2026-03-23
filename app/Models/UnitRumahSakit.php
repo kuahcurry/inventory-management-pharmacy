@@ -34,14 +34,6 @@ class UnitRumahSakit extends Model
     }
 
     /**
-     * Get all medicine requests from this unit
-     */
-    public function permintaan(): HasMany
-    {
-        return $this->hasMany(PermintaanUnit::class, 'unit_id');
-    }
-
-    /**
      * Scope for active units
      */
     public function scopeActive($query)

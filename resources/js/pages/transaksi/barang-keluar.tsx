@@ -45,11 +45,6 @@ interface User {
     name: string;
 }
 
-interface Unit {
-    id: number;
-    nama_unit: string;
-}
-
 interface TransaksiKeluar {
     id: number;
     kode_transaksi: string;
@@ -64,7 +59,6 @@ interface TransaksiKeluar {
     nomor_referensi: string | null;
     keterangan: string | null;
     user: User;
-    unit: Unit | null;
 }
 
 interface PaginatedData {
@@ -318,7 +312,7 @@ export default function BarangKeluar({ transaksi, stats, filters }: Props) {
                                     <TableHead className="text-right">Jumlah</TableHead>
                                     <TableHead className="text-right">Harga Satuan</TableHead>
                                     <TableHead className="text-right">Total</TableHead>
-                                    <TableHead>Unit/Tujuan</TableHead>
+                                    <TableHead>Referensi</TableHead>
                                     <TableHead>Petugas</TableHead>
                                     <TableHead className="text-right">Aksi</TableHead>
                                 </TableRow>
@@ -369,14 +363,7 @@ export default function BarangKeluar({ transaksi, stats, filters }: Props) {
                                                 {formatCurrency(item.total_harga)}
                                             </TableCell>
                                             <TableCell>
-                                                {item.unit ? (
-                                                    <div>
-                                                        <p className="text-sm">{item.unit.nama_unit}</p>
-                                                        {item.nomor_referensi && (
-                                                            <p className="text-xs text-muted-foreground">{item.nomor_referensi}</p>
-                                                        )}
-                                                    </div>
-                                                ) : item.nomor_referensi ? (
+                                                {item.nomor_referensi ? (
                                                     <span className="text-sm">{item.nomor_referensi}</span>
                                                 ) : (
                                                     <span className="text-xs text-muted-foreground">-</span>
