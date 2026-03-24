@@ -35,6 +35,16 @@ class Supplier extends Model
         return $this->hasMany(BatchObat::class, 'supplier_id');
     }
 
+    public function transaksi(): HasMany
+    {
+        return $this->hasMany(Transaksi::class, 'supplier_id');
+    }
+
+    public function hutang(): HasMany
+    {
+        return $this->hasMany(Hutang::class, 'supplier_id');
+    }
+
     /**
      * Scope for active suppliers
      */

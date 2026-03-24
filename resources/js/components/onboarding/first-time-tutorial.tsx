@@ -38,10 +38,10 @@ export function FirstTimeTutorial() {
                 href: '/dashboard',
             },
             {
-                title: 'Tambah Batch Obat',
-                description: 'Simpan nomor batch, tanggal expired, dan stok awal agar FEFO berjalan akurat.',
-                actionLabel: 'Tambah Batch',
-                href: '/obat/batch/create',
+                title: 'Tambah Obat & Batch',
+                description: 'Gunakan form terpadu untuk membuat obat baru atau menambah batch pada obat existing dalam satu alur.',
+                actionLabel: 'Tambah Obat',
+                href: '/obat/create',
             },
             {
                 title: 'Scan QR untuk Transaksi Cepat',

@@ -14,13 +14,18 @@ class HutangController extends Controller
     public function index(Request $request): JsonResponse
     {
         $status = $request->string('status')->toString();
+        $supplierId = $request->integer('supplier_id');
 
         $query = Hutang::query()
-            ->with(['transaksi.obat', 'payments'])
+            ->with(['transaksi.obat', 'supplier', 'payments'])
             ->latest('created_at');
 
         if (in_array($status, ['unpaid', 'partially_paid', 'paid'], true)) {
             $query->where('payment_status', $status);
+        }
+
+        if ($supplierId > 0) {
+            $query->where('supplier_id', $supplierId);
         }
 
         return response()->json($query->paginate((int) $request->get('per_page', 20)));

@@ -165,8 +165,9 @@ export default function FAQ() {
                                     </ul>
                                     <p className="mt-2"><strong>Cara menambah batch:</strong></p>
                                     <ol className="list-inside list-decimal space-y-1">
-                                        <li>Buka menu "Obat" → "Batch Obat"</li>
-                                        <li>Klik "Tambah Batch"</li>
+                                        <li>Buka menu "Obat" → "Data Obat"</li>
+                                        <li>Klik "Tambah Obat"</li>
+                                        <li>Aktifkan mode "Gunakan obat yang sudah ada" bila hanya menambah batch</li>
                                         <li>Pilih obat, masukkan nomor batch, tanggal expired, dan stok</li>
                                         <li>Klik "Simpan"</li>
                                     </ol>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BatchObat;
 use App\Models\Obat;
 use App\Models\Supplier;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,21 +29,10 @@ class BatchObatController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): Response
+    public function create(): RedirectResponse
     {
-        $obat = Obat::with(['kategori', 'jenis', 'satuan'])
-            ->where('is_active', true)
-            ->orderBy('nama_obat')
-            ->get();
-
-        $suppliers = Supplier::where('status', 'active')
-            ->orderBy('nama_supplier')
-            ->get();
-
-        return Inertia::render('obat/batch/create', [
-            'obat' => $obat,
-            'suppliers' => $suppliers,
-        ]);
+        return redirect()->route('obat.create')
+            ->with('info', 'Gunakan form Tambah Obat terpadu untuk membuat obat baru atau menambah batch pada obat existing.');
     }
 
     /**

@@ -5,8 +5,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Download, FileText, Save, Upload, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { Download, FileText, Loader2, Save, Search, Upload, X } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import axios from 'axios';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -41,6 +42,15 @@ interface CreateProps {
     suppliers: Supplier[];
 }
 
+interface ExistingMedicineSuggestion {
+    id: number;
+    kode_obat: string;
+    nama_obat: string;
+    kategori?: { id: number; nama_kategori: string } | null;
+    satuan?: { id: number; nama_satuan: string } | null;
+    default_supplier?: { id: number; nama_supplier: string } | null;
+}
+
 type InfoTab = 'indikasi' | 'kontraindikasi' | 'efek_samping' | 'deskripsi';
 
 const infoTabs: Array<{ key: InfoTab; label: string }> = [
@@ -55,8 +65,15 @@ export default function CreateObat({ kategori, jenis, satuan, suppliers }: Creat
     const [activeInfoTab, setActiveInfoTab] = useState<InfoTab>('indikasi');
     const [importFile, setImportFile] = useState<File | null>(null);
     const [importing, setImporting] = useState(false);
+    const [useExistingMedicine, setUseExistingMedicine] = useState(false);
+    const [existingQuery, setExistingQuery] = useState('');
+    const [existingResults, setExistingResults] = useState<ExistingMedicineSuggestion[]>([]);
+    const [existingLoading, setExistingLoading] = useState(false);
+    const [existingOpen, setExistingOpen] = useState(false);
+    const [activeExistingIndex, setActiveExistingIndex] = useState(0);
 
     const { data, setData, post, processing, errors } = useForm<{
+        existing_obat_id: number | undefined;
         kode_obat: string;
         nama_obat: string;
         nama_generik: string;
@@ -81,6 +98,7 @@ export default function CreateObat({ kategori, jenis, satuan, suppliers }: Creat
         initial_harga_beli: number | '';
         initial_catatan: string;
     }>({
+        existing_obat_id: undefined,
         kode_obat: '',
         nama_obat: '',
         nama_generik: '',
@@ -152,6 +170,59 @@ export default function CreateObat({ kategori, jenis, satuan, suppliers }: Creat
         window.location.href = '/obat/download-template';
     };
 
+    useEffect(() => {
+        if (!useExistingMedicine) {
+            setExistingResults([]);
+            setExistingOpen(false);
+            return;
+        }
+
+        const keyword = existingQuery.trim();
+        if (keyword.length < 2) {
+            setExistingResults([]);
+            setExistingOpen(false);
+            return;
+        }
+
+        const timer = window.setTimeout(async () => {
+            setExistingLoading(true);
+            try {
+                const response = await axios.get('/api/medicines/search', {
+                    params: {
+                        q: keyword,
+                        limit: 20,
+                    },
+                });
+
+                const list = (response.data?.data || []) as ExistingMedicineSuggestion[];
+                setExistingResults(list);
+                setExistingOpen(true);
+                setActiveExistingIndex(0);
+            } catch {
+                setExistingResults([]);
+                setExistingOpen(true);
+            } finally {
+                setExistingLoading(false);
+            }
+        }, 300);
+
+        return () => window.clearTimeout(timer);
+    }, [useExistingMedicine, existingQuery]);
+
+    const selectExistingMedicine = (item: ExistingMedicineSuggestion) => {
+        setData('existing_obat_id', item.id);
+        setData('nama_obat', item.nama_obat);
+        setData('kode_obat', item.kode_obat || '');
+        setData('kategori_id', item.kategori?.id);
+        if (item.default_supplier?.id) {
+            setData('initial_supplier_id', item.default_supplier.id);
+        }
+        setExistingQuery(`${item.nama_obat} (${item.kode_obat})`);
+        setExistingOpen(false);
+    };
+
+    const disableNewMedicineFields = useExistingMedicine && !!data.existing_obat_id;
+
     const infoValue = data[activeInfoTab] ?? '';
 
     return (
@@ -187,34 +258,130 @@ export default function CreateObat({ kategori, jenis, satuan, suppliers }: Creat
                 {activeTab === 'manual' && (
                     <form onSubmit={handleSubmit} className="rounded-xl border border-slate-300 bg-card p-4 shadow-sm">
                         <div className="grid gap-4 lg:grid-cols-12">
+                            <section className="space-y-3 rounded-lg border border-sky-300 bg-sky-50/40 p-3 lg:col-span-12">
+                                <h2 className="border-b border-sky-200 pb-2 text-sm font-semibold uppercase tracking-wide text-sky-800">Mode Input Obat</h2>
+
+                                <label className="flex items-center gap-2 text-sm font-medium text-sky-900">
+                                    <input
+                                        type="checkbox"
+                                        checked={useExistingMedicine}
+                                        onChange={(e) => {
+                                            const checked = e.target.checked;
+                                            setUseExistingMedicine(checked);
+                                            setData('existing_obat_id', undefined);
+                                            setExistingQuery('');
+                                            setExistingResults([]);
+                                            setExistingOpen(false);
+                                        }}
+                                    />
+                                    Gunakan obat yang sudah ada (buat batch baru tanpa duplikasi obat)
+                                </label>
+
+                                {useExistingMedicine && (
+                                    <div className="relative space-y-1.5">
+                                        <Label htmlFor="existing_obat">Cari Obat Existing *</Label>
+                                        <div className="relative">
+                                            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                                            <Input
+                                                id="existing_obat"
+                                                value={existingQuery}
+                                                onChange={(e) => {
+                                                    setExistingQuery(e.target.value);
+                                                    setData('existing_obat_id', undefined);
+                                                }}
+                                                onFocus={() => {
+                                                    if (existingResults.length > 0) {
+                                                        setExistingOpen(true);
+                                                    }
+                                                }}
+                                                onBlur={() => {
+                                                    window.setTimeout(() => setExistingOpen(false), 120);
+                                                }}
+                                                onKeyDown={(e) => {
+                                                    if (!existingOpen || existingResults.length === 0) {
+                                                        return;
+                                                    }
+
+                                                    if (e.key === 'ArrowDown') {
+                                                        e.preventDefault();
+                                                        setActiveExistingIndex((prev) => Math.min(prev + 1, existingResults.length - 1));
+                                                    }
+
+                                                    if (e.key === 'ArrowUp') {
+                                                        e.preventDefault();
+                                                        setActiveExistingIndex((prev) => Math.max(prev - 1, 0));
+                                                    }
+
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        const chosen = existingResults[activeExistingIndex];
+                                                        if (chosen) {
+                                                            selectExistingMedicine(chosen);
+                                                        }
+                                                    }
+                                                }}
+                                                placeholder="Ketik nama obat atau kode..."
+                                                className="pl-9"
+                                            />
+                                        </div>
+
+                                        {existingOpen && (
+                                            <div className="absolute z-30 mt-1 max-h-64 w-full overflow-auto rounded-md border bg-background shadow-lg">
+                                                {existingLoading ? (
+                                                    <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
+                                                        <Loader2 className="size-4 animate-spin" />
+                                                        Mencari obat...
+                                                    </div>
+                                                ) : existingResults.length === 0 ? (
+                                                    <div className="px-3 py-2 text-sm text-muted-foreground">Tidak ada obat yang cocok.</div>
+                                                ) : (
+                                                    existingResults.map((item, index) => (
+                                                        <button
+                                                            key={item.id}
+                                                            type="button"
+                                                            className={`w-full px-3 py-2 text-left text-sm ${index === activeExistingIndex ? 'bg-muted' : 'hover:bg-muted/60'}`}
+                                                            onMouseDown={() => selectExistingMedicine(item)}
+                                                        >
+                                                            <div className="font-medium">{item.nama_obat} <span className="text-xs text-muted-foreground">({item.kode_obat})</span></div>
+                                                            <div className="text-xs text-muted-foreground">{item.kategori?.nama_kategori || 'Tanpa kategori'}</div>
+                                                        </button>
+                                                    ))
+                                                )}
+                                            </div>
+                                        )}
+                                        {errors.existing_obat_id && <p className="text-xs text-destructive">{errors.existing_obat_id}</p>}
+                                    </div>
+                                )}
+                            </section>
+
                             <section className="space-y-3 rounded-lg border border-slate-300 p-3 lg:col-span-7">
                                 <h2 className="border-b border-slate-200 pb-2 text-sm font-semibold uppercase tracking-wide text-slate-700">Barang</h2>
 
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     <div className="space-y-1.5">
                                         <Label htmlFor="kode_obat">Kode (opsional)</Label>
-                                        <Input id="kode_obat" value={data.kode_obat} onChange={(e) => setData('kode_obat', e.target.value)} placeholder="Kosongkan untuk generate otomatis" />
+                                        <Input id="kode_obat" value={data.kode_obat} onChange={(e) => setData('kode_obat', e.target.value)} placeholder="Kosongkan untuk generate otomatis" disabled={disableNewMedicineFields} />
                                         {errors.kode_obat && <p className="text-xs text-destructive">{errors.kode_obat}</p>}
                                     </div>
                                     <div className="space-y-1.5">
                                         <Label htmlFor="nama_obat">Nama *</Label>
-                                        <Input id="nama_obat" value={data.nama_obat} onChange={(e) => setData('nama_obat', e.target.value)} placeholder="Paracetamol 500mg" required />
+                                        <Input id="nama_obat" value={data.nama_obat} onChange={(e) => setData('nama_obat', e.target.value)} placeholder="Paracetamol 500mg" required={!useExistingMedicine} disabled={disableNewMedicineFields} />
                                         {errors.nama_obat && <p className="text-xs text-destructive">{errors.nama_obat}</p>}
                                     </div>
                                     <div className="space-y-1.5">
                                         <Label htmlFor="nama_generik">Generik</Label>
-                                        <Input id="nama_generik" value={data.nama_generik} onChange={(e) => setData('nama_generik', e.target.value)} />
+                                        <Input id="nama_generik" value={data.nama_generik} onChange={(e) => setData('nama_generik', e.target.value)} disabled={disableNewMedicineFields} />
                                     </div>
                                     <div className="space-y-1.5">
                                         <Label htmlFor="nama_brand">Brand</Label>
-                                        <Input id="nama_brand" value={data.nama_brand} onChange={(e) => setData('nama_brand', e.target.value)} />
+                                        <Input id="nama_brand" value={data.nama_brand} onChange={(e) => setData('nama_brand', e.target.value)} disabled={disableNewMedicineFields} />
                                     </div>
                                 </div>
 
                                 <div className="grid gap-3 sm:grid-cols-3">
                                     <div className="space-y-1.5">
                                         <Label>Kategori *</Label>
-                                        <Select value={data.kategori_id?.toString() || undefined} onValueChange={(v) => setData('kategori_id', parseInt(v, 10))} required>
+                                        <Select value={data.kategori_id?.toString() || undefined} onValueChange={(v) => setData('kategori_id', parseInt(v, 10))} disabled={disableNewMedicineFields}>
                                             <SelectTrigger><SelectValue placeholder="Pilih" /></SelectTrigger>
                                             <SelectContent>
                                                 {kategori.map((item) => (
@@ -226,7 +393,7 @@ export default function CreateObat({ kategori, jenis, satuan, suppliers }: Creat
                                     </div>
                                     <div className="space-y-1.5">
                                         <Label>Jenis *</Label>
-                                        <Select value={data.jenis_id?.toString() || undefined} onValueChange={(v) => setData('jenis_id', parseInt(v, 10))} required>
+                                        <Select value={data.jenis_id?.toString() || undefined} onValueChange={(v) => setData('jenis_id', parseInt(v, 10))} disabled={disableNewMedicineFields}>
                                             <SelectTrigger><SelectValue placeholder="Pilih" /></SelectTrigger>
                                             <SelectContent>
                                                 {jenis.map((item) => (
@@ -238,7 +405,7 @@ export default function CreateObat({ kategori, jenis, satuan, suppliers }: Creat
                                     </div>
                                     <div className="space-y-1.5">
                                         <Label>Satuan *</Label>
-                                        <Select value={data.satuan_id?.toString() || undefined} onValueChange={(v) => setData('satuan_id', parseInt(v, 10))} required>
+                                        <Select value={data.satuan_id?.toString() || undefined} onValueChange={(v) => setData('satuan_id', parseInt(v, 10))} disabled={disableNewMedicineFields}>
                                             <SelectTrigger><SelectValue placeholder="Pilih" /></SelectTrigger>
                                             <SelectContent>
                                                 {satuan.map((item) => (
@@ -270,7 +437,7 @@ export default function CreateObat({ kategori, jenis, satuan, suppliers }: Creat
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     <div className="space-y-1.5">
                                         <Label htmlFor="stok_minimum">Stok Min. *</Label>
-                                        <Input id="stok_minimum" type="number" min={0} value={data.stok_minimum} onChange={(e) => setData('stok_minimum', parseInt(e.target.value, 10) || 0)} required />
+                                        <Input id="stok_minimum" type="number" min={0} value={data.stok_minimum} onChange={(e) => setData('stok_minimum', parseInt(e.target.value, 10) || 0)} disabled={disableNewMedicineFields} />
                                         {errors.stok_minimum && <p className="text-xs text-destructive">{errors.stok_minimum}</p>}
                                     </div>
                                     <div className="space-y-1.5">

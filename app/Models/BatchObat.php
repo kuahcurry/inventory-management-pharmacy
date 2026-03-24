@@ -18,6 +18,7 @@ class BatchObat extends Model
 
     protected $fillable = [
         'obat_id',
+        'supplier_id',
         'nomor_batch',
         'tanggal_produksi',
         'tanggal_expired',

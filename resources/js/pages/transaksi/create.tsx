@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Save, X, Package, QrCode, Scan, AlertCircle, CheckCircle2, Camera, Keyboard } from 'lucide-react';
+import { Save, X, Package, QrCode, Scan, AlertCircle, CheckCircle2, Camera, Keyboard, Loader2 } from 'lucide-react';
 import type { FormEventHandler } from 'react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -48,6 +48,31 @@ interface Props {
     batches: Batch[];
 }
 
+interface SupplierSuggestion {
+    id: number;
+    kode_supplier: string;
+    nama_supplier: string;
+    no_telepon?: string;
+    status?: string;
+}
+
+interface MedicineSuggestion {
+    id: number;
+    kode_obat: string;
+    nama_obat: string;
+    stok_total: number;
+    last_buy_price: number;
+    kategori?: {
+        id: number;
+        nama_kategori: string;
+    } | null;
+    satuan?: {
+        id: number;
+        nama_satuan: string;
+    } | null;
+    default_supplier?: SupplierSuggestion | null;
+}
+
 export default function TransaksiCreate({ obat, batches }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         obat_id: '',
@@ -58,6 +83,7 @@ export default function TransaksiCreate({ obat, batches }: Props) {
         tanggal_transaksi: new Date().toISOString().split('T')[0],
         keterangan: '',
         nomor_referensi: '',
+        supplier_id: '',
         supplier_nama: '',
         pelanggan_nama: '',
         dokter_nama: '',
@@ -70,6 +96,16 @@ export default function TransaksiCreate({ obat, batches }: Props) {
         status_pelunasan: 'lunas',
         jatuh_tempo: '',
         is_taxed: false,
+        items: [] as Array<{
+            obat_id: number;
+            batch_id: number | null;
+            supplier_id: number | null;
+            supplier_nama: string | null;
+            jumlah: number;
+            harga_satuan: number;
+            nama_obat: string;
+            nomor_batch: string | null;
+        }>,
     });
 
     // QR Scanner states
@@ -79,9 +115,40 @@ export default function TransaksiCreate({ obat, batches }: Props) {
     const [scanning, setScanning] = useState(false);
     const [scanResult, setScanResult] = useState<any>(null);
     const [scanError, setScanError] = useState<string>('');
+    const [medicineQuery, setMedicineQuery] = useState('');
+    const [medicineResults, setMedicineResults] = useState<MedicineSuggestion[]>([]);
+    const [medicineLoading, setMedicineLoading] = useState(false);
+    const [medicineOpen, setMedicineOpen] = useState(false);
+    const [medicineFocused, setMedicineFocused] = useState(false);
+    const [activeMedicineIndex, setActiveMedicineIndex] = useState(0);
+    const [selectedMedicine, setSelectedMedicine] = useState<MedicineSuggestion | null>(null);
+    const [supplierQuery, setSupplierQuery] = useState('');
+    const [supplierResults, setSupplierResults] = useState<SupplierSuggestion[]>([]);
+    const [supplierLoading, setSupplierLoading] = useState(false);
+    const [supplierOpen, setSupplierOpen] = useState(false);
+    const [supplierFocused, setSupplierFocused] = useState(false);
+    const [activeSupplierIndex, setActiveSupplierIndex] = useState(0);
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
+
+        if (data.jenis_transaksi === 'masuk' && data.items.length > 0) {
+            post('/transaksi', {
+                onSuccess: () => {
+                    setData('items', []);
+                    setData('obat_id', '');
+                    setData('batch_id', '');
+                    setData('jumlah', '');
+                    setData('harga_satuan', '');
+                    setMedicineQuery('');
+                    setSelectedMedicine(null);
+                },
+                preserveScroll: true,
+            });
+
+            return;
+        }
+
         post('/transaksi', {
             onSuccess: () => {
                 console.log('Transaksi saved successfully');
@@ -113,10 +180,9 @@ export default function TransaksiCreate({ obat, batches }: Props) {
                 const qrData = result.qr_data;
                 
                 // Set obat_id
-                const foundObat = obat.find(o => o.id === qrData.obat_id);
-                if (foundObat) {
-                    setData('obat_id', foundObat.id.toString());
-                }
+                setData('obat_id', String(qrData.obat_id));
+                setMedicineQuery(qrData.nama_obat || '');
+                setSelectedMedicine(null);
 
                 // Set batch_id
                 setData('batch_id', qrData.batch_id.toString());
@@ -149,14 +215,28 @@ export default function TransaksiCreate({ obat, batches }: Props) {
         }
     };
 
-    const handleObatChange = (value: string) => {
-        setData('obat_id', value);
-        // Auto-select batch if only one available for this medicine
-        const obatBatches = batches.filter(b => b.obat.kode_obat === obat.find(o => o.id.toString() === value)?.kode_obat);
-        if (obatBatches.length === 1) {
-            setData('batch_id', obatBatches[0].id.toString());
-            setData('harga_satuan', obatBatches[0].harga_beli.toString());
+    const handleMedicineSelect = (item: MedicineSuggestion) => {
+        setSelectedMedicine(item);
+        setData('obat_id', item.id.toString());
+        setMedicineQuery(item.nama_obat);
+        setMedicineOpen(false);
+
+        if (item.last_buy_price > 0) {
+            setData('harga_satuan', String(item.last_buy_price));
         }
+
+        if (item.default_supplier) {
+            setData('supplier_id', String(item.default_supplier.id));
+            setData('supplier_nama', item.default_supplier.nama_supplier);
+            setSupplierQuery(item.default_supplier.nama_supplier);
+        }
+    };
+
+    const handleSupplierSelect = (item: SupplierSuggestion) => {
+        setData('supplier_id', item.id.toString());
+        setData('supplier_nama', item.nama_supplier);
+        setSupplierQuery(item.nama_supplier);
+        setSupplierOpen(false);
     };
 
     const handleBatchChange = (value: string) => {
@@ -166,6 +246,137 @@ export default function TransaksiCreate({ obat, batches }: Props) {
             setData('harga_satuan', batch.harga_beli.toString());
         }
     };
+
+    const selectedBatch = batches.find((item) => item.id.toString() === data.batch_id);
+    const isMasuk = data.jenis_transaksi === 'masuk';
+    const isPenjualan = data.jenis_transaksi === 'penjualan';
+    const isKeluar = data.jenis_transaksi === 'keluar';
+    const requiresTempoDate = (isMasuk && data.metode_pembayaran === 'tempo') || (isPenjualan && data.metode_pembayaran === 'kredit');
+
+    const handleAddToList = () => {
+        if (!isMasuk) {
+            return;
+        }
+
+        const obatId = Number(data.obat_id || 0);
+        const jumlah = Number(data.jumlah || 0);
+        const hargaSatuan = Number(data.harga_satuan || 0);
+
+        if (!obatId || jumlah <= 0 || hargaSatuan < 0) {
+            return;
+        }
+
+        const batchId = data.batch_id ? Number(data.batch_id) : null;
+        const key = `${obatId}:${batchId ?? 'none'}:${data.supplier_id || 'none'}`;
+        const existingIndex = data.items.findIndex((item) => `${item.obat_id}:${item.batch_id ?? 'none'}:${item.supplier_id ?? 'none'}` === key);
+
+        const lineItem = {
+            obat_id: obatId,
+            batch_id: batchId,
+            supplier_id: data.supplier_id ? Number(data.supplier_id) : null,
+            supplier_nama: data.supplier_nama || null,
+            jumlah,
+            harga_satuan: hargaSatuan,
+            nama_obat: selectedMedicine?.nama_obat || medicineQuery || `Obat #${obatId}`,
+            nomor_batch: selectedBatch?.nomor_batch || null,
+        };
+
+        if (existingIndex >= 0) {
+            const merged = [...data.items];
+            merged[existingIndex] = {
+                ...merged[existingIndex],
+                jumlah: merged[existingIndex].jumlah + jumlah,
+                harga_satuan: hargaSatuan,
+            };
+            setData('items', merged);
+        } else {
+            setData('items', [...data.items, lineItem]);
+        }
+
+        setData('obat_id', '');
+        setData('batch_id', '');
+        setData('jumlah', '');
+        setData('harga_satuan', '');
+        setMedicineQuery('');
+        setSelectedMedicine(null);
+    };
+
+    const handleRemoveLine = (index: number) => {
+        setData('items', data.items.filter((_, idx) => idx !== index));
+    };
+
+    useEffect(() => {
+        if (!medicineFocused) {
+            return;
+        }
+
+        const keyword = medicineQuery.trim();
+        if (keyword.length < 2) {
+            setMedicineResults([]);
+            setMedicineOpen(false);
+            return;
+        }
+
+        const timer = window.setTimeout(async () => {
+            setMedicineLoading(true);
+            try {
+                const response = await axios.get('/api/medicines/search', {
+                    params: {
+                        q: keyword,
+                        supplier_id: data.supplier_id || undefined,
+                        limit: 20,
+                    },
+                });
+                const list = (response.data?.data || []) as MedicineSuggestion[];
+                setMedicineResults(list);
+                setActiveMedicineIndex(0);
+                setMedicineOpen(true);
+            } catch {
+                setMedicineResults([]);
+                setMedicineOpen(true);
+            } finally {
+                setMedicineLoading(false);
+            }
+        }, 300);
+
+        return () => window.clearTimeout(timer);
+    }, [medicineFocused, medicineQuery, data.supplier_id]);
+
+    useEffect(() => {
+        if (!supplierFocused || !isMasuk) {
+            return;
+        }
+
+        const keyword = supplierQuery.trim();
+        if (keyword.length < 2) {
+            setSupplierResults([]);
+            setSupplierOpen(false);
+            return;
+        }
+
+        const timer = window.setTimeout(async () => {
+            setSupplierLoading(true);
+            try {
+                const response = await axios.get('/api/suppliers/search', {
+                    params: {
+                        q: keyword,
+                        limit: 20,
+                    },
+                });
+                const list = (response.data?.data || []) as SupplierSuggestion[];
+                setSupplierResults(list);
+                setActiveSupplierIndex(0);
+                setSupplierOpen(true);
+            } catch {
+                setSupplierResults([]);
+                setSupplierOpen(true);
+            } finally {
+                setSupplierLoading(false);
+            }
+        }, 300);
+
+        return () => window.clearTimeout(timer);
+    }, [isMasuk, supplierFocused, supplierQuery]);
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -186,12 +397,6 @@ export default function TransaksiCreate({ obat, batches }: Props) {
             maximumFractionDigits: 0,
         }).format(amount);
     };
-
-    const selectedBatch = batches.find((item) => item.id.toString() === data.batch_id);
-    const isMasuk = data.jenis_transaksi === 'masuk';
-    const isPenjualan = data.jenis_transaksi === 'penjualan';
-    const isKeluar = data.jenis_transaksi === 'keluar';
-    const requiresTempoDate = (isMasuk && data.metode_pembayaran === 'tempo') || (isPenjualan && data.metode_pembayaran === 'kredit');
 
     useEffect(() => {
         // Keep legacy fields empty because current transaction logic does not use them.
@@ -228,6 +433,15 @@ export default function TransaksiCreate({ obat, batches }: Props) {
             if (data.supplier_nama !== '') {
                 setData('supplier_nama', '');
             }
+            if (data.supplier_id !== '') {
+                setData('supplier_id', '');
+            }
+            if (supplierQuery !== '') {
+                setSupplierQuery('');
+            }
+            if (data.items.length > 0) {
+                setData('items', []);
+            }
             if (data.tipe_penjualan === '') {
                 setData('tipe_penjualan', 'biasa');
             }
@@ -242,6 +456,15 @@ export default function TransaksiCreate({ obat, batches }: Props) {
         }
         if (data.supplier_nama !== '') {
             setData('supplier_nama', '');
+        }
+        if (data.supplier_id !== '') {
+            setData('supplier_id', '');
+        }
+        if (supplierQuery !== '') {
+            setSupplierQuery('');
+        }
+        if (data.items.length > 0) {
+            setData('items', []);
         }
         if (data.pelanggan_nama !== '') {
             setData('pelanggan_nama', '');
@@ -260,10 +483,13 @@ export default function TransaksiCreate({ obat, batches }: Props) {
         data.pelanggan_nama,
         data.sales_nama,
         data.supplier_nama,
+        data.supplier_id,
         data.tipe_penjualan,
+        data.items,
         isMasuk,
         isPenjualan,
         setData,
+        supplierQuery,
     ]);
 
     useEffect(() => {
@@ -416,18 +642,97 @@ export default function TransaksiCreate({ obat, batches }: Props) {
                         <div className="grid gap-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="obat_id">Obat *</Label>
-                                <Select value={data.obat_id} onValueChange={handleObatChange}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Pilih obat" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {obat.map((item) => (
-                                            <SelectItem key={item.id} value={item.id.toString()}>
-                                                {item.nama_obat} ({item.kode_obat}) - {item.kategori?.nama_kategori}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <div className="relative">
+                                    <Input
+                                        id="obat_id"
+                                        value={medicineQuery}
+                                        placeholder="Cari nama obat, kode, atau kategori..."
+                                        onFocus={() => {
+                                            setMedicineFocused(true);
+                                            if (medicineResults.length > 0) {
+                                                setMedicineOpen(true);
+                                            }
+                                        }}
+                                        onBlur={() => {
+                                            window.setTimeout(() => {
+                                                setMedicineFocused(false);
+                                                setMedicineOpen(false);
+                                            }, 120);
+                                        }}
+                                        onChange={(e) => {
+                                            setMedicineQuery(e.target.value);
+                                            setData('obat_id', '');
+                                            setSelectedMedicine(null);
+                                        }}
+                                        onKeyDown={(e) => {
+                                            if (!medicineOpen || medicineResults.length === 0) {
+                                                return;
+                                            }
+
+                                            if (e.key === 'ArrowDown') {
+                                                e.preventDefault();
+                                                setActiveMedicineIndex((prev) => Math.min(prev + 1, medicineResults.length - 1));
+                                            }
+
+                                            if (e.key === 'ArrowUp') {
+                                                e.preventDefault();
+                                                setActiveMedicineIndex((prev) => Math.max(prev - 1, 0));
+                                            }
+
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                const chosen = medicineResults[activeMedicineIndex];
+                                                if (chosen) {
+                                                    handleMedicineSelect(chosen);
+                                                }
+                                            }
+
+                                            if (e.key === 'Escape') {
+                                                setMedicineOpen(false);
+                                            }
+                                        }}
+                                    />
+
+                                    {medicineOpen && (
+                                        <div className="absolute z-30 mt-1 max-h-72 w-full overflow-auto rounded-md border bg-background shadow-lg">
+                                            {medicineLoading ? (
+                                                <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
+                                                    <Loader2 className="size-4 animate-spin" />
+                                                    Mencari obat...
+                                                </div>
+                                            ) : medicineResults.length === 0 ? (
+                                                <div className="px-3 py-2 text-sm text-muted-foreground">
+                                                    Obat tidak ditemukan. Coba kata kunci lain.
+                                                </div>
+                                            ) : (
+                                                medicineResults.map((item, index) => (
+                                                    <button
+                                                        key={item.id}
+                                                        type="button"
+                                                        className={`w-full px-3 py-2 text-left text-sm ${index === activeMedicineIndex ? 'bg-muted' : 'hover:bg-muted/60'}`}
+                                                        onMouseDown={() => handleMedicineSelect(item)}
+                                                    >
+                                                        <div className="font-medium">{item.nama_obat} <span className="text-xs text-muted-foreground">({item.kode_obat})</span></div>
+                                                        <div className="text-xs text-muted-foreground">
+                                                            {item.kategori?.nama_kategori || 'Tanpa kategori'} | Stok: {item.stok_total} {item.satuan?.nama_satuan || 'unit'}
+                                                        </div>
+                                                        <div className="text-xs text-muted-foreground">
+                                                            Supplier: {item.default_supplier?.nama_supplier || 'Belum ada histori supplier'}
+                                                        </div>
+                                                    </button>
+                                                ))
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                                {selectedMedicine && (
+                                    <div className="rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-sm">
+                                        <div className="font-medium text-sky-800">{selectedMedicine.nama_obat}</div>
+                                        <div className="text-xs text-sky-700">
+                                            {selectedMedicine.kategori?.nama_kategori || 'Tanpa kategori'} | Harga beli terakhir: {formatCurrency(selectedMedicine.last_buy_price || 0)}
+                                        </div>
+                                    </div>
+                                )}
                                 {errors.obat_id && (
                                     <p className="text-sm text-destructive">{errors.obat_id}</p>
                                 )}
@@ -526,7 +831,53 @@ export default function TransaksiCreate({ obat, batches }: Props) {
                                 </div>
                             </div>
                         )}
+
+                        {isMasuk && (
+                            <div className="flex justify-end">
+                                <Button type="button" variant="outline" onClick={handleAddToList}>
+                                    Tambah ke Daftar
+                                </Button>
+                            </div>
+                        )}
                     </div>
+
+                    {isMasuk && data.items.length > 0 && (
+                        <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 space-y-4">
+                            <h3 className="text-lg font-semibold">Daftar Item Pembelian</h3>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
+                                            <th className="py-2 pr-3">Obat</th>
+                                            <th className="py-2 pr-3">Supplier</th>
+                                            <th className="py-2 pr-3">Batch</th>
+                                            <th className="py-2 pr-3 text-right">Qty</th>
+                                            <th className="py-2 pr-3 text-right">Harga</th>
+                                            <th className="py-2 pr-3 text-right">Subtotal</th>
+                                            <th className="py-2 text-right">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {data.items.map((item, index) => (
+                                            <tr key={`${item.obat_id}-${index}`} className="border-b last:border-0">
+                                                <td className="py-2 pr-3 font-medium">{item.nama_obat}</td>
+                                                <td className="py-2 pr-3">{item.supplier_nama || '-'}</td>
+                                                <td className="py-2 pr-3">{item.nomor_batch || '-'}</td>
+                                                <td className="py-2 pr-3 text-right">{item.jumlah}</td>
+                                                <td className="py-2 pr-3 text-right">{formatCurrency(item.harga_satuan)}</td>
+                                                <td className="py-2 pr-3 text-right font-semibold">{formatCurrency(item.jumlah * item.harga_satuan)}</td>
+                                                <td className="py-2 text-right">
+                                                    <Button type="button" variant="ghost" size="sm" onClick={() => handleRemoveLine(index)}>
+                                                        Hapus
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
 
                     <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 space-y-4">
                         <h3 className="text-lg font-semibold">Ringkasan Operasional</h3>
@@ -629,7 +980,86 @@ export default function TransaksiCreate({ obat, batches }: Props) {
                                 {isMasuk && (
                                     <div className="grid gap-2">
                                         <Label htmlFor="supplier_nama">Supplier</Label>
-                                        <Input id="supplier_nama" value={data.supplier_nama} onChange={(e) => setData('supplier_nama', e.target.value)} placeholder="Nama supplier" />
+                                        <div className="relative">
+                                            <Input
+                                                id="supplier_nama"
+                                                value={supplierQuery}
+                                                onFocus={() => {
+                                                    setSupplierFocused(true);
+                                                    if (supplierResults.length > 0) {
+                                                        setSupplierOpen(true);
+                                                    }
+                                                }}
+                                                onBlur={() => {
+                                                    window.setTimeout(() => {
+                                                        setSupplierFocused(false);
+                                                        setSupplierOpen(false);
+                                                    }, 120);
+                                                }}
+                                                onChange={(e) => {
+                                                    setSupplierQuery(e.target.value);
+                                                    setData('supplier_id', '');
+                                                    setData('supplier_nama', e.target.value);
+                                                }}
+                                                placeholder="Cari supplier berdasarkan nama atau kode"
+                                                onKeyDown={(e) => {
+                                                    if (!supplierOpen || supplierResults.length === 0) {
+                                                        return;
+                                                    }
+
+                                                    if (e.key === 'ArrowDown') {
+                                                        e.preventDefault();
+                                                        setActiveSupplierIndex((prev) => Math.min(prev + 1, supplierResults.length - 1));
+                                                    }
+
+                                                    if (e.key === 'ArrowUp') {
+                                                        e.preventDefault();
+                                                        setActiveSupplierIndex((prev) => Math.max(prev - 1, 0));
+                                                    }
+
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        const chosen = supplierResults[activeSupplierIndex];
+                                                        if (chosen) {
+                                                            handleSupplierSelect(chosen);
+                                                        }
+                                                    }
+
+                                                    if (e.key === 'Escape') {
+                                                        setSupplierOpen(false);
+                                                    }
+                                                }}
+                                            />
+
+                                            {supplierOpen && (
+                                                <div className="absolute z-30 mt-1 max-h-64 w-full overflow-auto rounded-md border bg-background shadow-lg">
+                                                    {supplierLoading ? (
+                                                        <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
+                                                            <Loader2 className="size-4 animate-spin" />
+                                                            Mencari supplier...
+                                                        </div>
+                                                    ) : supplierResults.length === 0 ? (
+                                                        <div className="px-3 py-2 text-sm text-muted-foreground">Supplier tidak ditemukan.</div>
+                                                    ) : (
+                                                        supplierResults.map((item, index) => (
+                                                            <button
+                                                                key={item.id}
+                                                                type="button"
+                                                                className={`w-full px-3 py-2 text-left text-sm ${index === activeSupplierIndex ? 'bg-muted' : 'hover:bg-muted/60'}`}
+                                                                onMouseDown={() => handleSupplierSelect(item)}
+                                                            >
+                                                                <div className="font-medium">{item.nama_supplier}</div>
+                                                                <div className="text-xs text-muted-foreground">{item.kode_supplier}</div>
+                                                            </button>
+                                                        ))
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                        {data.supplier_id && (
+                                            <p className="text-xs text-muted-foreground">Supplier terpilih tersimpan sebagai relasi ID: {data.supplier_id}</p>
+                                        )}
+                                        {errors.supplier_id && <p className="text-sm text-destructive">{errors.supplier_id}</p>}
                                     </div>
                                 )}
                                 {isPenjualan && (

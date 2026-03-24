@@ -85,12 +85,14 @@ class TransaksiController extends Controller
             $transaksi = Transaksi::create([
                 'obat_id' => $obat->id,
                 'batch_id' => $batch->id,
+                'supplier_id' => $batch->supplier_id,
                 'user_id' => auth()->id(),
                 'jenis_transaksi' => Transaksi::JENIS_MASUK,
                 'jumlah' => $request->jumlah,
                 'harga_satuan' => $request->harga_satuan,
                 'total_harga' => $request->jumlah * $request->harga_satuan,
                 'nomor_referensi' => $request->nomor_referensi,
+                'supplier_nama' => $batch->supplier?->nama_supplier,
                 'keterangan' => $request->keterangan,
             ]);
 

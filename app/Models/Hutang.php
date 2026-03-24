@@ -16,6 +16,7 @@ class Hutang extends Model
 
     protected $fillable = [
         'transaksi_id',
+        'supplier_id',
         'customer_name',
         'total_amount',
         'remaining_amount',
@@ -33,6 +34,11 @@ class Hutang extends Model
     public function transaksi(): BelongsTo
     {
         return $this->belongsTo(Transaksi::class, 'transaksi_id');
+    }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 
     public function payments(): HasMany

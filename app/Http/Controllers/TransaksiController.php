@@ -8,6 +8,7 @@ use App\Models\BiayaOperasional;
 use App\Models\Hutang;
 use App\Models\Obat;
 use App\Models\Resep;
+use App\Models\Supplier;
 use App\Models\Transaksi;
 use App\Services\HighRiskApprovalService;
 use App\Services\PrescriptionLifecycleService;
@@ -396,10 +397,7 @@ class TransaksiController extends Controller
      */
     public function create()
     {
-        $obat = \App\Models\Obat::with(['satuan', 'kategori'])
-            ->where('is_active', true)
-            ->orderBy('nama_obat')
-            ->get();
+        $obat = collect();
 
         $batches = \App\Models\BatchObat::with(['obat.satuan'])
             ->where('status', 'active')
@@ -419,14 +417,15 @@ class TransaksiController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'obat_id' => 'required|exists:obat,id',
+            'obat_id' => 'nullable|exists:obat,id',
             'batch_id' => 'nullable|exists:batch_obat,id',
             'jenis_transaksi' => 'required|in:masuk,keluar,penjualan',
-            'jumlah' => 'required|integer|min:1',
-            'harga_satuan' => 'required|numeric|min:0',
+            'jumlah' => 'nullable|integer|min:1',
+            'harga_satuan' => 'nullable|numeric|min:0',
             'tanggal_transaksi' => 'required|date',
             'keterangan' => 'nullable|string',
             'nomor_referensi' => 'nullable|string|max:100',
+            'supplier_id' => 'nullable|exists:supplier,id',
             'supplier_nama' => 'nullable|string|max:255',
             'pelanggan_nama' => 'nullable|string|max:255',
             'dokter_nama' => 'nullable|string|max:255',
@@ -439,36 +438,108 @@ class TransaksiController extends Controller
             'status_pelunasan' => 'nullable|in:lunas,belum_lunas',
             'jatuh_tempo' => 'nullable|date',
             'is_taxed' => 'nullable|boolean',
+            'items' => 'nullable|array|min:1',
+            'items.*.obat_id' => 'required|exists:obat,id',
+            'items.*.batch_id' => 'nullable|exists:batch_obat,id',
+            'items.*.supplier_id' => 'nullable|exists:supplier,id',
+            'items.*.supplier_nama' => 'nullable|string|max:255',
+            'items.*.jumlah' => 'required|integer|min:1',
+            'items.*.harga_satuan' => 'required|numeric|min:0',
         ]);
 
-        // Calculate total
-        $validated['total_harga'] = $validated['jumlah'] * $validated['harga_satuan'];
-        $validated['user_id'] = auth()->id();
-        $validated['waktu_transaksi'] = now()->toTimeString();
-        $validated['kategori_keuangan'] = $validated['kategori_keuangan'] ?? 'none';
-        $validated['status_pelunasan'] = $validated['status_pelunasan'] ?? 'lunas';
-        $validated['is_taxed'] = (bool) ($validated['is_taxed'] ?? false);
+        $itemRows = collect($validated['items'] ?? []);
 
-        // Validate stock for keluar/penjualan
-        if (in_array($validated['jenis_transaksi'], ['keluar', 'penjualan'])) {
-            if ($validated['batch_id']) {
-                $batch = \App\Models\BatchObat::find($validated['batch_id']);
-                if ($batch->stok_tersedia < $validated['jumlah']) {
+        if ($itemRows->isEmpty()) {
+            if (empty($validated['obat_id']) || empty($validated['jumlah']) || ! array_key_exists('harga_satuan', $validated)) {
+                throw ValidationException::withMessages([
+                    'obat_id' => 'Minimal satu item obat wajib diisi.',
+                ]);
+            }
+
+            $itemRows = collect([[
+                'obat_id' => (int) $validated['obat_id'],
+                'batch_id' => $validated['batch_id'] ?? null,
+                'supplier_id' => $validated['supplier_id'] ?? null,
+                'supplier_nama' => $validated['supplier_nama'] ?? null,
+                'jumlah' => (int) $validated['jumlah'],
+                'harga_satuan' => (float) $validated['harga_satuan'],
+            ]]);
+        }
+
+        if ($validated['jenis_transaksi'] === Transaksi::JENIS_MASUK && empty($validated['supplier_id']) && empty($validated['supplier_nama'])) {
+            $allItemsMissingSupplier = $itemRows->every(fn (array $item) => empty($item['supplier_id']) && empty($item['supplier_nama']));
+
+            if ($allItemsMissingSupplier) {
+                throw ValidationException::withMessages([
+                    'supplier_id' => 'Supplier wajib dipilih untuk transaksi barang masuk.',
+                ]);
+            }
+        }
+
+        $basePayload = [
+            'jenis_transaksi' => $validated['jenis_transaksi'],
+            'tanggal_transaksi' => $validated['tanggal_transaksi'],
+            'keterangan' => $validated['keterangan'] ?? null,
+            'nomor_referensi' => $validated['nomor_referensi'] ?? null,
+            'pelanggan_nama' => $validated['pelanggan_nama'] ?? null,
+            'dokter_nama' => $validated['dokter_nama'] ?? null,
+            'sales_nama' => $validated['sales_nama'] ?? null,
+            'operator_nama' => $validated['operator_nama'] ?? null,
+            'kasir_nama' => $validated['kasir_nama'] ?? null,
+            'metode_pembayaran' => $validated['metode_pembayaran'] ?? null,
+            'tipe_penjualan' => $validated['tipe_penjualan'] ?? null,
+            'kategori_keuangan' => $validated['kategori_keuangan'] ?? 'none',
+            'status_pelunasan' => $validated['status_pelunasan'] ?? 'lunas',
+            'jatuh_tempo' => $validated['jatuh_tempo'] ?? null,
+            'is_taxed' => (bool) ($validated['is_taxed'] ?? false),
+            'user_id' => auth()->id(),
+            'waktu_transaksi' => now()->toTimeString(),
+        ];
+
+        $createdCount = 0;
+
+        foreach ($itemRows as $item) {
+            $itemSupplierId = $item['supplier_id'] ?? ($validated['supplier_id'] ?? null);
+            $itemSupplierName = $item['supplier_nama'] ?? ($validated['supplier_nama'] ?? null);
+
+            if ($itemSupplierId) {
+                $supplier = Supplier::query()->find($itemSupplierId);
+                if ($supplier) {
+                    $itemSupplierName = $supplier->nama_supplier;
+                }
+            }
+
+            $payload = array_merge($basePayload, [
+                'obat_id' => (int) $item['obat_id'],
+                'batch_id' => $item['batch_id'] ?? null,
+                'supplier_id' => $itemSupplierId,
+                'supplier_nama' => $itemSupplierName,
+                'jumlah' => (int) $item['jumlah'],
+                'harga_satuan' => (float) $item['harga_satuan'],
+                'total_harga' => (int) $item['jumlah'] * (float) $item['harga_satuan'],
+            ]);
+
+            if (in_array($payload['jenis_transaksi'], ['keluar', 'penjualan'], true) && ! empty($payload['batch_id'])) {
+                $batch = \App\Models\BatchObat::find($payload['batch_id']);
+                if ($batch && $batch->stok_tersedia < $payload['jumlah']) {
                     return back()->withErrors([
                         'jumlah' => "Stok tidak mencukupi. Tersedia: {$batch->stok_tersedia}",
                     ])->withInput();
                 }
             }
+
+            $transaksi = Transaksi::create($payload);
+            $this->updateStock($transaksi);
+            $this->syncHutangFromTransaksi($transaksi);
+            $createdCount++;
         }
 
-        $transaksi = Transaksi::create($validated);
-
-        // Update stock
-        $this->updateStock($transaksi);
-        $this->syncHutangFromTransaksi($transaksi);
+        $message = $createdCount > 1
+            ? "{$createdCount} transaksi berhasil ditambahkan"
+            : 'Transaksi berhasil ditambahkan';
 
         return redirect()->route('transaksi.index')
-            ->with('success', 'Transaksi berhasil dibuat');
+            ->with('success', $message);
     }
 
     /**
@@ -659,10 +730,13 @@ class TransaksiController extends Controller
 
     protected function syncHutangFromTransaksi(Transaksi $transaksi): void
     {
+        $isDebtPurchase = $transaksi->jenis_transaksi === Transaksi::JENIS_MASUK
+            && (string) $transaksi->metode_pembayaran === 'tempo';
+
         $isDebtSale = $transaksi->jenis_transaksi === Transaksi::JENIS_PENJUALAN
             && in_array((string) $transaksi->metode_pembayaran, ['debit', 'kredit'], true);
 
-        if (! $isDebtSale) {
+        if (! $isDebtSale && ! $isDebtPurchase) {
             $transaksi->hutang()?->delete();
             return;
         }
@@ -674,7 +748,8 @@ class TransaksiController extends Controller
         $transaksi->hutang()->updateOrCreate(
             ['transaksi_id' => $transaksi->id],
             [
-                'customer_name' => $transaksi->pelanggan_nama,
+                'supplier_id' => $isDebtPurchase ? $transaksi->supplier_id : null,
+                'customer_name' => $isDebtPurchase ? $transaksi->supplier_nama : $transaksi->pelanggan_nama,
                 'total_amount' => (float) $transaksi->total_harga,
                 'remaining_amount' => $newRemaining,
                 'payment_status' => $newRemaining == 0.0 ? 'paid' : ($newRemaining < (float) $transaksi->total_harga ? 'partially_paid' : 'unpaid'),
@@ -693,7 +768,7 @@ class TransaksiController extends Controller
      */
     public function masuk(Request $request): Response
     {
-        $query = Transaksi::with(['obat.satuan', 'batch', 'user'])
+        $query = Transaksi::with(['obat.satuan', 'batch', 'user', 'supplier'])
             ->where('jenis_transaksi', 'masuk');
 
         // Filter by date range
@@ -710,9 +785,14 @@ class TransaksiController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('kode_transaksi', 'like', "%{$search}%")
                     ->orWhere('nomor_referensi', 'like', "%{$search}%")
+                    ->orWhere('supplier_nama', 'like', "%{$search}%")
                     ->orWhereHas('obat', function ($q) use ($search) {
                         $q->where('nama_obat', 'like', "%{$search}%")
                             ->orWhere('kode_obat', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('supplier', function ($q) use ($search) {
+                        $q->where('nama_supplier', 'like', "%{$search}%")
+                            ->orWhere('kode_supplier', 'like', "%{$search}%");
                     });
             });
         }

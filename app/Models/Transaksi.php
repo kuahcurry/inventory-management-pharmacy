@@ -30,6 +30,7 @@ class Transaksi extends Model
         'user_id',
         'unit_id',
         'resep_id',
+        'supplier_id',
         'jenis_transaksi',
         'jumlah',
         'harga_satuan',
@@ -187,6 +188,11 @@ class Transaksi extends Model
     public function resep(): BelongsTo
     {
         return $this->belongsTo(Resep::class, 'resep_id');
+    }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 
     /**

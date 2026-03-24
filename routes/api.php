@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\BatchObatController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\HutangController;
+use App\Http\Controllers\Api\InventoryController;
 use App\Http\Controllers\Api\JenisObatController;
 use App\Http\Controllers\Api\KategoriObatController;
 use App\Http\Controllers\Api\LogAktivitasController;
@@ -94,6 +95,7 @@ Route::middleware(['auth:web'])->group(function () {
         Route::get('/{obat}/batches', [ObatController::class, 'batches'])->name('api.obat.batches');
         Route::post('/{obat}/recalculate-stock', [ObatController::class, 'recalculateStock'])->name('api.obat.recalculate-stock');
     });
+    Route::get('/medicines/search', [ObatController::class, 'medicinesSearch'])->name('api.medicines.search');
     Route::apiResource('obat', ObatController::class)->names([
         'index' => 'api.obat.index',
         'store' => 'api.obat.store',
@@ -124,6 +126,7 @@ Route::middleware(['auth:web'])->group(function () {
         Route::post('/keluar', [TransaksiController::class, 'storeKeluar'])->name('api.transaksi.keluar');
         Route::post('/penjualan', [TransaksiController::class, 'storePenjualan'])->name('api.transaksi.penjualan');
     });
+    Route::post('/inventory/create-with-batch', [InventoryController::class, 'createWithBatch'])->name('api.inventory.create-with-batch');
     Route::post('/transactions', [TransaksiController::class, 'storePenjualan'])->name('api.transactions.store');
     Route::apiResource('transaksi', TransaksiController::class)->except(['update', 'destroy'])->names([
         'index' => 'api.transaksi.index',
@@ -269,9 +272,11 @@ Route::middleware(['auth:web'])->group(function () {
 
     Route::prefix('supplier')->group(function () {
         Route::get('/active', [SupplierController::class, 'active'])->name('api.supplier.active');
+        Route::get('/search', [SupplierController::class, 'search'])->name('api.supplier.search');
         Route::get('/{supplier}/statistics', [SupplierController::class, 'statistics'])->name('api.supplier.statistics');
         Route::post('/{supplier}/toggle-status', [SupplierController::class, 'toggleStatus'])->name('api.supplier.toggle-status');
     });
+    Route::get('/suppliers/search', [SupplierController::class, 'search'])->name('api.suppliers.search');
     Route::apiResource('supplier', SupplierController::class)->names([
         'index' => 'api.supplier.index',
         'store' => 'api.supplier.store',

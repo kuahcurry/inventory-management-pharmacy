@@ -19,10 +19,10 @@ class SupplierController extends Controller
 
         // Search
         if ($request->has('search')) {
-            $search = $request->search;
+                        $search = (string) $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('nama', 'like', "%{$search}%")
-                  ->orWhere('kode', 'like', "%{$search}%")
+                                $q->where('nama_supplier', 'like', "%{$search}%")
+                                    ->orWhere('kode_supplier', 'like', "%{$search}%")
                   ->orWhere('alamat', 'like', "%{$search}%")
                   ->orWhere('kontak_person', 'like', "%{$search}%")
                   ->orWhere('no_telepon', 'like', "%{$search}%")
@@ -31,12 +31,15 @@ class SupplierController extends Controller
         }
 
         // Filter by status
-        if ($request->has('is_active')) {
-            $query->where('is_active', $request->boolean('is_active'));
+        if ($request->has('status')) {
+            $status = $request->string('status')->toString();
+            if (in_array($status, ['active', 'inactive'], true)) {
+                $query->where('status', $status);
+            }
         }
 
         // Sorting
-        $sortBy = $request->get('sort_by', 'nama');
+        $sortBy = $request->get('sort_by', 'nama_supplier');
         $sortOrder = $request->get('sort_order', 'asc');
         $query->orderBy($sortBy, $sortOrder);
 
@@ -52,11 +55,34 @@ class SupplierController extends Controller
      */
     public function active(): JsonResponse
     {
-        $suppliers = Supplier::where('is_active', true)
-            ->orderBy('nama')
-            ->get(['id', 'kode', 'nama', 'no_telepon']);
+        $suppliers = Supplier::where('status', 'active')
+            ->orderBy('nama_supplier')
+            ->get(['id', 'kode_supplier', 'nama_supplier', 'no_telepon']);
 
         return response()->json($suppliers);
+    }
+
+    public function search(Request $request): JsonResponse
+    {
+        $query = trim((string) $request->get('q', ''));
+        $limit = max(1, min((int) $request->get('limit', 20), 50));
+
+        if (mb_strlen($query) < 2) {
+            return response()->json(['data' => []]);
+        }
+
+        $suppliers = Supplier::query()
+            ->select(['id', 'kode_supplier', 'nama_supplier', 'no_telepon', 'status'])
+            ->where(function ($q) use ($query) {
+                $q->where('nama_supplier', 'like', "%{$query}%")
+                    ->orWhere('kode_supplier', 'like', "%{$query}%");
+            })
+            ->orderByRaw('CASE WHEN nama_supplier LIKE ? THEN 0 ELSE 1 END', [$query.'%'])
+            ->orderBy('nama_supplier')
+            ->limit($limit)
+            ->get();
+
+        return response()->json(['data' => $suppliers]);
     }
 
     /**
@@ -65,18 +91,15 @@ class SupplierController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'kode' => 'required|string|max:20|unique:supplier,kode',
-            'nama' => 'required|string|max:200',
+            'kode_supplier' => 'required|string|max:20|unique:supplier,kode_supplier',
+            'nama_supplier' => 'required|string|max:200',
             'alamat' => 'required|string',
             'kontak_person' => 'required|string|max:100',
             'no_telepon' => 'required|string|max:20',
             'email' => 'nullable|email|max:100',
-            'no_npwp' => 'nullable|string|max:30',
-            'bank' => 'nullable|string|max:50',
-            'no_rekening' => 'nullable|string|max:30',
-            'atas_nama_rekening' => 'nullable|string|max:100',
+            'npwp' => 'nullable|string|max:30',
             'keterangan' => 'nullable|string',
-            'is_active' => 'boolean',
+            'status' => 'nullable|in:active,inactive',
         ]);
 
         if ($validator->fails()) {
@@ -117,18 +140,15 @@ class SupplierController extends Controller
     public function update(Request $request, Supplier $supplier): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'kode' => 'required|string|max:20|unique:supplier,kode,' . $supplier->id,
-            'nama' => 'required|string|max:200',
+            'kode_supplier' => 'required|string|max:20|unique:supplier,kode_supplier,' . $supplier->id,
+            'nama_supplier' => 'required|string|max:200',
             'alamat' => 'required|string',
             'kontak_person' => 'required|string|max:100',
             'no_telepon' => 'required|string|max:20',
             'email' => 'nullable|email|max:100',
-            'no_npwp' => 'nullable|string|max:30',
-            'bank' => 'nullable|string|max:50',
-            'no_rekening' => 'nullable|string|max:30',
-            'atas_nama_rekening' => 'nullable|string|max:100',
+            'npwp' => 'nullable|string|max:30',
             'keterangan' => 'nullable|string',
-            'is_active' => 'boolean',
+            'status' => 'nullable|in:active,inactive',
         ]);
 
         if ($validator->fails()) {
@@ -171,7 +191,7 @@ class SupplierController extends Controller
     public function toggleStatus(Supplier $supplier): JsonResponse
     {
         $supplier->update([
-            'is_active' => !$supplier->is_active,
+            'status' => $supplier->status === 'active' ? 'inactive' : 'active',
         ]);
 
         return response()->json([

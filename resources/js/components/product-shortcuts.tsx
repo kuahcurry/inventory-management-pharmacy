@@ -37,7 +37,7 @@ export function ProductShortcuts() {
 
     const shortcuts = useMemo<ShortcutDef[]>(
         () => [
-            { key: 'A', label: 'Tambah batch obat', href: '/obat/batch/create' },
+            { key: 'A', label: 'Tambah obat/batch', href: '/obat/create' },
             { key: 'T', label: 'Transaksi baru', href: '/transaksi/create' },
             { key: 'S', label: 'Buka QR scanner', href: '/qr' },
             { key: '/', label: 'Cari obat', href: '/obat' },
@@ -59,7 +59,7 @@ export function ProductShortcuts() {
             const key = event.key.toLowerCase();
             if (key === 'a') {
                 event.preventDefault();
-                window.location.href = '/obat/batch/create';
+                window.location.href = '/obat/create';
             }
 
             if (key === 't') {

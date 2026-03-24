@@ -195,9 +195,9 @@ export default function BatchIndex({ batches }: Props) {
                         </p>
                     </div>
                     <Button asChild>
-                        <Link href="/obat/batch/create">
+                        <Link href="/obat/create">
                             <Plus className="mr-2 size-4" />
-                            Tambah Batch
+                            Tambah Obat
                         </Link>
                     </Button>
                 </div>

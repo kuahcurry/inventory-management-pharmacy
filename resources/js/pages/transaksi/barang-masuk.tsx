@@ -44,6 +44,12 @@ interface User {
     name: string;
 }
 
+interface Supplier {
+    id: number;
+    kode_supplier: string;
+    nama_supplier: string;
+}
+
 interface TransaksiMasuk {
     id: number;
     kode_transaksi: string;
@@ -56,6 +62,7 @@ interface TransaksiMasuk {
     harga_satuan: number;
     total_harga: number;
     nomor_referensi: string | null;
+    supplier: Supplier | null;
     keterangan: string | null;
     user: User;
 }
@@ -360,7 +367,12 @@ export default function BarangMasuk({ transaksi, stats, filters }: Props) {
                                                 {formatCurrency(item.total_harga)}
                                             </TableCell>
                                             <TableCell>
-                                                {item.nomor_referensi ? (
+                                                {item.supplier ? (
+                                                    <div>
+                                                        <p className="text-sm font-medium">{item.supplier.nama_supplier}</p>
+                                                        <p className="text-xs text-muted-foreground">{item.supplier.kode_supplier}</p>
+                                                    </div>
+                                                ) : item.nomor_referensi ? (
                                                     <p className="text-sm">{item.nomor_referensi}</p>
                                                 ) : (
                                                     <span className="text-xs text-muted-foreground">-</span>
