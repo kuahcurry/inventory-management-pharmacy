@@ -1019,12 +1019,6 @@ SOFTWARE.
 
 ## 🙏 Acknowledgments
 
-### Academic Supervision
-- **Thesis Advisor:** [Advisor Name]
-- **Institution:** [University Name]
-- **Program:** [Program Name]
-- **Year:** 2026
-
 ### Technologies & Libraries
 - [Laravel](https://laravel.com) - PHP framework
 - [React](https://react.dev) - UI library
