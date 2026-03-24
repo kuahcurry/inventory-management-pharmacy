@@ -1,9 +1,12 @@
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { formatCurrency } from '@/lib/utils';
+import axios from 'axios';
+import { useState } from 'react';
 
 interface ReorderSuggestion {
     id: number;
@@ -78,6 +81,52 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function OperationalReport({ reorderSuggestions, demandForecasts, pendingApprovals, margin }: Props) {
+    const [isGeneratingReorder, setIsGeneratingReorder] = useState(false);
+    const [isGeneratingForecast, setIsGeneratingForecast] = useState(false);
+    const [decisionLoadingId, setDecisionLoadingId] = useState<number | null>(null);
+
+    const reloadOperationalData = () => {
+        router.reload({
+            only: ['reorderSuggestions', 'demandForecasts', 'pendingApprovals', 'margin'],
+            preserveScroll: true,
+            preserveState: true,
+        });
+    };
+
+    const generateReorder = async () => {
+        setIsGeneratingReorder(true);
+        try {
+            await axios.get('/api/insights/reorder-suggestions');
+            reloadOperationalData();
+        } finally {
+            setIsGeneratingReorder(false);
+        }
+    };
+
+    const generateForecast = async () => {
+        setIsGeneratingForecast(true);
+        try {
+            await axios.get('/api/insights/forecasts', {
+                params: { period_type: 'weekly' },
+            });
+            reloadOperationalData();
+        } finally {
+            setIsGeneratingForecast(false);
+        }
+    };
+
+    const handleApprovalDecision = async (approvalId: number, status: 'approved' | 'rejected') => {
+        setDecisionLoadingId(approvalId);
+        try {
+            await axios.post(`/api/insights/approvals/${approvalId}/decision`, {
+                status,
+            });
+            reloadOperationalData();
+        } finally {
+            setDecisionLoadingId(null);
+        }
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Laporan Operasional Cerdas" />
@@ -88,6 +137,14 @@ export default function OperationalReport({ reorderSuggestions, demandForecasts,
                     <p className="text-sm text-muted-foreground">
                         Ringkasan reorder, forecast, approval high-risk, dan margin per item/batch.
                     </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                        <Button onClick={generateReorder} disabled={isGeneratingReorder}>
+                            {isGeneratingReorder ? 'Generating Reorder...' : 'Generate Reorder Suggestions'}
+                        </Button>
+                        <Button variant="outline" onClick={generateForecast} disabled={isGeneratingForecast}>
+                            {isGeneratingForecast ? 'Generating Forecast...' : 'Generate Forecasts'}
+                        </Button>
+                    </div>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -170,6 +227,7 @@ export default function OperationalReport({ reorderSuggestions, demandForecasts,
                                     <TableHead>Obat</TableHead>
                                     <TableHead>Qty</TableHead>
                                     <TableHead>Level</TableHead>
+                                    <TableHead className="text-right">Aksi</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -178,6 +236,25 @@ export default function OperationalReport({ reorderSuggestions, demandForecasts,
                                         <TableCell>{item.obat?.nama_obat}</TableCell>
                                         <TableCell>{item.requested_quantity}</TableCell>
                                         <TableCell>{item.approval_level_required}</TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex justify-end gap-2">
+                                                <Button
+                                                    size="sm"
+                                                    onClick={() => handleApprovalDecision(item.id, 'approved')}
+                                                    disabled={decisionLoadingId === item.id}
+                                                >
+                                                    Approve
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => handleApprovalDecision(item.id, 'rejected')}
+                                                    disabled={decisionLoadingId === item.id}
+                                                >
+                                                    Reject
+                                                </Button>
+                                            </div>
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

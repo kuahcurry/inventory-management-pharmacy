@@ -50,6 +50,8 @@ class Transaksi extends Model
         'tipe_penjualan',
         'kategori_keuangan',
         'status_pelunasan',
+        'approval_status',
+        'approval_processed_at',
         'jatuh_tempo',
         'is_taxed',
     ];
@@ -61,6 +63,7 @@ class Transaksi extends Model
         'tanggal_transaksi' => 'date',
         'waktu_transaksi' => 'datetime:H:i:s',
         'jatuh_tempo' => 'date',
+        'approval_processed_at' => 'datetime',
         'is_taxed' => 'boolean',
     ];
 

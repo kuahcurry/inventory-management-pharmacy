@@ -166,6 +166,30 @@ return new class extends Migration
 
     private function hasIndex(string $table, string $indexName): bool
     {
+        $driver = DB::getDriverName();
+
+        if ($driver === 'sqlite') {
+            $tableName = str_replace("'", "''", $table);
+            $indexes = DB::select("PRAGMA index_list('{$tableName}')");
+
+            foreach ($indexes as $index) {
+                if (($index->name ?? null) === $indexName) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        if ($driver === 'pgsql') {
+            $result = DB::selectOne(
+                'SELECT COUNT(*) AS total FROM pg_indexes WHERE tablename = ? AND indexname = ?',
+                [$table, $indexName]
+            );
+
+            return ((int) ($result->total ?? 0)) > 0;
+        }
+
         $database = DB::getDatabaseName();
         $result = DB::selectOne(
             'SELECT COUNT(*) as total FROM information_schema.statistics WHERE table_schema = ? AND table_name = ? AND index_name = ?',

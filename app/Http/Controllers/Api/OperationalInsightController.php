@@ -11,13 +11,17 @@ use App\Models\Obat;
 use App\Models\ReorderSuggestion;
 use App\Models\StockScanSession;
 use App\Models\StockScanSessionItem;
+use App\Services\HighRiskApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class OperationalInsightController extends Controller
 {
-    public function __construct(private BuildOperationalInsights $insights) {}
+    public function __construct(
+        private BuildOperationalInsights $insights,
+        private HighRiskApprovalService $highRiskApprovalService
+    ) {}
 
     public function reorderSuggestions(Request $request)
     {
@@ -106,6 +110,12 @@ class OperationalInsightController extends Controller
             'approved_by' => auth()->id(),
             'approved_at' => now(),
         ]);
+
+        if ($validated['status'] === 'approved') {
+            $this->highRiskApprovalService->finalizeApprovedRequest($approval->fresh(), (int) auth()->id());
+        } elseif ($validated['status'] === 'rejected' && $approval->transaksi_id) {
+            $this->highRiskApprovalService->finalizeApprovedRequest($approval->fresh(), (int) auth()->id());
+        }
 
         return response()->json([
             'message' => 'Approval request berhasil diproses.',

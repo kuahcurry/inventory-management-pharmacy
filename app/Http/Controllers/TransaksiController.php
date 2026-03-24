@@ -9,6 +9,8 @@ use App\Models\Hutang;
 use App\Models\Obat;
 use App\Models\Resep;
 use App\Models\Transaksi;
+use App\Services\HighRiskApprovalService;
+use App\Services\PrescriptionLifecycleService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -159,7 +161,7 @@ class TransaksiController extends Controller
         }
 
         $selectedResep = null;
-        if (($validated['mode'] ?? null) === 'penjualan' && ($validated['tipe_penjualan'] ?? 'biasa') === 'resep') {
+        if (($validated['tipe_penjualan'] ?? 'biasa') === 'resep') {
             if (empty($validated['resep_id'])) {
                 throw ValidationException::withMessages([
                     'resep_id' => 'Resep wajib dipilih untuk tipe penjualan resep.',
@@ -202,47 +204,35 @@ class TransaksiController extends Controller
         $ppnNominal = $dasarPajak * ($ppnPersen / 100);
         $grandTotal = $dasarPajak + $ppnNominal;
 
-        if ($validated['mode'] === 'penjualan' && isset($validated['pembayaran_diterima']) && (float) $validated['pembayaran_diterima'] < $grandTotal) {
+        if (isset($validated['pembayaran_diterima']) && (float) $validated['pembayaran_diterima'] < $grandTotal) {
             throw ValidationException::withMessages([
                 'pembayaran_diterima' => 'Pembayaran diterima tidak boleh kurang dari total tagihan.',
             ]);
         }
 
-        if ($validated['mode'] === 'penjualan') {
-            $highRiskItems = collect($validated['items'])
-                ->map(function (array $item) {
-                    $obat = Obat::query()->find($item['obat_id']);
+        $highRiskItems = collect($validated['items'])
+            ->map(function (array $item) {
+                $obat = Obat::query()->find($item['obat_id']);
 
-                    if (! $obat || ! $obat->is_high_risk_drug) {
-                        return null;
-                    }
+                if (! $obat || ! $obat->is_high_risk_drug) {
+                    return null;
+                }
 
-                    return [
-                        'obat' => $obat,
-                        'jumlah' => (int) $item['jumlah'],
-                    ];
-                })
-                ->filter();
+                return [
+                    'obat' => $obat,
+                    'jumlah' => (int) $item['jumlah'],
+                ];
+            })
+            ->filter();
 
-            if ($highRiskItems->isNotEmpty()) {
-                DB::transaction(function () use ($highRiskItems): void {
-                    foreach ($highRiskItems as $item) {
-                        ApprovalRequest::query()->create([
-                            'request_type' => 'high_risk_sale',
-                            'obat_id' => $item['obat']->id,
-                            'requested_by' => auth()->id(),
-                            'approval_level_required' => 2,
-                            'status' => 'pending',
-                            'requested_quantity' => $item['jumlah'],
-                            'reason' => 'Permintaan penjualan obat high-risk dari kasir.',
-                        ]);
-                    }
-                });
+        if ($highRiskItems->isNotEmpty()) {
+            $approvals = app(HighRiskApprovalService::class)->createPendingCheckoutTransactions(
+                $validated,
+                $selectedResep,
+                (int) auth()->id()
+            );
 
-                throw ValidationException::withMessages([
-                    'items' => 'Keranjang mengandung obat high-risk. Approval supervisor telah dibuat dan harus disetujui sebelum checkout diproses.',
-                ]);
-            }
+            return back()->with('success', 'Transaksi high-risk disimpan sebagai pending approval ('.$approvals->count().' item).');
         }
 
         DB::transaction(function () use ($validated, $diskonPersen, $ppnPersen, $grandTotal, $selectedResep): void {
@@ -292,11 +282,13 @@ class TransaksiController extends Controller
                     'metode_pembayaran' => $validated['metode_pembayaran'],
                     'bank_code' => $validated['metode_pembayaran'] === 'transfer' ? ($validated['bank_code'] ?? null) : null,
                     'bank_nama' => $validated['metode_pembayaran'] === 'transfer' ? ($validated['bank_nama'] ?? null) : null,
-                    'tipe_penjualan' => $validated['mode'] === 'penjualan' ? ($validated['tipe_penjualan'] ?? 'biasa') : null,
+                        'tipe_penjualan' => $validated['tipe_penjualan'] ?? 'biasa',
                     'kategori_keuangan' => in_array($validated['metode_pembayaran'], ['debit', 'kredit'], true) ? 'hutang' : 'none',
                     'status_pelunasan' => in_array($validated['metode_pembayaran'], ['debit', 'kredit'], true)
                             ? 'belum_lunas'
                             : 'lunas',
+                        'approval_status' => 'approved',
+                        'approval_processed_at' => now(),
                     'jatuh_tempo' => $validated['tempo_jatuh_tempo'] ?? null,
                     'is_taxed' => (bool) ($validated['is_taxed'] ?? false),
                 ]);
@@ -319,7 +311,34 @@ class TransaksiController extends Controller
             }
         });
 
+        if ($selectedResep) {
+            app(PrescriptionLifecycleService::class)->markProcessedFromCheckout(
+                $selectedResep,
+                collect($validated['items'])->pluck('obat_id')->all(),
+                auth()->id()
+            );
+        }
+
         return back()->with('success', 'Checkout kasir berhasil diproses.');
+    }
+
+    public function resumePendingApprovalCheckout(Request $request, ApprovalRequest $approvalRequest)
+    {
+        if ($approvalRequest->status !== 'approved') {
+            return back()->withErrors([
+                'approval' => 'Approval belum berstatus approved.',
+            ]);
+        }
+
+        $transaksi = app(HighRiskApprovalService::class)->finalizeApprovedRequest($approvalRequest, (int) auth()->id());
+
+        if (! $transaksi) {
+            return back()->withErrors([
+                'approval' => 'Transaksi draft untuk approval ini tidak ditemukan.',
+            ]);
+        }
+
+        return back()->with('success', 'Finalisasi transaksi high-risk berhasil diproses.');
     }
 
     public function index(Request $request): Response

@@ -228,70 +228,109 @@ class TransaksiController extends Controller
         return DB::transaction(function () use ($request) {
             $obat = Obat::findOrFail($request->obat_id);
             $oldStok = $obat->stok_total;
+            $requestedQty = (int) $request->jumlah;
 
             // Check stock
-            if ($obat->stok_total < $request->jumlah) {
+            if ($obat->stok_total < $requestedQty) {
                 return response()->json([
                     'message' => 'Stok tidak mencukupi',
                     'available' => $obat->stok_total,
                 ], 400);
             }
 
-            // Get next batch (FEFO)
-            $batch = $obat->getNextBatchFefo();
-            
-            if (!$batch || $batch->stok_tersedia < $request->jumlah) {
-                return response()->json(['message' => 'Batch tidak tersedia'], 400);
-            }
+            // Allocate from FEFO batches progressively
+            $batches = $obat->activeBatches()->lockForUpdate()->get();
+            $remainingQty = $requestedQty;
+            $allocations = [];
+            $transactions = [];
 
-            // Create transaction
-            $transaksi = Transaksi::create([
-                'obat_id' => $obat->id,
-                'batch_id' => $batch->id,
-                'user_id' => auth()->id(),
-                'jenis_transaksi' => Transaksi::JENIS_PENJUALAN,
-                'jumlah' => $request->jumlah,
-                'harga_satuan' => $request->harga_satuan,
-                'total_harga' => $request->jumlah * $request->harga_satuan,
-                'metode_pembayaran' => $request->get('metode_pembayaran', 'cash'),
-                'pelanggan_nama' => $request->get('pelanggan_nama'),
-                'kategori_keuangan' => in_array($request->get('metode_pembayaran'), ['debit', 'kredit'], true) ? 'hutang' : 'none',
-                'status_pelunasan' => in_array($request->get('metode_pembayaran'), ['debit', 'kredit'], true) ? 'belum_lunas' : 'lunas',
-                'keterangan' => $request->keterangan,
-            ]);
+            foreach ($batches as $batch) {
+                if ($remainingQty <= 0) {
+                    break;
+                }
 
-            if (in_array($request->get('metode_pembayaran'), ['debit', 'kredit'], true)) {
-                Hutang::query()->create([
-                    'transaksi_id' => $transaksi->id,
-                    'customer_name' => $request->get('pelanggan_nama'),
-                    'total_amount' => (float) $transaksi->total_harga,
-                    'remaining_amount' => (float) $transaksi->total_harga,
-                    'payment_status' => 'unpaid',
+                if ($batch->stok_tersedia <= 0) {
+                    continue;
+                }
+
+                $takeFromBatch = min($remainingQty, (int) $batch->stok_tersedia);
+                if ($takeFromBatch <= 0) {
+                    continue;
+                }
+
+                $transaksi = Transaksi::create([
+                    'obat_id' => $obat->id,
+                    'batch_id' => $batch->id,
                     'user_id' => auth()->id(),
+                    'jenis_transaksi' => Transaksi::JENIS_PENJUALAN,
+                    'jumlah' => $takeFromBatch,
+                    'harga_satuan' => $request->harga_satuan,
+                    'total_harga' => $takeFromBatch * $request->harga_satuan,
+                    'metode_pembayaran' => $request->get('metode_pembayaran', 'cash'),
+                    'pelanggan_nama' => $request->get('pelanggan_nama'),
+                    'kategori_keuangan' => in_array($request->get('metode_pembayaran'), ['debit', 'kredit'], true) ? 'hutang' : 'none',
+                    'status_pelunasan' => in_array($request->get('metode_pembayaran'), ['debit', 'kredit'], true) ? 'belum_lunas' : 'lunas',
+                    'approval_status' => 'approved',
+                    'approval_processed_at' => now(),
+                    'keterangan' => $request->keterangan,
                 ]);
+
+                if (in_array($request->get('metode_pembayaran'), ['debit', 'kredit'], true)) {
+                    Hutang::query()->create([
+                        'transaksi_id' => $transaksi->id,
+                        'customer_name' => $request->get('pelanggan_nama'),
+                        'total_amount' => (float) $transaksi->total_harga,
+                        'remaining_amount' => (float) $transaksi->total_harga,
+                        'payment_status' => 'unpaid',
+                        'user_id' => auth()->id(),
+                    ]);
+                }
+
+                $batch->stok_tersedia -= $takeFromBatch;
+                if ($batch->stok_tersedia <= 0) {
+                    $batch->status = 'empty';
+                }
+                $batch->save();
+
+                $allocations[] = [
+                    'batch_id' => $batch->id,
+                    'nomor_batch' => $batch->nomor_batch,
+                    'qty' => $takeFromBatch,
+                ];
+
+                $transactions[] = $transaksi;
+                $remainingQty -= $takeFromBatch;
+
+                LogAktivitas::log(
+                    auth()->user(),
+                    "Penjualan: {$takeFromBatch} {$obat->nama_obat} (Batch: {$batch->nomor_batch})",
+                    'transaksi',
+                    LogAktivitas::AKSI_CREATE,
+                    $transaksi
+                );
+
+                broadcast(new TransaksiCreated($transaksi))->toOthers();
             }
 
-            // Update batch stock
-            $batch->stok_tersedia -= $request->jumlah;
-            $batch->save();
+            if ($remainingQty > 0) {
+                return response()->json([
+                    'message' => 'Batch FEFO tidak cukup untuk memenuhi jumlah penjualan.',
+                    'requested' => $requestedQty,
+                    'allocated' => $requestedQty - $remainingQty,
+                ], 400);
+            }
 
             // Update medicine stock
             $obat->recalculateStok();
 
-            // Log activity
-            LogAktivitas::log(
-                auth()->user(),
-                "Penjualan: {$request->jumlah} {$obat->nama_obat}",
-                'transaksi',
-                LogAktivitas::AKSI_CREATE,
-                $transaksi
-            );
-
             // Broadcast
             broadcast(new StokUpdated($obat, 'penjualan', $oldStok, $obat->stok_total))->toOthers();
-            broadcast(new TransaksiCreated($transaksi))->toOthers();
 
-            return response()->json($transaksi->load(['obat', 'batch', 'user']), 201);
+            return response()->json([
+                'message' => 'Penjualan berhasil diproses.',
+                'allocations' => $allocations,
+                'transactions' => collect($transactions)->map(fn (Transaksi $trx) => $trx->load(['obat', 'batch', 'user']))->values(),
+            ], 201);
         });
     }
 

@@ -10,19 +10,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $database = DB::getDatabaseName();
+        if (DB::getDriverName() === 'mysql') {
+            $database = DB::getDatabaseName();
 
-        $column = DB::selectOne(
-            'SELECT DATA_TYPE as data_type, COLUMN_TYPE as column_type FROM information_schema.columns WHERE table_schema = ? AND table_name = ? AND column_name = ?',
-            [$database, 'transaksi', 'metode_pembayaran']
-        );
+            $column = DB::selectOne(
+                'SELECT DATA_TYPE as data_type, COLUMN_TYPE as column_type FROM information_schema.columns WHERE table_schema = ? AND table_name = ? AND column_name = ?',
+                [$database, 'transaksi', 'metode_pembayaran']
+            );
 
-        if (! $column) {
-            return;
-        }
-
-        if (($column->data_type ?? null) === 'enum') {
-            DB::statement("ALTER TABLE transaksi MODIFY metode_pembayaran VARCHAR(30) NULL DEFAULT 'cash'");
+            if ($column && ($column->data_type ?? null) === 'enum') {
+                DB::statement("ALTER TABLE transaksi MODIFY metode_pembayaran VARCHAR(30) NULL DEFAULT 'cash'");
+            }
         }
 
         // Normalize legacy values used by older enum definitions.

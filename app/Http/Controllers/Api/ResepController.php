@@ -7,6 +7,7 @@ use App\Models\LogAktivitas;
 use App\Models\Notifikasi;
 use App\Models\Resep;
 use App\Models\ResepDetail;
+use App\Services\PrescriptionLifecycleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,8 @@ use Illuminate\Support\Facades\Validator;
 
 class ResepController extends Controller
 {
+    public function __construct(private PrescriptionLifecycleService $prescriptionLifecycleService) {}
+
     /**
      * Display a listing of prescriptions
      */
@@ -149,11 +152,7 @@ class ResepController extends Controller
             }
         }
 
-        $resep->update([
-            'status' => Resep::STATUS_PROCESSED,
-            'processed_by' => auth()->id(),
-            'processed_at' => now(),
-        ]);
+        $this->prescriptionLifecycleService->markAsProcessed($resep, auth()->id());
 
         LogAktivitas::log(
             auth()->user(),
@@ -174,10 +173,10 @@ class ResepController extends Controller
      */
     public function complete(Request $request, Resep $resep): JsonResponse
     {
-        $resep->update(['status' => Resep::STATUS_COMPLETED]);
-
         // Mark all details as dispensed
         $resep->details()->update(['is_dispensed' => true]);
+
+        $this->prescriptionLifecycleService->completeIfFullyDispensed($resep, auth()->id());
 
         LogAktivitas::log(
             auth()->user(),

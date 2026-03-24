@@ -10,6 +10,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Kasir (POS)
     Route::get('kasir', [\App\Http\Controllers\TransaksiController::class, 'kasir'])->name('transaksi.kasir');
     Route::post('kasir/checkout', [\App\Http\Controllers\TransaksiController::class, 'kasirCheckout'])->name('transaksi.kasir.checkout');
+    Route::post('kasir/checkout/resume/{approvalRequest}', [\App\Http\Controllers\TransaksiController::class, 'resumePendingApprovalCheckout'])
+        ->name('transaksi.kasir.checkout.resume');
 
     // Hutang Suite
     Route::get('hutang', [\App\Http\Controllers\HutangController::class, 'index'])->name('hutang.index');

@@ -164,11 +164,11 @@ class HutangManagementTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('laporan/cashflow/index')
                 ->where('summaryCards.0.label', 'Cash In')
-                ->where('summaryCards.0.value', 240000.0)
+                ->where('summaryCards.0.value', 240000)
                 ->where('sections.0.rows.1.Arah', 'Masuk dari Penjualan Tunai/Non-Hutang')
-                ->where('sections.0.rows.1.Nilai', 200000.0)
+                ->where('sections.0.rows.1.Nilai', 200000)
                 ->where('sections.0.rows.2.Arah', 'Masuk dari Pelunasan Hutang')
-                ->where('sections.0.rows.2.Nilai', 40000.0)
+                ->where('sections.0.rows.2.Nilai', 40000)
             );
     }
 
