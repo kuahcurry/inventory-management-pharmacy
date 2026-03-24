@@ -11,6 +11,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('kasir', [\App\Http\Controllers\TransaksiController::class, 'kasir'])->name('transaksi.kasir');
     Route::post('kasir/checkout', [\App\Http\Controllers\TransaksiController::class, 'kasirCheckout'])->name('transaksi.kasir.checkout');
 
+    // Hutang Suite
+    Route::get('hutang', [\App\Http\Controllers\HutangController::class, 'index'])->name('hutang.index');
+    Route::post('hutang/{hutang}/pay', [\App\Http\Controllers\HutangController::class, 'pay'])->name('hutang.pay');
+    Route::post('hutang/{hutang}/partial-pay', [\App\Http\Controllers\HutangController::class, 'partialPay'])->name('hutang.partial-pay');
+
     // Semua Transaksi (All Transactions)
     Route::get('transaksi', [\App\Http\Controllers\TransaksiController::class, 'index'])->name('transaksi.index');
 

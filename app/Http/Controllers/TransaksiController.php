@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ApprovalRequest;
 use App\Models\BatchObat;
 use App\Models\BiayaOperasional;
+use App\Models\Hutang;
 use App\Models\Obat;
 use App\Models\Resep;
 use App\Models\Transaksi;
@@ -49,11 +50,6 @@ class TransaksiController extends Controller
                     'debit' => 'Debit',
                     'kredit' => 'Kredit',
                 ],
-                'masuk' => [
-                    'cash' => 'Cash',
-                    'konsinyasi' => 'Konsinyasi',
-                    'tempo' => 'Tempo',
-                ],
                 'biaya' => [
                     'cash' => 'Cash',
                     'transfer' => 'Transfer',
@@ -72,6 +68,8 @@ class TransaksiController extends Controller
             $validatedBiaya = $request->validate([
                 'mode' => 'required|in:biaya',
                 'metode_pembayaran' => 'required|string|in:cash,transfer,debit',
+                'bank_code' => 'nullable|string|max:16',
+                'bank_nama' => 'nullable|string|max:255',
                 'tanggal_transaksi' => 'required|date',
                 'kasir_nama' => 'nullable|string|max:255',
                 'biaya_kategori' => 'required|in:pajak,bunga,sewa,lainnya',
@@ -79,12 +77,28 @@ class TransaksiController extends Controller
                 'biaya_keterangan' => 'nullable|string|max:2000',
             ]);
 
+            if (($validatedBiaya['metode_pembayaran'] ?? null) === 'transfer') {
+                if (empty($validatedBiaya['bank_code'])) {
+                    throw ValidationException::withMessages([
+                        'bank_code' => 'Bank wajib dipilih untuk metode pembayaran transfer.',
+                    ]);
+                }
+
+                if (empty($validatedBiaya['bank_nama'])) {
+                    throw ValidationException::withMessages([
+                        'bank_nama' => 'Nama bank wajib diisi untuk metode pembayaran transfer.',
+                    ]);
+                }
+            }
+
             BiayaOperasional::query()->create([
                 'tanggal_biaya' => $validatedBiaya['tanggal_transaksi'],
                 'kategori' => $validatedBiaya['biaya_kategori'],
                 'nominal' => (float) $validatedBiaya['biaya_nominal'],
                 'keterangan' => $validatedBiaya['biaya_keterangan'] ?? null,
                 'metode_pembayaran' => $validatedBiaya['metode_pembayaran'],
+                'bank_code' => $validatedBiaya['metode_pembayaran'] === 'transfer' ? ($validatedBiaya['bank_code'] ?? null) : null,
+                'bank_nama' => $validatedBiaya['metode_pembayaran'] === 'transfer' ? ($validatedBiaya['bank_nama'] ?? null) : null,
                 'kasir_nama' => $validatedBiaya['kasir_nama'] ?? auth()->user()?->name,
                 'user_id' => auth()->id(),
             ]);
@@ -93,8 +107,10 @@ class TransaksiController extends Controller
         }
 
         $validated = $request->validate([
-            'mode' => 'required|in:penjualan,masuk',
+            'mode' => 'required|in:penjualan',
             'metode_pembayaran' => 'required|string',
+            'bank_code' => 'nullable|string|max:16',
+            'bank_nama' => 'nullable|string|max:255',
             'tanggal_transaksi' => 'required|date',
             'diskon_persen' => 'nullable|numeric|min:0|max:100',
             'ppn_persen' => 'nullable|numeric|min:0|max:100',
@@ -114,9 +130,7 @@ class TransaksiController extends Controller
             'items.*.harga_satuan' => 'required|numeric|min:0',
         ]);
 
-        $allowedMethods = $validated['mode'] === 'penjualan'
-            ? ['qris', 'cash', 'transfer', 'debit', 'kredit']
-            : ['cash', 'konsinyasi', 'tempo'];
+        $allowedMethods = ['qris', 'cash', 'transfer', 'debit', 'kredit'];
 
         if (! in_array($validated['metode_pembayaran'], $allowedMethods, true)) {
             throw ValidationException::withMessages([
@@ -124,15 +138,23 @@ class TransaksiController extends Controller
             ]);
         }
 
-        if ($validated['mode'] === 'masuk' && $validated['metode_pembayaran'] === 'tempo' && empty($validated['tempo_jatuh_tempo'])) {
-            throw ValidationException::withMessages([
-                'tempo_jatuh_tempo' => 'Tanggal jatuh tempo wajib diisi untuk pembayaran tempo.',
-            ]);
+        if (($validated['metode_pembayaran'] ?? null) === 'transfer') {
+            if (empty($validated['bank_code'])) {
+                throw ValidationException::withMessages([
+                    'bank_code' => 'Bank wajib dipilih untuk metode pembayaran transfer.',
+                ]);
+            }
+
+            if (empty($validated['bank_nama'])) {
+                throw ValidationException::withMessages([
+                    'bank_nama' => 'Nama bank wajib diisi untuk metode pembayaran transfer.',
+                ]);
+            }
         }
 
-        if ($validated['mode'] !== 'masuk' && ! empty($validated['tempo_jatuh_tempo'])) {
+        if (! empty($validated['tempo_jatuh_tempo'])) {
             throw ValidationException::withMessages([
-                'tempo_jatuh_tempo' => 'Tanggal jatuh tempo hanya boleh diisi untuk mode Masuk dengan metode Tempo.',
+                'tempo_jatuh_tempo' => 'Tanggal jatuh tempo tidak digunakan pada mode kasir ini.',
             ]);
         }
 
@@ -224,7 +246,7 @@ class TransaksiController extends Controller
         }
 
         DB::transaction(function () use ($validated, $diskonPersen, $ppnPersen, $grandTotal, $selectedResep): void {
-            $jenisTransaksi = $validated['mode'] === 'masuk' ? Transaksi::JENIS_MASUK : Transaksi::JENIS_PENJUALAN;
+            $jenisTransaksi = Transaksi::JENIS_PENJUALAN;
 
             foreach ($validated['items'] as $index => $item) {
                 $batchId = $item['batch_id'] ?? null;
@@ -254,8 +276,8 @@ class TransaksiController extends Controller
                     'keterangan' => implode(' | ', array_filter([
                         'Checkout kasir',
                         'Metode: '.strtoupper($validated['metode_pembayaran']),
+                        $validated['metode_pembayaran'] === 'transfer' ? 'Bank: '.($validated['bank_nama'] ?? '-') : null,
                         $selectedResep ? 'Resep: '.$selectedResep->nomor_resep : null,
-                        $validated['metode_pembayaran'] === 'tempo' ? 'Jatuh tempo: '.$validated['tempo_jatuh_tempo'] : null,
                         'Diskon: '.number_format($diskonPersen, 2).'%',
                         'PPN: '.number_format($ppnPersen, 2).'%',
                         'Grand total: '.number_format($grandTotal, 2, '.', ''),
@@ -268,17 +290,30 @@ class TransaksiController extends Controller
                     'operator_nama' => null,
                     'kasir_nama' => $validated['kasir_nama'] ?? auth()->user()?->name,
                     'metode_pembayaran' => $validated['metode_pembayaran'],
+                    'bank_code' => $validated['metode_pembayaran'] === 'transfer' ? ($validated['bank_code'] ?? null) : null,
+                    'bank_nama' => $validated['metode_pembayaran'] === 'transfer' ? ($validated['bank_nama'] ?? null) : null,
                     'tipe_penjualan' => $validated['mode'] === 'penjualan' ? ($validated['tipe_penjualan'] ?? 'biasa') : null,
-                    'kategori_keuangan' => $validated['mode'] === 'masuk' && $validated['metode_pembayaran'] === 'tempo'
-                        ? 'hutang'
-                        : ($validated['mode'] === 'penjualan' && $validated['metode_pembayaran'] === 'kredit' ? 'piutang' : 'none'),
-                    'status_pelunasan' => ($validated['mode'] === 'masuk' && $validated['metode_pembayaran'] === 'tempo')
-                        || ($validated['mode'] === 'penjualan' && $validated['metode_pembayaran'] === 'kredit')
+                    'kategori_keuangan' => in_array($validated['metode_pembayaran'], ['debit', 'kredit'], true) ? 'hutang' : 'none',
+                    'status_pelunasan' => in_array($validated['metode_pembayaran'], ['debit', 'kredit'], true)
                             ? 'belum_lunas'
                             : 'lunas',
                     'jatuh_tempo' => $validated['tempo_jatuh_tempo'] ?? null,
                     'is_taxed' => (bool) ($validated['is_taxed'] ?? false),
                 ]);
+
+                $isDebtMethod = in_array($validated['metode_pembayaran'], ['debit', 'kredit'], true);
+                if ($isDebtMethod) {
+                    Hutang::query()->updateOrCreate(
+                        ['transaksi_id' => $transaksi->id],
+                        [
+                            'customer_name' => $validated['pelanggan_nama'] ?? null,
+                            'total_amount' => (float) $transaksi->total_harga,
+                            'remaining_amount' => (float) $transaksi->total_harga,
+                            'payment_status' => 'unpaid',
+                            'user_id' => auth()->id(),
+                        ]
+                    );
+                }
 
                 $this->updateStock($transaksi);
             }
@@ -289,7 +324,7 @@ class TransaksiController extends Controller
 
     public function index(Request $request): Response
     {
-        $query = Transaksi::with(['obat.satuan', 'batch', 'user']);
+        $query = Transaksi::with(['obat.satuan', 'batch', 'user', 'hutang']);
 
         // Filter by jenis transaksi
         if ($request->filled('jenis')) {
@@ -411,6 +446,7 @@ class TransaksiController extends Controller
 
         // Update stock
         $this->updateStock($transaksi);
+        $this->syncHutangFromTransaksi($transaksi);
 
         return redirect()->route('transaksi.index')
             ->with('success', 'Transaksi berhasil dibuat');
@@ -426,6 +462,13 @@ class TransaksiController extends Controller
             'obat.kategori',
             'batch',
             'user',
+            'hutang' => function ($query) {
+                $query->with([
+                    'payments' => function ($paymentQuery) {
+                        $paymentQuery->with('user')->orderByDesc('paid_at');
+                    },
+                ]);
+            },
         ])->findOrFail($id);
 
         return Inertia::render('transaksi/show', [
@@ -438,7 +481,7 @@ class TransaksiController extends Controller
      */
     public function edit(string $id)
     {
-        $transaksi = Transaksi::with(['obat', 'batch'])->findOrFail($id);
+        $transaksi = Transaksi::with(['obat', 'batch', 'hutang'])->findOrFail($id);
 
         $obat = \App\Models\Obat::with(['satuan', 'kategori'])
             ->where('is_active', true)
@@ -513,6 +556,7 @@ class TransaksiController extends Controller
 
         // Apply new stock changes
         $this->updateStock($transaksi);
+        $this->syncHutangFromTransaksi($transaksi);
 
         return redirect()->route('transaksi.index')
             ->with('success', 'Transaksi berhasil diupdate');
@@ -592,6 +636,37 @@ class TransaksiController extends Controller
 
         // Recalculate medicine total stock
         $batch->obat->recalculateStok();
+    }
+
+    protected function syncHutangFromTransaksi(Transaksi $transaksi): void
+    {
+        $isDebtSale = $transaksi->jenis_transaksi === Transaksi::JENIS_PENJUALAN
+            && in_array((string) $transaksi->metode_pembayaran, ['debit', 'kredit'], true);
+
+        if (! $isDebtSale) {
+            $transaksi->hutang()?->delete();
+            return;
+        }
+
+        $existing = $transaksi->hutang;
+        $alreadyPaid = $existing ? ((float) $existing->total_amount - (float) $existing->remaining_amount) : 0.0;
+        $newRemaining = max((float) $transaksi->total_harga - $alreadyPaid, 0.0);
+
+        $transaksi->hutang()->updateOrCreate(
+            ['transaksi_id' => $transaksi->id],
+            [
+                'customer_name' => $transaksi->pelanggan_nama,
+                'total_amount' => (float) $transaksi->total_harga,
+                'remaining_amount' => $newRemaining,
+                'payment_status' => $newRemaining == 0.0 ? 'paid' : ($newRemaining < (float) $transaksi->total_harga ? 'partially_paid' : 'unpaid'),
+                'settled_at' => $newRemaining == 0.0 ? now() : null,
+                'user_id' => $transaksi->user_id,
+            ]
+        );
+
+        $transaksi->kategori_keuangan = 'hutang';
+        $transaksi->status_pelunasan = $newRemaining == 0.0 ? 'lunas' : 'belum_lunas';
+        $transaksi->save();
     }
 
     /**

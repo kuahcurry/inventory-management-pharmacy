@@ -60,9 +60,14 @@ interface TransaksiItem {
     total_harga: number;
     keterangan?: string;
     nomor_referensi?: string;
+    status_pelunasan?: 'lunas' | 'belum_lunas';
     obat: Obat;
     batch?: Batch;
     user: User;
+    hutang?: {
+        remaining_amount: number;
+        payment_status: 'unpaid' | 'partially_paid' | 'paid';
+    } | null;
 }
 
 interface Stats {
@@ -178,6 +183,22 @@ export default function SemuaTransaksi({ transaksi, stats, filters }: Props) {
             default:
                 return <Badge variant="outline">{jenis}</Badge>;
         }
+    };
+
+    const getStatusBadge = (item: TransaksiItem) => {
+        if (item.hutang && item.hutang.payment_status !== 'paid') {
+            if (item.hutang.payment_status === 'partially_paid') {
+                return <Badge className="bg-amber-600">Hutang Parsial</Badge>;
+            }
+
+            return <Badge className="bg-red-600">Hutang</Badge>;
+        }
+
+        if (item.status_pelunasan === 'belum_lunas') {
+            return <Badge className="bg-red-600">Hutang</Badge>;
+        }
+
+        return <Badge className="bg-emerald-600">Lunas</Badge>;
     };
 
     return (
@@ -355,6 +376,7 @@ export default function SemuaTransaksi({ transaksi, stats, filters }: Props) {
                                     <TableHead className="text-right">Jumlah</TableHead>
                                     <TableHead className="text-right">Harga Satuan</TableHead>
                                     <TableHead className="text-right">Total</TableHead>
+                                    <TableHead>Status</TableHead>
                                     <TableHead>Petugas</TableHead>
                                     <TableHead className="text-right">Aksi</TableHead>
                                 </TableRow>
@@ -362,7 +384,7 @@ export default function SemuaTransaksi({ transaksi, stats, filters }: Props) {
                             <TableBody>
                                 {transaksi.data.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={10} className="text-center py-8">
+                                        <TableCell colSpan={11} className="text-center py-8">
                                             <Package className="mx-auto mb-2 size-12 text-muted-foreground" />
                                             <p className="text-muted-foreground">Belum ada transaksi</p>
                                         </TableCell>
@@ -404,6 +426,7 @@ export default function SemuaTransaksi({ transaksi, stats, filters }: Props) {
                                             <TableCell className="text-right font-bold">
                                                 {formatCurrency(item.total_harga)}
                                             </TableCell>
+                                            <TableCell>{getStatusBadge(item)}</TableCell>
                                             <TableCell>{item.user.name}</TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex justify-end gap-2">

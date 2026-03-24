@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\BatchObatController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\HutangController;
 use App\Http\Controllers\Api\JenisObatController;
 use App\Http\Controllers\Api\KategoriObatController;
 use App\Http\Controllers\Api\LogAktivitasController;
@@ -123,11 +124,17 @@ Route::middleware(['auth:web'])->group(function () {
         Route::post('/keluar', [TransaksiController::class, 'storeKeluar'])->name('api.transaksi.keluar');
         Route::post('/penjualan', [TransaksiController::class, 'storePenjualan'])->name('api.transaksi.penjualan');
     });
+    Route::post('/transactions', [TransaksiController::class, 'storePenjualan'])->name('api.transactions.store');
     Route::apiResource('transaksi', TransaksiController::class)->except(['update', 'destroy'])->names([
         'index' => 'api.transaksi.index',
         'store' => 'api.transaksi.store',
         'show' => 'api.transaksi.show',
     ]);
+
+    // Hutang API
+    Route::get('/hutang', [HutangController::class, 'index'])->name('api.hutang.index');
+    Route::post('/hutang/{hutang}/pay', [HutangController::class, 'pay'])->name('api.hutang.pay');
+    Route::post('/hutang/{hutang}/partial-pay', [HutangController::class, 'partialPay'])->name('api.hutang.partial-pay');
 
     // QR Code
     Route::prefix('qr')->group(function () {

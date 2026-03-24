@@ -6,28 +6,30 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class BiayaOperasional extends Model
+class HutangPayment extends Model
 {
     use HasFactory;
 
-    protected $table = 'biaya_operasional';
+    protected $table = 'hutang_payments';
 
     protected $fillable = [
-        'tanggal_biaya',
-        'kategori',
-        'nominal',
-        'keterangan',
+        'hutang_id',
+        'amount',
+        'paid_at',
         'metode_pembayaran',
-        'bank_code',
-        'bank_nama',
-        'kasir_nama',
+        'keterangan',
         'user_id',
     ];
 
     protected $casts = [
-        'tanggal_biaya' => 'date',
-        'nominal' => 'decimal:2',
+        'amount' => 'decimal:2',
+        'paid_at' => 'datetime',
     ];
+
+    public function hutang(): BelongsTo
+    {
+        return $this->belongsTo(Hutang::class, 'hutang_id');
+    }
 
     public function user(): BelongsTo
     {

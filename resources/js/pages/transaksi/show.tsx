@@ -13,7 +13,9 @@ import {
     FileText,
     ArrowUpCircle,
     ArrowDownCircle,
-    ShoppingCart
+    ShoppingCart,
+    Clock3,
+    CreditCard
 } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -43,6 +45,26 @@ interface User {
     email: string;
 }
 
+interface HutangPayment {
+    id: number;
+    amount: number;
+    paid_at: string;
+    metode_pembayaran?: string | null;
+    keterangan?: string | null;
+    user?: {
+        name: string;
+    } | null;
+}
+
+interface Hutang {
+    id: number;
+    total_amount: number;
+    remaining_amount: number;
+    payment_status: 'unpaid' | 'partially_paid' | 'paid';
+    settled_at?: string | null;
+    payments: HutangPayment[];
+}
+
 interface Transaksi {
     id: number;
     kode_transaksi: string;
@@ -58,6 +80,7 @@ interface Transaksi {
     batch?: Batch;
     user: User;
     created_at: string;
+    hutang?: Hutang | null;
 }
 
 interface Props {
@@ -119,6 +142,17 @@ export default function TransaksiShow({ transaksi }: Props) {
                 );
             default:
                 return <Badge variant="outline">{jenis}</Badge>;
+        }
+    };
+
+    const getHutangStatusBadge = (status: Hutang['payment_status']) => {
+        switch (status) {
+            case 'paid':
+                return <Badge className="bg-emerald-600 hover:bg-emerald-700">Lunas</Badge>;
+            case 'partially_paid':
+                return <Badge className="bg-amber-600 hover:bg-amber-700">Parsial</Badge>;
+            default:
+                return <Badge className="bg-rose-600 hover:bg-rose-700">Belum Lunas</Badge>;
         }
     };
 
@@ -259,6 +293,66 @@ export default function TransaksiShow({ transaksi }: Props) {
                             </div>
                         </div>
                     </div>
+
+                    {transaksi.hutang && (
+                        <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 space-y-4 md:col-span-2">
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-2">
+                                    <CreditCard className="size-5 text-muted-foreground" />
+                                    <h3 className="text-lg font-semibold">Timeline Pembayaran Hutang</h3>
+                                </div>
+                                {getHutangStatusBadge(transaksi.hutang.payment_status)}
+                            </div>
+
+                            <div className="grid gap-3 text-sm md:grid-cols-3">
+                                <div className="rounded-lg border p-3">
+                                    <p className="text-muted-foreground">Total Hutang</p>
+                                    <p className="text-lg font-semibold">{formatCurrency(transaksi.hutang.total_amount)}</p>
+                                </div>
+                                <div className="rounded-lg border p-3">
+                                    <p className="text-muted-foreground">Sisa Hutang</p>
+                                    <p className="text-lg font-semibold text-amber-700">{formatCurrency(transaksi.hutang.remaining_amount)}</p>
+                                </div>
+                                <div className="rounded-lg border p-3">
+                                    <p className="text-muted-foreground">Total Pembayaran</p>
+                                    <p className="text-lg font-semibold text-emerald-700">
+                                        {formatCurrency(transaksi.hutang.total_amount - transaksi.hutang.remaining_amount)}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {transaksi.hutang.payments.length === 0 ? (
+                                <div className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+                                    Belum ada riwayat pembayaran untuk hutang ini.
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {transaksi.hutang.payments.map((payment) => (
+                                        <div key={payment.id} className="rounded-lg border p-4">
+                                            <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                        <Clock3 className="size-4" />
+                                                        <span>{formatDateTime(payment.paid_at)}</span>
+                                                    </div>
+                                                    <p className="text-sm">
+                                                        Metode: <span className="font-medium uppercase">{payment.metode_pembayaran || '-'}</span>
+                                                    </p>
+                                                    {payment.user?.name && (
+                                                        <p className="text-sm text-muted-foreground">Diproses oleh: {payment.user.name}</p>
+                                                    )}
+                                                    {payment.keterangan && (
+                                                        <p className="text-sm text-muted-foreground">Catatan: {payment.keterangan}</p>
+                                                    )}
+                                                </div>
+                                                <p className="text-lg font-bold text-emerald-700">{formatCurrency(payment.amount)}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 space-y-4">
                         <div className="flex items-center gap-2">

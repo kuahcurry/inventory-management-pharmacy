@@ -6,6 +6,7 @@ use App\Events\StokUpdated;
 use App\Events\TransaksiCreated;
 use App\Http\Controllers\Controller;
 use App\Models\BatchObat;
+use App\Models\Hutang;
 use App\Models\LogAktivitas;
 use App\Models\Notifikasi;
 use App\Models\Obat;
@@ -27,7 +28,7 @@ class TransaksiController extends Controller
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
 
-        $query = Transaksi::with(['obat', 'batch', 'user', 'unit'])
+        $query = Transaksi::with(['obat', 'batch', 'user', 'unit', 'hutang'])
             ->latest('tanggal_transaksi')
             ->latest('waktu_transaksi');
 
@@ -49,7 +50,7 @@ class TransaksiController extends Controller
      */
     public function show(Transaksi $transaksi): JsonResponse
     {
-        $transaksi->load(['obat', 'batch', 'user', 'unit']);
+        $transaksi->load(['obat', 'batch', 'user', 'unit', 'hutang']);
         
         return response()->json($transaksi);
     }
@@ -215,6 +216,8 @@ class TransaksiController extends Controller
             'obat_id' => 'required|exists:obat,id',
             'jumlah' => 'required|integer|min:1',
             'harga_satuan' => 'required|numeric|min:0',
+            'metode_pembayaran' => 'nullable|in:cash,qris,transfer,debit,kredit',
+            'pelanggan_nama' => 'nullable|string|max:255',
             'keterangan' => 'nullable|string',
         ]);
 
@@ -250,8 +253,23 @@ class TransaksiController extends Controller
                 'jumlah' => $request->jumlah,
                 'harga_satuan' => $request->harga_satuan,
                 'total_harga' => $request->jumlah * $request->harga_satuan,
+                'metode_pembayaran' => $request->get('metode_pembayaran', 'cash'),
+                'pelanggan_nama' => $request->get('pelanggan_nama'),
+                'kategori_keuangan' => in_array($request->get('metode_pembayaran'), ['debit', 'kredit'], true) ? 'hutang' : 'none',
+                'status_pelunasan' => in_array($request->get('metode_pembayaran'), ['debit', 'kredit'], true) ? 'belum_lunas' : 'lunas',
                 'keterangan' => $request->keterangan,
             ]);
+
+            if (in_array($request->get('metode_pembayaran'), ['debit', 'kredit'], true)) {
+                Hutang::query()->create([
+                    'transaksi_id' => $transaksi->id,
+                    'customer_name' => $request->get('pelanggan_nama'),
+                    'total_amount' => (float) $transaksi->total_harga,
+                    'remaining_amount' => (float) $transaksi->total_harga,
+                    'payment_status' => 'unpaid',
+                    'user_id' => auth()->id(),
+                ]);
+            }
 
             // Update batch stock
             $batch->stok_tersedia -= $request->jumlah;
@@ -283,6 +301,7 @@ class TransaksiController extends Controller
     public function today(Request $request): JsonResponse
     {
         $transaksi = Transaksi::with(['obat', 'batch', 'user', 'unit'])
+            ->with('hutang')
             ->today()
             ->latest('waktu_transaksi')
             ->get();
@@ -297,7 +316,7 @@ class TransaksiController extends Controller
     {
         $perPage = $request->get('per_page', 15);
         
-        $transaksi = Transaksi::with(['obat', 'batch', 'user', 'unit'])
+        $transaksi = Transaksi::with(['obat', 'batch', 'user', 'unit', 'hutang'])
             ->where('jenis_transaksi', $type)
             ->latest('tanggal_transaksi')
             ->latest('waktu_transaksi')

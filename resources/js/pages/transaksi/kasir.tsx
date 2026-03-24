@@ -52,9 +52,13 @@ type Props = {
     }>;
     paymentMethodsByMode: {
         penjualan: Record<string, string>;
-        masuk: Record<string, string>;
         biaya: Record<string, string>;
     };
+};
+
+type BankOption = {
+    name: string;
+    code: string;
 };
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -74,6 +78,10 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
     const { flash, auth } = usePage<SharedData>().props;
     const [search, setSearch] = useState('');
     const [cart, setCart] = useState<CartItem[]>([]);
+    const [bankSearch, setBankSearch] = useState('');
+    const [banks, setBanks] = useState<BankOption[]>([]);
+    const [banksLoading, setBanksLoading] = useState(false);
+    const [banksError, setBanksError] = useState<string | null>(null);
     const [banner, setBanner] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
     const { data, setData, post, processing, errors, transform } = useForm({
@@ -91,6 +99,8 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
         ppn_persen: '11',
         pembayaran_diterima: '',
         tempo_jatuh_tempo: '',
+        bank_code: '',
+        bank_nama: '',
         biaya_kategori: 'pajak',
         biaya_nominal: '',
         biaya_keterangan: '',
@@ -104,13 +114,27 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
 
     const paymentMethods = useMemo(
         () =>
-            data.mode === 'masuk'
-                ? paymentMethodsByMode.masuk
-                : data.mode === 'biaya'
+            data.mode === 'biaya'
                   ? paymentMethodsByMode.biaya
                   : paymentMethodsByMode.penjualan,
-        [data.mode, paymentMethodsByMode.biaya, paymentMethodsByMode.masuk, paymentMethodsByMode.penjualan],
+        [data.mode, paymentMethodsByMode.biaya, paymentMethodsByMode.penjualan],
     );
+
+    const isTransferMethod = useMemo(() => {
+        const key = (data.metode_pembayaran || '').toLowerCase();
+        const label = (paymentMethods[data.metode_pembayaran] || '').toLowerCase();
+
+        return key === 'transfer' || label.includes('transfer');
+    }, [data.metode_pembayaran, paymentMethods]);
+
+    const filteredBanks = useMemo(() => {
+        const query = bankSearch.trim().toLowerCase();
+        if (!query) {
+            return banks;
+        }
+
+        return banks.filter((bank) => `${bank.name} ${bank.code}`.toLowerCase().includes(query));
+    }, [bankSearch, banks]);
 
     const filteredBatches = useMemo(() => {
         const q = search.trim().toLowerCase();
@@ -155,10 +179,7 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
     }, [data.resep_id, filteredReseps]);
 
     const addToCart = (batch: Batch) => {
-        const defaultPrice =
-            data.mode === 'masuk'
-                ? Number(batch.harga_beli || 0)
-                : Number(batch.obat.harga_jual || batch.harga_beli || 0);
+        const defaultPrice = Number(batch.obat.harga_jual || batch.harga_beli || 0);
 
         setCart((prev) => {
             const exists = prev.find((item) => item.batch_id === batch.id);
@@ -231,7 +252,7 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
         const metodePembayaran = params.get('metode_pembayaran');
         const tipePenjualan = params.get('tipe_penjualan');
 
-        if (mode === 'penjualan' || mode === 'masuk' || mode === 'biaya') {
+        if (mode === 'penjualan' || mode === 'biaya') {
             setData('mode', mode);
         }
         if (metodePembayaran) {
@@ -245,24 +266,17 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
     useEffect(() => {
         const defaults = {
             penjualan: 'qris',
-            masuk: 'cash',
             biaya: 'cash',
         };
 
         const allowed = Object.keys(
-            data.mode === 'masuk'
-                ? paymentMethodsByMode.masuk
-                : data.mode === 'biaya'
+            data.mode === 'biaya'
                   ? paymentMethodsByMode.biaya
                   : paymentMethodsByMode.penjualan,
         );
         if (!allowed.includes(data.metode_pembayaran)) {
-            const nextMethod = defaults[data.mode as 'penjualan' | 'masuk' | 'biaya'];
+            const nextMethod = defaults[data.mode as 'penjualan' | 'biaya'];
             setData('metode_pembayaran', nextMethod);
-        }
-
-        if (data.mode !== 'masuk') {
-            setData('tempo_jatuh_tempo', '');
         }
 
         if (data.mode !== 'penjualan') {
@@ -272,15 +286,79 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
             setData('pelanggan_nama', '');
         }
 
-        if (data.mode !== 'masuk') {
-            setData('supplier_nama', '');
-        }
+        setData('supplier_nama', '');
+        setData('tempo_jatuh_tempo', '');
 
         if (data.mode !== 'biaya') {
             setData('biaya_nominal', '');
             setData('biaya_keterangan', '');
         }
-    }, [data.metode_pembayaran, data.mode, paymentMethodsByMode.biaya, paymentMethodsByMode.masuk, paymentMethodsByMode.penjualan, setData]);
+
+        if (!isTransferMethod && (data.bank_code || data.bank_nama)) {
+            setData('bank_code', '');
+            setData('bank_nama', '');
+        }
+    }, [data.metode_pembayaran, data.mode, paymentMethodsByMode.biaya, paymentMethodsByMode.penjualan, setData]);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        if (!isTransferMethod) {
+            setBanksError(null);
+            setBankSearch('');
+            return;
+        }
+
+        if (banks.length > 0) {
+            return;
+        }
+
+        setBanksLoading(true);
+        setBanksError(null);
+
+        fetch('/storage/indonesian-bank/indonesia-bank.json')
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('failed-to-load-bank-list');
+                }
+
+                return response.json() as Promise<unknown>;
+            })
+            .then((payload) => {
+                if (cancelled) {
+                    return;
+                }
+
+                if (!Array.isArray(payload)) {
+                    throw new Error('invalid-bank-list-format');
+                }
+
+                const parsed = payload
+                    .filter((item): item is { name?: unknown; code?: unknown } => typeof item === 'object' && item !== null)
+                    .map((item) => ({
+                        name: String(item.name || '').trim(),
+                        code: String(item.code || '').trim(),
+                    }))
+                    .filter((bank) => bank.name.length > 0 && bank.code.length > 0);
+
+                setBanks(parsed);
+                setBanksError(null);
+            })
+            .catch(() => {
+                if (!cancelled) {
+                    setBanksError('Daftar bank gagal dimuat. Cek file JSON di public/storage.');
+                }
+            })
+            .finally(() => {
+                if (!cancelled) {
+                    setBanksLoading(false);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [banks.length, isTransferMethod]);
 
     useEffect(() => {
         if (data.mode !== 'penjualan' || data.tipe_penjualan !== 'resep') {
@@ -307,6 +385,11 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
     }, [data.resep_id, data.tipe_penjualan, filteredReseps, setData]);
 
     const checkout = () => {
+        if (isTransferMethod && !data.bank_code) {
+            setBanner({ type: 'error', message: 'Pilih bank tujuan untuk pembayaran transfer.' });
+            return;
+        }
+
         const payloadItems = cart.map((item) => ({
             obat_id: item.obat_id,
             batch_id: item.batch_id,
@@ -317,6 +400,8 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
         transform((current) => ({
             ...current,
             resep_id: current.resep_id ? Number(current.resep_id) : null,
+            bank_code: current.bank_code || null,
+            bank_nama: current.bank_nama || null,
             items: payloadItems,
         }));
 
@@ -333,7 +418,7 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                 <div className="rounded-xl border border-slate-300 bg-gradient-to-r from-slate-100 via-white to-slate-100 p-4">
                     <h1 className="text-2xl font-bold tracking-tight text-slate-800">Kasir Transaksi</h1>
                     <p className="text-sm text-slate-600">
-                        Operasional checkout berbasis batch untuk penjualan dan barang masuk dengan kontrol pembayaran yang terstruktur.
+                        Operasional checkout berbasis batch untuk penjualan dan pencatatan biaya operasional.
                     </p>
                 </div>
 
@@ -367,7 +452,6 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="penjualan">Penjualan</SelectItem>
-                                        <SelectItem value="masuk">Masuk</SelectItem>
                                         <SelectItem value="biaya">Biaya Operasional</SelectItem>
                                     </SelectContent>
                                 </Select>
@@ -396,18 +480,59 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                             </div>
                         </div>
 
-                        <div className="grid gap-2 md:grid-cols-2">
-                            {data.mode === 'masuk' ? (
+                        {isTransferMethod && (
+                            <div className="grid gap-3 rounded-lg border border-sidebar-border/70 p-3">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="supplier-nama">Supplier</Label>
+                                    <Label htmlFor="bank-search">Cari Bank</Label>
                                     <Input
-                                        id="supplier-nama"
-                                        value={data.supplier_nama}
-                                        onChange={(e) => setData('supplier_nama', e.target.value)}
-                                        placeholder="Nama supplier"
+                                        id="bank-search"
+                                        value={bankSearch}
+                                        onChange={(e) => setBankSearch(e.target.value)}
+                                        placeholder="Contoh: BCA, Mandiri, BNI, 014"
                                     />
                                 </div>
-                            ) : data.mode === 'penjualan' ? (
+
+                                <div className="grid gap-2">
+                                    <Label>Bank Tujuan Transfer</Label>
+                                    <Select
+                                        value={data.bank_code || undefined}
+                                        onValueChange={(value) => {
+                                            const selected = banks.find((bank) => bank.code === value);
+                                            setData('bank_code', value);
+                                            setData('bank_nama', selected?.name || '');
+                                        }}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue
+                                                placeholder={banksLoading ? 'Memuat daftar bank...' : 'Pilih bank'}
+                                            />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {!banksLoading && filteredBanks.length === 0 ? (
+                                                <SelectItem value="__no_bank_result" disabled>
+                                                    Bank tidak ditemukan
+                                                </SelectItem>
+                                            ) : (
+                                                filteredBanks.map((bank) => (
+                                                    <SelectItem key={`${bank.code}-${bank.name}`} value={bank.code}>
+                                                        {bank.name} ({bank.code})
+                                                    </SelectItem>
+                                                ))
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                    {(errors as Record<string, string | undefined>).bank_code && (
+                                        <p className="text-sm text-destructive">
+                                            {(errors as Record<string, string | undefined>).bank_code}
+                                        </p>
+                                    )}
+                                    {banksError && <p className="text-sm text-destructive">{banksError}</p>}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="grid gap-2 md:grid-cols-2">
+                            {data.mode === 'penjualan' ? (
                                 <div className="grid gap-2">
                                     <Label htmlFor="pelanggan-nama">Pelanggan</Label>
                                     <Input
@@ -494,22 +619,6 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                                     />
                                     Transaksi dikenakan pajak
                                 </label>
-                            </div>
-                        )}
-
-                        {data.mode === 'masuk' && data.metode_pembayaran === 'tempo' && (
-                            <div className="grid gap-2">
-                                <Label htmlFor="tempo-jatuh-tempo">Jatuh Tempo Pembayaran</Label>
-                                <Input
-                                    id="tempo-jatuh-tempo"
-                                    type="date"
-                                    min={data.tanggal_transaksi}
-                                    value={data.tempo_jatuh_tempo}
-                                    onChange={(e) => setData('tempo_jatuh_tempo', e.target.value)}
-                                />
-                                {errors.tempo_jatuh_tempo && (
-                                    <p className="text-sm text-destructive">{errors.tempo_jatuh_tempo}</p>
-                                )}
                             </div>
                         )}
 

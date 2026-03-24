@@ -77,6 +77,10 @@ const mainNavItems: NavItem[] = [
                 title: 'Barang Keluar',
                 href: '/transaksi/keluar',
             },
+            {
+                title: 'Hutang Suite',
+                href: '/hutang',
+            },
         ],
     },
     {

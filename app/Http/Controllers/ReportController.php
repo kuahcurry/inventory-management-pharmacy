@@ -7,6 +7,7 @@ use App\Models\ApprovalRequest;
 use App\Models\BatchObat;
 use App\Models\BiayaOperasional;
 use App\Models\DemandForecast;
+use App\Models\HutangPayment;
 use App\Models\KategoriObat;
 use App\Models\Obat;
 use App\Models\ReorderSuggestion;
@@ -248,7 +249,7 @@ class ReportController extends Controller
         $includeInterestExpense = $request->boolean('include_bunga', true);
 
         $base = Transaksi::query()
-            ->with(['obat.kategori', 'batch'])
+            ->with(['obat.kategori', 'batch', 'hutang'])
             ->whereDate('tanggal_transaksi', '>=', $startDate)
             ->whereDate('tanggal_transaksi', '<=', $endDate);
 
@@ -285,7 +286,7 @@ class ReportController extends Controller
         $includeInterestExpense = $request->boolean('include_bunga', true);
 
         $base = Transaksi::query()
-            ->with(['obat.kategori', 'batch'])
+            ->with(['obat.kategori', 'batch', 'hutang'])
             ->whereDate('tanggal_transaksi', '>=', $startDate)
             ->whereDate('tanggal_transaksi', '<=', $endDate);
 
@@ -330,7 +331,7 @@ class ReportController extends Controller
             'pembelian_suite' => $this->buildPembelianSuite($base),
             'penjualan_suite' => $this->buildPenjualanSuite($base),
             'ar_ap_suite' => $this->buildArApSuite($base),
-            'cashflow_suite' => $this->buildCashflowSuite($base),
+            'cashflow_suite' => $this->buildCashflowSuite($base, $startDate, $endDate),
             'obat_suite' => $this->buildObatSuite($base, $startDate, $endDate),
             default => $this->buildKeuanganSuite($base, $startDate, $endDate, $options),
         };
@@ -342,7 +343,7 @@ class ReportController extends Controller
             'ar_ap_suite' => [
                 [
                     'label' => 'Tambah Hutang',
-                    'href' => '/kasir?mode=masuk&metode_pembayaran=tempo',
+                    'href' => '/transaksi/masuk',
                     'variant' => 'default',
                 ],
                 [
@@ -461,9 +462,9 @@ class ReportController extends Controller
                     'key' => 'metode',
                     'title' => 'Pembelian per Metode',
                     'columns' => ['Metode', 'Jumlah Transaksi', 'Nilai'],
-                    'rows' => $rows->groupBy(fn ($r) => $r->metode_pembayaran ?: 'tanpa_metode')->map(function ($group, $key) {
+                    'rows' => $rows->groupBy(fn ($r) => $this->paymentMethodLabel($r->metode_pembayaran, $r->bank_nama))->map(function ($group, $key) {
                         return [
-                            'Metode' => Str::upper((string) $key),
+                            'Metode' => $key,
                             'Jumlah Transaksi' => $group->count(),
                             'Nilai' => (float) $group->sum('total_harga'),
                         ];
@@ -500,6 +501,11 @@ class ReportController extends Controller
     private function buildPenjualanSuite($base): array
     {
         $rows = (clone $base)->where('jenis_transaksi', Transaksi::JENIS_PENJUALAN)->get();
+        $totalSales = (float) $rows->sum('total_harga');
+        $outstandingDebt = (float) $rows->sum(function ($row) {
+            return (float) ($row->hutang?->remaining_amount ?? 0);
+        });
+        $paidSales = max($totalSales - $outstandingDebt, 0);
 
         return [
             'title' => 'Penjualan Suite',
@@ -507,20 +513,49 @@ class ReportController extends Controller
             'summaryCards' => [
                 ['label' => 'Total Penjualan', 'value' => $rows->count()],
                 ['label' => 'Total Qty', 'value' => (int) $rows->sum('jumlah')],
-                ['label' => 'Omzet', 'value' => (float) $rows->sum('total_harga')],
+                ['label' => 'total_sales', 'value' => $totalSales],
+                ['label' => 'paid_sales', 'value' => $paidSales],
+                ['label' => 'unpaid_sales', 'value' => $outstandingDebt],
             ],
             'sections' => [
+                [
+                    'key' => 'ringkasan_hutang',
+                    'title' => 'Ringkasan Penjualan vs Hutang',
+                    'columns' => ['Komponen', 'Nilai'],
+                    'rows' => [
+                        ['Komponen' => 'Total Sales', 'Nilai' => $totalSales],
+                        ['Komponen' => 'Paid Sales', 'Nilai' => $paidSales],
+                        ['Komponen' => 'Unpaid Sales (Hutang)', 'Nilai' => $outstandingDebt],
+                    ],
+                ],
                 [
                     'key' => 'metode',
                     'title' => 'Penjualan per Metode Bayar',
                     'columns' => ['Metode', 'Jumlah Transaksi', 'Omzet'],
-                    'rows' => $rows->groupBy(fn ($r) => $r->metode_pembayaran ?: 'tanpa_metode')->map(function ($group, $key) {
+                    'rows' => $rows->groupBy(fn ($r) => $this->paymentMethodLabel($r->metode_pembayaran, $r->bank_nama))->map(function ($group, $key) {
                         return [
-                            'Metode' => Str::upper((string) $key),
+                            'Metode' => $key,
                             'Jumlah Transaksi' => $group->count(),
                             'Omzet' => (float) $group->sum('total_harga'),
                         ];
                     })->values()->all(),
+                ],
+                [
+                    'key' => 'transfer_bank',
+                    'title' => 'Penjualan Transfer per Bank',
+                    'columns' => ['Bank', 'Jumlah Transaksi', 'Omzet'],
+                    'rows' => $rows
+                        ->where('metode_pembayaran', 'transfer')
+                        ->groupBy(fn ($r) => $this->bankLabel($r->bank_nama, $r->bank_code))
+                        ->map(function ($group, $bank) {
+                            return [
+                                'Bank' => $bank,
+                                'Jumlah Transaksi' => $group->count(),
+                                'Omzet' => (float) $group->sum('total_harga'),
+                            ];
+                        })
+                        ->values()
+                        ->all(),
                 ],
                 [
                     'key' => 'barang',
@@ -611,10 +646,42 @@ class ReportController extends Controller
         ];
     }
 
-    private function buildCashflowSuite($base): array
+    private function buildCashflowSuite($base, string $startDate, string $endDate): array
     {
         $rows = (clone $base)->get();
-        $cashIn = (float) $rows->whereIn('jenis_transaksi', [Transaksi::JENIS_MASUK, Transaksi::JENIS_PENJUALAN])->sum('total_harga');
+
+        $cashInFromMasuk = (float) $rows->where('jenis_transaksi', Transaksi::JENIS_MASUK)->sum('total_harga');
+        $cashInFromDirectSales = (float) $rows
+            ->where('jenis_transaksi', Transaksi::JENIS_PENJUALAN)
+            ->filter(fn ($row) => $row->hutang === null)
+            ->sum('total_harga');
+        $hutangPayments = HutangPayment::query()
+            ->whereDate('paid_at', '>=', $startDate)
+            ->whereDate('paid_at', '<=', $endDate)
+            ->get();
+        $cashInFromHutangPayments = (float) $hutangPayments->sum('amount');
+        $realizedRows = $rows->filter(function ($row) {
+            return ! ($row->jenis_transaksi === Transaksi::JENIS_PENJUALAN && $row->hutang !== null);
+        });
+        $methodRows = $realizedRows
+            ->groupBy(fn ($r) => $this->paymentMethodLabel($r->metode_pembayaran, $r->bank_nama))
+            ->map(function ($group, $key) {
+                return [
+                    'Metode' => $key,
+                    'Jumlah' => $group->count(),
+                    'Nilai' => (float) $group->sum('total_harga'),
+                ];
+            });
+        foreach ($hutangPayments->groupBy(fn ($payment) => $this->paymentMethodLabel($payment->metode_pembayaran, null)) as $method => $group) {
+            $existing = $methodRows->get($method);
+            $methodRows->put($method, [
+                'Metode' => $method,
+                'Jumlah' => ($existing['Jumlah'] ?? 0) + $group->count(),
+                'Nilai' => (float) (($existing['Nilai'] ?? 0) + $group->sum('amount')),
+            ]);
+        }
+
+        $cashIn = $cashInFromMasuk + $cashInFromDirectSales + $cashInFromHutangPayments;
         $cashOut = (float) $rows->where('jenis_transaksi', Transaksi::JENIS_KELUAR)->sum('total_harga');
         $ppnCollected = (float) $rows
             ->where('jenis_transaksi', Transaksi::JENIS_PENJUALAN)
@@ -643,7 +710,9 @@ class ReportController extends Controller
                     'title' => 'Ringkasan Cashflow',
                     'columns' => ['Arah', 'Nilai'],
                     'rows' => [
-                        ['Arah' => 'Masuk', 'Nilai' => $cashIn],
+                        ['Arah' => 'Masuk (Total Realisasi)', 'Nilai' => $cashIn],
+                        ['Arah' => 'Masuk dari Penjualan Tunai/Non-Hutang', 'Nilai' => $cashInFromDirectSales],
+                        ['Arah' => 'Masuk dari Pelunasan Hutang', 'Nilai' => $cashInFromHutangPayments],
                         ['Arah' => 'Keluar', 'Nilai' => $cashOut],
                         ['Arah' => 'Net', 'Nilai' => $cashIn - $cashOut],
                         ['Arah' => 'PPN Terkumpul', 'Nilai' => $ppnCollected],
@@ -653,13 +722,24 @@ class ReportController extends Controller
                     'key' => 'metode',
                     'title' => 'Cashflow per Metode',
                     'columns' => ['Metode', 'Jumlah', 'Nilai'],
-                    'rows' => $rows->groupBy(fn ($r) => $r->metode_pembayaran ?: 'tanpa_metode')->map(function ($group, $key) {
-                        return [
-                            'Metode' => Str::upper((string) $key),
-                            'Jumlah' => $group->count(),
-                            'Nilai' => (float) $group->sum('total_harga'),
-                        ];
-                    })->values()->all(),
+                    'rows' => $methodRows->values()->all(),
+                ],
+                [
+                    'key' => 'transfer_bank',
+                    'title' => 'Cashflow Transfer per Bank',
+                    'columns' => ['Bank', 'Jumlah', 'Nilai'],
+                    'rows' => $rows
+                        ->where('metode_pembayaran', 'transfer')
+                        ->groupBy(fn ($r) => $this->bankLabel($r->bank_nama, $r->bank_code))
+                        ->map(function ($group, $bank) {
+                            return [
+                                'Bank' => $bank,
+                                'Jumlah' => $group->count(),
+                                'Nilai' => (float) $group->sum('total_harga'),
+                            ];
+                        })
+                        ->values()
+                        ->all(),
                 ],
             ],
         ];
@@ -811,7 +891,7 @@ class ReportController extends Controller
                 [
                     'key' => 'detail_beban_operasional',
                     'title' => 'Detail Biaya Operasional',
-                    'columns' => ['Tanggal', 'Kategori', 'Kasir', 'Metode', 'Nominal', 'Keterangan'],
+                    'columns' => ['Tanggal', 'Kategori', 'Kasir', 'Metode', 'Bank', 'Nominal', 'Keterangan'],
                     'rows' => $expenseRows
                         ->sortByDesc('tanggal_biaya')
                         ->values()
@@ -820,7 +900,8 @@ class ReportController extends Controller
                                 'Tanggal' => optional($row->tanggal_biaya)->toDateString() ?: '-',
                                 'Kategori' => Str::upper((string) $row->kategori),
                                 'Kasir' => $row->kasir_nama ?: '-',
-                                'Metode' => Str::upper((string) ($row->metode_pembayaran ?: '-')),
+                                'Metode' => $this->paymentMethodLabel($row->metode_pembayaran, null),
+                                'Bank' => $this->bankLabel($row->bank_nama, $row->bank_code),
                                 'Nominal' => (float) $row->nominal,
                                 'Keterangan' => $row->keterangan ?: '-',
                             ];
@@ -837,6 +918,46 @@ class ReportController extends Controller
                 ],
             ],
         ];
+    }
+
+    private function paymentMethodLabel(?string $method, ?string $bankName = null): string
+    {
+        $methodText = trim((string) $method);
+        if ($methodText === '') {
+            return 'TANPA_METODE';
+        }
+
+        $base = Str::upper($methodText);
+        if (strtolower($methodText) !== 'transfer') {
+            return $base;
+        }
+
+        $bankText = trim((string) $bankName);
+        if ($bankText === '') {
+            return $base;
+        }
+
+        return $base.' - '.Str::upper($bankText);
+    }
+
+    private function bankLabel(?string $bankName, ?string $bankCode = null): string
+    {
+        $name = trim((string) $bankName);
+        $code = trim((string) $bankCode);
+
+        if ($name === '' && $code === '') {
+            return '-';
+        }
+
+        if ($name === '') {
+            return Str::upper($code);
+        }
+
+        if ($code === '') {
+            return Str::upper($name);
+        }
+
+        return Str::upper($name).' ('.$code.')';
     }
 
     /**
