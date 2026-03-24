@@ -98,7 +98,7 @@ class OperationalInsightTest extends TestCase
             ->assertJsonPath('has_blocking', true);
     }
 
-    public function test_high_risk_checkout_requires_approval_request(): void
+    public function test_high_risk_checkout_creates_pending_draft_and_approval_request(): void
     {
         $user = User::factory()->create();
         [$kategori, $jenis, $satuan] = $this->createMasterData();
@@ -143,13 +143,28 @@ class OperationalInsightTest extends TestCase
             ],
         ]);
 
-        $response->assertSessionHasErrors(['items']);
+        $response->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('transaksi', [
+            'obat_id' => $obat->id,
+            'approval_status' => 'pending',
+            'jenis_transaksi' => Transaksi::JENIS_PENJUALAN,
+        ]);
+
+        $draft = Transaksi::query()
+            ->where('obat_id', $obat->id)
+            ->where('approval_status', 'pending')
+            ->first();
+
+        $this->assertNotNull($draft);
+
         $this->assertDatabaseHas('approval_requests', [
             'obat_id' => $obat->id,
+            'transaksi_id' => $draft?->id,
             'status' => 'pending',
             'requested_quantity' => 1,
         ]);
-        $this->assertDatabaseCount('transaksi', 0);
+        $this->assertDatabaseCount('transaksi', 1);
     }
 
     public function test_mobile_stock_scan_session_records_matched_and_unmatched_codes(): void
