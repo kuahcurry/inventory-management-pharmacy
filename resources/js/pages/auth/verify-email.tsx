@@ -1,4 +1,3 @@
-// Components
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -32,6 +31,8 @@ export default function VerifyEmail({ status }: { status?: string }) {
 
                         <TextLink
                             href={logout()}
+                            method="post"
+                            as="button"
                             className="mx-auto block text-sm"
                         >
                             Log out
