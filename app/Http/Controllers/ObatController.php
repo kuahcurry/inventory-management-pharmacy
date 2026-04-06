@@ -198,9 +198,17 @@ class ObatController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id): Response
     {
-        //
+        $obat = Obat::with(['kategori', 'jenis', 'satuan', 'batches.supplier'])
+            ->findOrFail($id);
+
+        return Inertia::render('obat/show', [
+            'obat' => $obat,
+            'batchCount' => $obat->batches()->count(),
+            'activeBatchCount' => $obat->batches()->where('status', 'active')->count(),
+            'latestBatch' => $obat->batches()->with('supplier')->latest('tanggal_masuk')->first(),
+        ]);
     }
 
     /**
@@ -257,8 +265,57 @@ class ObatController extends Controller
         $obat = Obat::findOrFail($id);
         $obat->delete();
 
-        return redirect()->route('obat.index')
+        return redirect()->back()
             ->with('success', 'Obat berhasil dihapus');
+    }
+
+    /**
+     * Display trashed medicines and batches.
+     */
+    public function trash(Request $request): Response
+    {
+        $trashedObats = Obat::onlyTrashed()
+            ->with(['kategori', 'jenis', 'satuan'])
+            ->withCount('batches')
+            ->latest('deleted_at')
+            ->paginate(15, ['*'], 'obat_page')
+            ->withQueryString();
+
+        $trashedBatches = BatchObat::onlyTrashed()
+            ->with(['obat.kategori', 'obat.satuan', 'supplier'])
+            ->latest('deleted_at')
+            ->paginate(15, ['*'], 'batch_page')
+            ->withQueryString();
+
+        return Inertia::render('obat/trash', [
+            'obats' => $trashedObats,
+            'batches' => $trashedBatches,
+            'filters' => $request->only(['search']),
+        ]);
+    }
+
+    /**
+     * Restore a trashed medicine.
+     */
+    public function restore(string $id): RedirectResponse
+    {
+        $obat = Obat::onlyTrashed()->findOrFail($id);
+        $obat->restore();
+
+        return redirect()->route('obat.trash')
+            ->with('success', 'Obat berhasil dipulihkan');
+    }
+
+    /**
+     * Permanently delete a trashed medicine.
+     */
+    public function forceDelete(string $id): RedirectResponse
+    {
+        $obat = Obat::onlyTrashed()->findOrFail($id);
+        $obat->forceDelete();
+
+        return redirect()->route('obat.trash')
+            ->with('success', 'Obat dihapus permanen');
     }
 
     /**

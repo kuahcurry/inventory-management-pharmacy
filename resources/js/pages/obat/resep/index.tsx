@@ -26,15 +26,12 @@ interface ResepDetail {
 interface Resep {
     id: number;
     nomor_resep: string;
-    nomor_rm: string;
-    nama_pasien: string;
+    nomor_referensi: string;
+    nama_pelanggan: string;
     nama_dokter: string;
-    unit?: {
-        nama_unit: string;
-    };
     tanggal_resep: string;
-    jenis_pasien: string;
-    cara_bayar: string;
+    kategori_pelanggan: string;
+    metode_pembayaran: string;
     status: string;
     details: ResepDetail[];
 }
@@ -71,22 +68,22 @@ export default function ResepIndex({ resep }: Props) {
         return <Badge variant={config.variant}>{config.label}</Badge>;
     };
 
-    const getJenisPasienLabel = (jenis: string) => {
+    const getKategoriPelangganLabel = (kategori: string) => {
         const labels = {
-            rawat_jalan: 'Rawat Jalan',
-            rawat_inap: 'Rawat Inap',
-            igd: 'IGD',
+            reguler: 'Reguler',
+            pelanggan_rutin: 'Pelanggan Rutin',
+            rujukan_dokter: 'Rujukan Dokter',
         };
-        return labels[jenis as keyof typeof labels] || jenis;
+        return labels[kategori as keyof typeof labels] || kategori;
     };
 
-    const getCaraBayarLabel = (cara: string) => {
+    const getMetodePembayaranLabel = (metode: string) => {
         const labels = {
-            umum: 'Umum',
-            bpjs: 'BPJS',
-            asuransi: 'Asuransi',
+            tunai_umum: 'Tunai / Umum',
+            non_tunai: 'Non-Tunai',
+            asuransi_rekanan: 'Asuransi / Rekanan',
         };
-        return labels[cara as keyof typeof labels] || cara;
+        return labels[metode as keyof typeof labels] || metode;
     };
 
     const formatDate = (dateString: string) => {
@@ -102,7 +99,7 @@ export default function ResepIndex({ resep }: Props) {
                     <div>
                         <h1 className="text-2xl font-bold">Resep Obat</h1>
                         <p className="text-sm text-muted-foreground">
-                            Kelola resep obat dari dokter
+                            Kelola resep pelanggan apotek retail
                         </p>
                     </div>
                     <Button asChild>
@@ -118,12 +115,12 @@ export default function ResepIndex({ resep }: Props) {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>No. Resep</TableHead>
-                                <TableHead>No. RM</TableHead>
-                                <TableHead>Pasien</TableHead>
+                                <TableHead>No. Referensi</TableHead>
+                                <TableHead>Pelanggan</TableHead>
                                 <TableHead>Dokter</TableHead>
-                                <TableHead>Unit</TableHead>
                                 <TableHead>Tanggal</TableHead>
-                                <TableHead>Jenis</TableHead>
+                                <TableHead>Kategori</TableHead>
+                                <TableHead>Metode Bayar</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead className="text-right">Aksi</TableHead>
                             </TableRow>
@@ -140,14 +137,14 @@ export default function ResepIndex({ resep }: Props) {
                                 resep.data.map((item) => (
                                     <TableRow key={item.id}>
                                         <TableCell className="font-medium">{item.nomor_resep}</TableCell>
-                                        <TableCell>{item.nomor_rm}</TableCell>
-                                        <TableCell>{item.nama_pasien}</TableCell>
-                                        <TableCell>{item.nama_dokter}</TableCell>
-                                        <TableCell>{item.unit?.nama_unit || '-'}</TableCell>
+                                        <TableCell>{item.nomor_referensi}</TableCell>
+                                        <TableCell>{item.nama_pelanggan}</TableCell>
+                                        <TableCell>{item.nama_dokter || '-'}</TableCell>
                                         <TableCell>{formatDate(item.tanggal_resep)}</TableCell>
                                         <TableCell>
-                                            <Badge variant="outline">{getJenisPasienLabel(item.jenis_pasien)}</Badge>
+                                            <Badge variant="outline">{getKategoriPelangganLabel(item.kategori_pelanggan)}</Badge>
                                         </TableCell>
+                                        <TableCell>{getMetodePembayaranLabel(item.metode_pembayaran)}</TableCell>
                                         <TableCell>{getStatusBadge(item.status)}</TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-2">

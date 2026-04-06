@@ -34,7 +34,7 @@ class TransaksiController extends Controller
             ->get();
 
         $reseps = Resep::query()
-            ->select(['id', 'nomor_resep', 'nama_pasien', 'nama_dokter', 'tanggal_resep'])
+            ->select(['id', 'nomor_resep', 'nama_pelanggan', 'nama_dokter', 'tanggal_resep'])
             ->with(['details:id,resep_id,obat_id'])
             ->where('status', Resep::STATUS_PENDING)
             ->orderByDesc('tanggal_resep')

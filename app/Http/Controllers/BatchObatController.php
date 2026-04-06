@@ -144,7 +144,13 @@ class BatchObatController extends Controller
      */
     public function destroy(string $id)
     {
-        $batch = BatchObat::findOrFail($id);
+        $batch = BatchObat::find($id);
+
+        if (! $batch) {
+            return redirect()->route('batch.index')
+                ->with('warning', 'Batch obat tidak ditemukan atau sudah dihapus');
+        }
+
         $obat_id = $batch->obat_id;
         
         $batch->delete();
@@ -156,7 +162,69 @@ class BatchObatController extends Controller
             ->sum('stok_tersedia');
         $obat->save();
 
-        return redirect()->route('batch.index')
+        return redirect()->back()
             ->with('success', 'Batch obat berhasil dihapus');
+    }
+
+    /**
+     * Display trashed batches.
+     */
+    public function trash(): Response
+    {
+        $batches = BatchObat::onlyTrashed()
+            ->with(['obat.kategori', 'obat.jenis', 'obat.satuan', 'supplier'])
+            ->latest('deleted_at')
+            ->paginate(20);
+
+        return Inertia::render('obat/batch-trash', [
+            'batches' => $batches,
+        ]);
+    }
+
+    /**
+     * Restore a trashed batch.
+     */
+    public function restore(string $id): RedirectResponse
+    {
+        $batch = BatchObat::onlyTrashed()->findOrFail($id);
+        $batch->restore();
+
+        $obat = Obat::find($batch->obat_id);
+        if ($obat) {
+            $obat->stok_total = BatchObat::where('obat_id', $obat->id)
+                ->where('status', 'active')
+                ->sum('stok_tersedia');
+            $obat->save();
+        }
+
+        return redirect()->route('batch.trash')
+            ->with('success', 'Batch obat berhasil dipulihkan');
+    }
+
+    /**
+     * Permanently delete a trashed batch.
+     */
+    public function forceDelete(string $id): RedirectResponse
+    {
+        $batch = BatchObat::onlyTrashed()->find($id);
+
+        if (! $batch) {
+            return redirect()->route('batch.trash')
+                ->with('warning', 'Batch obat tidak ditemukan di trash');
+        }
+
+        $obatId = $batch->obat_id;
+        $batch->forceDelete();
+
+        $obat = Obat::find($obatId);
+        if ($obat) {
+            $obat->stok_total = BatchObat::where('obat_id', $obat->id)
+                ->where('status', 'active')
+                ->sum('stok_tersedia');
+            $obat->save();
+        }
+
+        return redirect()->back()
+            ->with('success', 'Batch obat dihapus permanen');
     }
 }

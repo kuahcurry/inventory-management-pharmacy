@@ -8,7 +8,6 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Save, X, Plus, Trash2 } from 'lucide-react';
 import type { FormEventHandler } from 'react';
-import { useState } from 'react';
 
 interface Obat {
     id: number;
@@ -18,12 +17,6 @@ interface Obat {
     jenis?: { nama_jenis: string };
     satuan?: { nama_satuan: string };
     stok_total: number;
-}
-
-interface Unit {
-    id: number;
-    kode_unit: string;
-    nama_unit: string;
 }
 
 interface ResepDetail {
@@ -41,25 +34,22 @@ interface ResepDetail {
 interface Resep {
     id: number;
     nomor_resep: string;
-    nomor_rm: string;
-    nama_pasien: string;
+    nomor_referensi: string;
+    nama_pelanggan: string;
     nama_dokter: string;
-    unit_id: number | null;
     tanggal_resep: string;
-    jenis_pasien: string;
-    cara_bayar: string;
+    kategori_pelanggan: string;
+    metode_pembayaran: string;
     status: string;
     processed_by: number | null;
     processed_at: string | null;
     catatan: string | null;
     details: ResepDetail[];
-    unit?: Unit;
 }
 
 interface Props {
     resep: Resep;
     obat: Obat[];
-    units: Unit[];
 }
 
 interface DetailItem {
@@ -70,7 +60,7 @@ interface DetailItem {
     catatan: string;
 }
 
-export default function ResepEdit({ resep, obat, units }: Props) {
+export default function ResepEdit({ resep, obat }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/dashboard' },
         { title: 'Resep', href: '/resep' },
@@ -78,13 +68,12 @@ export default function ResepEdit({ resep, obat, units }: Props) {
     ];
 
     const { data, setData, put, processing, errors } = useForm({
-        nomor_rm: resep.nomor_rm || '',
-        nama_pasien: resep.nama_pasien || '',
+        nomor_referensi: resep.nomor_referensi || '',
+        nama_pelanggan: resep.nama_pelanggan || '',
         nama_dokter: resep.nama_dokter || '',
-        unit_id: resep.unit_id?.toString() || '',
         tanggal_resep: resep.tanggal_resep || new Date().toISOString().split('T')[0],
-        jenis_pasien: resep.jenis_pasien || 'rawat_jalan',
-        cara_bayar: resep.cara_bayar || 'umum',
+        kategori_pelanggan: resep.kategori_pelanggan || 'reguler',
+        metode_pembayaran: resep.metode_pembayaran || 'tunai_umum',
         catatan: resep.catatan || '',
         details: resep.details.map(detail => ({
             obat_id: detail.obat_id.toString(),
@@ -140,7 +129,7 @@ export default function ResepEdit({ resep, obat, units }: Props) {
                     <div>
                         <h1 className="text-2xl font-bold">Edit Resep Obat</h1>
                         <p className="text-sm text-muted-foreground">
-                            Edit resep {resep.nomor_resep}
+                            Edit resep pelanggan {resep.nomor_resep}
                         </p>
                     </div>
                 </div>
@@ -162,69 +151,49 @@ export default function ResepEdit({ resep, obat, units }: Props) {
                         <div className="space-y-2">
                             <h3 className="text-lg font-semibold">Informasi Pasien</h3>
                             <p className="text-sm text-muted-foreground">
-                                Data pasien dan dokter pemberi resep
+                                Data pelanggan dan informasi resep
                             </p>
                         </div>
 
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="grid gap-2">
-                                <Label htmlFor="nomor_rm">No. Rekam Medis *</Label>
+                                <Label htmlFor="nomor_referensi">No. Referensi *</Label>
                                 <Input
-                                    id="nomor_rm"
-                                    value={data.nomor_rm}
-                                    onChange={(e) => setData('nomor_rm', e.target.value)}
-                                    placeholder="Contoh: RM001234"
+                                    id="nomor_referensi"
+                                    value={data.nomor_referensi}
+                                    onChange={(e) => setData('nomor_referensi', e.target.value)}
+                                    placeholder="Contoh: No. HP / ID Member / No. Resep"
                                     required
                                 />
-                                {errors.nomor_rm && (
-                                    <p className="text-sm text-destructive">{errors.nomor_rm}</p>
+                                {errors.nomor_referensi && (
+                                    <p className="text-sm text-destructive">{errors.nomor_referensi}</p>
                                 )}
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="nama_pasien">Nama Pasien *</Label>
+                                <Label htmlFor="nama_pelanggan">Nama Pelanggan *</Label>
                                 <Input
-                                    id="nama_pasien"
-                                    value={data.nama_pasien}
-                                    onChange={(e) => setData('nama_pasien', e.target.value)}
-                                    placeholder="Nama lengkap pasien"
+                                    id="nama_pelanggan"
+                                    value={data.nama_pelanggan}
+                                    onChange={(e) => setData('nama_pelanggan', e.target.value)}
+                                    placeholder="Nama lengkap pelanggan"
                                     required
                                 />
-                                {errors.nama_pasien && (
-                                    <p className="text-sm text-destructive">{errors.nama_pasien}</p>
+                                {errors.nama_pelanggan && (
+                                    <p className="text-sm text-destructive">{errors.nama_pelanggan}</p>
                                 )}
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="nama_dokter">Nama Dokter *</Label>
+                                <Label htmlFor="nama_dokter">Nama Dokter (Opsional)</Label>
                                 <Input
                                     id="nama_dokter"
                                     value={data.nama_dokter}
                                     onChange={(e) => setData('nama_dokter', e.target.value)}
-                                    placeholder="Nama dokter pemberi resep"
-                                    required
+                                    placeholder="Isi jika resep dari dokter"
                                 />
                                 {errors.nama_dokter && (
                                     <p className="text-sm text-destructive">{errors.nama_dokter}</p>
-                                )}
-                            </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="unit_id">Unit / Poli</Label>
-                                <Select value={data.unit_id} onValueChange={(value) => setData('unit_id', value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Pilih unit (opsional)" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {units.map((unit) => (
-                                            <SelectItem key={unit.id} value={unit.id.toString()}>
-                                                {unit.nama_unit} ({unit.kode_unit})
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {errors.unit_id && (
-                                    <p className="text-sm text-destructive">{errors.unit_id}</p>
                                 )}
                             </div>
 
@@ -243,36 +212,36 @@ export default function ResepEdit({ resep, obat, units }: Props) {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="jenis_pasien">Jenis Pasien *</Label>
-                                <Select value={data.jenis_pasien} onValueChange={(value) => setData('jenis_pasien', value)}>
+                                <Label htmlFor="kategori_pelanggan">Kategori Pelanggan *</Label>
+                                <Select value={data.kategori_pelanggan} onValueChange={(value) => setData('kategori_pelanggan', value)}>
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="rawat_jalan">Rawat Jalan</SelectItem>
-                                        <SelectItem value="rawat_inap">Rawat Inap</SelectItem>
-                                        <SelectItem value="igd">IGD</SelectItem>
+                                        <SelectItem value="reguler">Reguler</SelectItem>
+                                        <SelectItem value="pelanggan_rutin">Pelanggan Rutin</SelectItem>
+                                        <SelectItem value="rujukan_dokter">Rujukan Dokter</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                {errors.jenis_pasien && (
-                                    <p className="text-sm text-destructive">{errors.jenis_pasien}</p>
+                                {errors.kategori_pelanggan && (
+                                    <p className="text-sm text-destructive">{errors.kategori_pelanggan}</p>
                                 )}
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="cara_bayar">Cara Bayar *</Label>
-                                <Select value={data.cara_bayar} onValueChange={(value) => setData('cara_bayar', value)}>
+                                <Label htmlFor="metode_pembayaran">Metode Pembayaran *</Label>
+                                <Select value={data.metode_pembayaran} onValueChange={(value) => setData('metode_pembayaran', value)}>
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="umum">Umum</SelectItem>
-                                        <SelectItem value="bpjs">BPJS</SelectItem>
-                                        <SelectItem value="asuransi">Asuransi</SelectItem>
+                                        <SelectItem value="tunai_umum">Tunai / Umum</SelectItem>
+                                        <SelectItem value="non_tunai">Non-Tunai</SelectItem>
+                                        <SelectItem value="asuransi_rekanan">Asuransi / Rekanan</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                {errors.cara_bayar && (
-                                    <p className="text-sm text-destructive">{errors.cara_bayar}</p>
+                                {errors.metode_pembayaran && (
+                                    <p className="text-sm text-destructive">{errors.metode_pembayaran}</p>
                                 )}
                             </div>
 

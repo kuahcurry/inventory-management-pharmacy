@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Pencil, Package, User, Calendar, Hospital, CreditCard } from 'lucide-react';
+import { ArrowLeft, Pencil, Package, User, Calendar, CreditCard } from 'lucide-react';
 
 interface ResepDetail {
     id: number;
@@ -25,14 +25,11 @@ interface Resep {
     id: number;
     nomor_resep: string;
     tanggal_resep: string;
-    nomor_rm: string;
-    nama_pasien: string;
-    dokter_penanggung_jawab: string;
-    unit?: {
-        nama_unit: string;
-    };
-    jenis_pasien: string;
-    cara_bayar: string;
+    nomor_referensi: string;
+    nama_pelanggan: string;
+    nama_dokter?: string;
+    kategori_pelanggan: string;
+    metode_pembayaran: string;
     status: string;
     tanggal_ditebus?: string;
     processed_by?: {
@@ -85,21 +82,21 @@ export default function ResepShow({ resep }: Props) {
         }
     };
 
-    const getJenisPasienLabel = (jenis: string) => {
-        switch (jenis) {
-            case 'rawat_jalan': return 'Rawat Jalan';
-            case 'rawat_inap': return 'Rawat Inap';
-            case 'igd': return 'IGD';
-            default: return jenis;
+    const getKategoriPelangganLabel = (kategori: string) => {
+        switch (kategori) {
+            case 'reguler': return 'Reguler';
+            case 'pelanggan_rutin': return 'Pelanggan Rutin';
+            case 'rujukan_dokter': return 'Rujukan Dokter';
+            default: return kategori;
         }
     };
 
-    const getCaraBayarLabel = (cara: string) => {
-        switch (cara) {
-            case 'tunai': return 'Tunai';
-            case 'bpjs': return 'BPJS';
-            case 'asuransi': return 'Asuransi';
-            default: return cara;
+    const getMetodePembayaranLabel = (metode: string) => {
+        switch (metode) {
+            case 'tunai_umum': return 'Tunai / Umum';
+            case 'non_tunai': return 'Non-Tunai';
+            case 'asuransi_rekanan': return 'Asuransi / Rekanan';
+            default: return metode;
         }
     };
 
@@ -111,7 +108,7 @@ export default function ResepShow({ resep }: Props) {
                     <div>
                         <h1 className="text-2xl font-bold">Detail Resep</h1>
                         <p className="text-sm text-muted-foreground">
-                            Informasi lengkap resep obat
+                            Informasi lengkap resep pelanggan
                         </p>
                     </div>
                     <div className="flex gap-2">
@@ -170,40 +167,36 @@ export default function ResepShow({ resep }: Props) {
                         
                         <div className="space-y-3 text-sm">
                             <div className="flex justify-between">
-                                <span className="text-muted-foreground">Nomor RM:</span>
-                                <span className="font-medium">{resep.nomor_rm}</span>
+                                <span className="text-muted-foreground">No. Referensi:</span>
+                                <span className="font-medium">{resep.nomor_referensi}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-muted-foreground">Nama Pasien:</span>
-                                <span className="font-medium">{resep.nama_pasien}</span>
+                                <span className="text-muted-foreground">Nama Pelanggan:</span>
+                                <span className="font-medium">{resep.nama_pelanggan}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">Dokter:</span>
-                                <span>{resep.dokter_penanggung_jawab}</span>
+                                <span>{resep.nama_dokter || '-'}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-muted-foreground">Jenis Pasien:</span>
-                                <span>{getJenisPasienLabel(resep.jenis_pasien)}</span>
+                                <span className="text-muted-foreground">Jenis Pelanggan:</span>
+                                <span>{getKategoriPelangganLabel(resep.kategori_pelanggan)}</span>
                             </div>
                         </div>
                     </div>
 
                     <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 space-y-4">
                         <div className="flex items-center gap-2">
-                            <Hospital className="size-5 text-muted-foreground" />
-                            <h3 className="text-lg font-semibold">Unit & Pembayaran</h3>
+                            <CreditCard className="size-5 text-muted-foreground" />
+                            <h3 className="text-lg font-semibold">Pembayaran</h3>
                         </div>
                         
                         <div className="space-y-3 text-sm">
-                            <div className="flex justify-between">
-                                <span className="text-muted-foreground">Unit:</span>
-                                <span>{resep.unit?.nama_unit || '-'}</span>
-                            </div>
                             <div className="flex justify-between items-center">
                                 <span className="text-muted-foreground">Cara Bayar:</span>
                                 <Badge variant="outline">
                                     <CreditCard className="mr-1 size-3" />
-                                    {getCaraBayarLabel(resep.cara_bayar)}
+                                    {getMetodePembayaranLabel(resep.metode_pembayaran)}
                                 </Badge>
                             </div>
                         </div>

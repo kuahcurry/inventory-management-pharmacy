@@ -8,11 +8,38 @@ use App\Models\LogAktivitas;
 use App\Models\QrScanLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 
 class QrCodeController extends Controller
 {
+    private function normalizeQrCode(?string $rawCode): string
+    {
+        $code = trim((string) $rawCode);
+
+        if ($code === '') {
+            return '';
+        }
+
+        $decoded = json_decode($code, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE || ! is_array($decoded)) {
+            return $code;
+        }
+
+        return trim(
+            (string) (
+                $decoded['kode_qr']
+                ?? $decoded['kodeQr']
+                ?? $decoded['code']
+                ?? data_get($decoded, 'batch.kode_qr')
+                ?? data_get($decoded, 'batch.code')
+                ?? $code
+            )
+        );
+    }
+
     /**
      * Generate QR code for a batch
      */
@@ -21,9 +48,11 @@ class QrCodeController extends Controller
         $batch->load('obat');
 
         // Generate QR code using endroid/qr-code
-        $qrCode = QrCode::create($batch->qr_json)
-            ->setSize(300)
-            ->setMargin(10);
+        $qrCode = new QrCode(
+            data: $batch->qr_json,
+            size: 300,
+            margin: 10
+        );
 
         $writer = new PngWriter();
         $result = $writer->write($qrCode);
@@ -56,8 +85,15 @@ class QrCodeController extends Controller
             'metode' => 'required|in:camera,scanner',
         ]);
 
-        $kodeQr = $request->kode_qr;
+        $kodeQr = $this->normalizeQrCode($request->kode_qr);
         $metode = $request->metode;
+
+        if ($kodeQr === '') {
+            return response()->json([
+                'success' => false,
+                'message' => 'QR Code tidak valid',
+            ], 422);
+        }
 
         // Find batch by QR code
         $batch = BatchObat::with(['obat.kategori', 'obat.jenis', 'obat.satuan'])
@@ -235,7 +271,12 @@ class QrCodeController extends Controller
         // Scans by hour (for today)
         $scansByHour = [];
         if ($period === 'today') {
-            $scansByHour = QrScanLog::selectRaw('HOUR(waktu_scan) as hour, COUNT(*) as count')
+            $driver = DB::connection()->getDriverName();
+            $hourExpression = $driver === 'sqlite'
+                ? "CAST(strftime('%H', waktu_scan) AS INTEGER)"
+                : 'HOUR(waktu_scan)';
+
+            $scansByHour = QrScanLog::selectRaw($hourExpression.' as hour, COUNT(*) as count')
                 ->where('waktu_scan', '>=', now()->startOfDay())
                 ->groupBy('hour')
                 ->orderBy('hour')

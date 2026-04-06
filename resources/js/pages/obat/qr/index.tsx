@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router, Link } from '@inertiajs/react';
+import { Head, router, Link, usePage } from '@inertiajs/react';
 import { 
     QrCode, 
     History, 
@@ -47,6 +47,11 @@ interface BatchOption {
     };
 }
 
+interface PaginatedBatchOptions {
+    data: BatchOption[];
+    total: number;
+}
+
 interface ScanLog {
     id: number;
     kode_qr_scanned: string;
@@ -65,8 +70,16 @@ interface ScanLog {
     };
 }
 
+interface QrPageProps {
+    initialBatches: {
+        data: BatchOption[];
+        total: number;
+    };
+}
+
 export default function QrIndex() {
     const [activeTab, setActiveTab] = useState('scan');
+    const { initialBatches } = usePage<QrPageProps>().props;
     
     // Generate QR state
     const [batches, setBatches] = useState<BatchOption[]>([]);
@@ -84,9 +97,13 @@ export default function QrIndex() {
     // Load batches for QR generation
     useEffect(() => {
         if (activeTab === 'generate') {
-            loadBatches();
+            if (initialBatches?.data?.length) {
+                setBatches(initialBatches.data);
+            } else {
+                loadBatches();
+            }
         }
-    }, [activeTab]);
+    }, [activeTab, initialBatches]);
 
     // Load scan logs
     useEffect(() => {
@@ -97,29 +114,14 @@ export default function QrIndex() {
 
     const loadBatches = async () => {
         try {
-            console.log('Loading batches...');
-            console.log('Axios defaults:', {
-                withCredentials: axios.defaults.withCredentials,
-                headers: axios.defaults.headers.common
-            });
-            
             const response = await axios.get('/api/batch', {
                 params: { per_page: 50 }
             });
-            console.log('Batch API response:', response.data);
             // Handle both paginated and non-paginated responses
             const batchData = response.data.data || response.data;
             setBatches(Array.isArray(batchData) ? batchData : []);
         } catch (error: any) {
             console.error('Failed to load batches:', error);
-            console.error('Error response:', error.response);
-            console.error('Error response data:', error.response?.data);
-            console.error('Error config:', error.config);
-            
-            // Try to show user-friendly error
-            if (error.response?.status === 401) {
-                console.error('Authentication failed. User may not be logged in properly for API requests.');
-            }
         }
     };
 

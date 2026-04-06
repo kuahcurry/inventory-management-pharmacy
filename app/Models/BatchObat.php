@@ -153,6 +153,7 @@ class BatchObat extends Model
         $obat = $this->obat;
         
         return [
+            'batch_id' => $this->id,
             'kode_qr' => $this->kode_qr,
             'obat' => [
                 'id' => $obat?->id,
@@ -170,7 +171,7 @@ class BatchObat extends Model
                 'stok' => $this->stok_tersedia,
             ],
             'generated_at' => now()->toIso8601String(),
-            'link' => url("/obat/{$obat?->id}/batch/{$this->id}"),
+            'link' => url("/obat/batch/{$this->id}"),
         ];
     }
 

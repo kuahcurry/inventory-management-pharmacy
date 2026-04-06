@@ -43,7 +43,7 @@ type Props = {
     reseps: Array<{
         id: number;
         nomor_resep: string;
-        nama_pasien: string;
+        nama_pelanggan: string;
         nama_dokter: string;
         tanggal_resep: string;
         details: Array<{
@@ -585,7 +585,7 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                                             <SelectContent>
                                                 {filteredReseps.map((resep) => (
                                                     <SelectItem key={resep.id} value={String(resep.id)}>
-                                                        {resep.nomor_resep} - {resep.nama_pasien}
+                                                        {resep.nomor_resep} - {resep.nama_pelanggan}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>

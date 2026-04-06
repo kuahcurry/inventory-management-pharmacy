@@ -21,8 +21,8 @@ class UnitRumahSakitController extends Controller
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('nama', 'like', "%{$search}%")
-                  ->orWhere('kode', 'like', "%{$search}%")
+                                $q->where('nama_unit', 'like', "%{$search}%")
+                                    ->orWhere('kode_unit', 'like', "%{$search}%")
                   ->orWhere('lokasi', 'like', "%{$search}%")
                   ->orWhere('penanggung_jawab', 'like', "%{$search}%");
             });
@@ -34,7 +34,10 @@ class UnitRumahSakitController extends Controller
         }
 
         // Sorting
-        $sortBy = $request->get('sort_by', 'nama');
+        $sortBy = $request->get('sort_by', 'nama_unit');
+        if (! in_array($sortBy, ['nama_unit', 'kode_unit', 'lokasi', 'is_active', 'created_at'], true)) {
+            $sortBy = 'nama_unit';
+        }
         $sortOrder = $request->get('sort_order', 'asc');
         $query->orderBy($sortBy, $sortOrder);
 
@@ -51,8 +54,8 @@ class UnitRumahSakitController extends Controller
     public function active(): JsonResponse
     {
         $units = UnitRumahSakit::where('is_active', true)
-            ->orderBy('nama')
-            ->get(['id', 'kode', 'nama', 'lokasi']);
+            ->orderBy('nama_unit')
+            ->get(['id', 'kode_unit', 'nama_unit', 'lokasi']);
 
         return response()->json($units);
     }
@@ -62,9 +65,18 @@ class UnitRumahSakitController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'kode' => 'required|string|max:10|unique:unit_rumah_sakit,kode',
-            'nama' => 'required|string|max:100',
+        $payload = [
+            'kode_unit' => $request->input('kode_unit', $request->input('kode')),
+            'nama_unit' => $request->input('nama_unit', $request->input('nama')),
+            'lokasi' => $request->input('lokasi'),
+            'penanggung_jawab' => $request->input('penanggung_jawab'),
+            'no_telepon' => $request->input('no_telepon'),
+            'is_active' => $request->boolean('is_active', true),
+        ];
+
+        $validator = Validator::make($payload, [
+            'kode_unit' => 'required|string|max:10|unique:unit_rumah_sakit,kode_unit',
+            'nama_unit' => 'required|string|max:100',
             'lokasi' => 'nullable|string|max:200',
             'penanggung_jawab' => 'nullable|string|max:100',
             'no_telepon' => 'nullable|string|max:20',
@@ -99,9 +111,18 @@ class UnitRumahSakitController extends Controller
      */
     public function update(Request $request, UnitRumahSakit $unitRumahSakit): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'kode' => 'required|string|max:10|unique:unit_rumah_sakit,kode,' . $unitRumahSakit->id,
-            'nama' => 'required|string|max:100',
+        $payload = [
+            'kode_unit' => $request->input('kode_unit', $request->input('kode')),
+            'nama_unit' => $request->input('nama_unit', $request->input('nama')),
+            'lokasi' => $request->input('lokasi'),
+            'penanggung_jawab' => $request->input('penanggung_jawab'),
+            'no_telepon' => $request->input('no_telepon'),
+            'is_active' => $request->boolean('is_active', $unitRumahSakit->is_active),
+        ];
+
+        $validator = Validator::make($payload, [
+            'kode_unit' => 'required|string|max:10|unique:unit_rumah_sakit,kode_unit,' . $unitRumahSakit->id,
+            'nama_unit' => 'required|string|max:100',
             'lokasi' => 'nullable|string|max:200',
             'penanggung_jawab' => 'nullable|string|max:100',
             'no_telepon' => 'nullable|string|max:20',

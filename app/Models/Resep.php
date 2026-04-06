@@ -23,13 +23,13 @@ class Resep extends Model
 
     protected $fillable = [
         'nomor_resep',
-        'nomor_rm',
-        'nama_pasien',
+        'nomor_referensi',
+        'nama_pelanggan',
         'nama_dokter',
         'unit_id',
         'tanggal_resep',
-        'jenis_pasien',
-        'cara_bayar',
+        'kategori_pelanggan',
+        'metode_pembayaran',
         'status',
         'processed_by',
         'processed_at',

@@ -343,6 +343,7 @@ export default function BatchIndex({ batches }: Props) {
                                                         </Link>
                                                     </Button>
                                                     <Button 
+                                                        type="button" 
                                                         variant="ghost" 
                                                         size="sm"
                                                         onClick={() => handleDelete(batch.id)}

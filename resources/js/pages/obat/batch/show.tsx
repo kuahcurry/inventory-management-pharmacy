@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { 
     Package, 
     Calendar, 
@@ -69,10 +69,13 @@ interface Props {
 }
 
 export default function BatchShow({ batch }: Props) {
+    const { url } = usePage();
     const [qrCode, setQrCode] = useState<string>('');
     const [qrData, setQrData] = useState<any>(null);
     const [generatingQr, setGeneratingQr] = useState(false);
     const [qrDialogOpen, setQrDialogOpen] = useState(false);
+
+    const backHref = url.includes('from=qr') ? '/qr' : '/obat/batch';
 
     const getExpiryStatus = (expiredDate: string) => {
         const today = new Date();
@@ -195,7 +198,7 @@ export default function BatchShow({ batch }: Props) {
                     <div>
                         <div className="flex items-center gap-2 mb-2">
                             <Button variant="ghost" size="sm" asChild>
-                                <Link href="/obat/batch">
+                                <Link href={backHref}>
                                     <ArrowLeft className="h-4 w-4 mr-1" />
                                     Kembali
                                 </Link>

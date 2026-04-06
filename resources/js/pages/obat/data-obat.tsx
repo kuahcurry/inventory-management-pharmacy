@@ -2,18 +2,12 @@ import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { Package, Plus, Search } from 'lucide-react';
+import { Eye, Package, Plus, Pencil, Search, Trash, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
-    {
-        title: 'Data Obat',
-        href: '/obat',
-    },
+    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'Data Obat', href: '/obat' },
 ];
 
 interface Obat {
@@ -22,6 +16,10 @@ interface Obat {
     nama_obat: string;
     stok_total: number;
     stok_minimum: number;
+    harga_jual?: number;
+    kategori?: { nama_kategori: string };
+    jenis?: { nama_jenis: string };
+    satuan?: { nama_satuan: string };
 }
 
 interface BatchRow {
@@ -43,10 +41,7 @@ interface BatchRow {
 }
 
 interface ObatIndexProps {
-    obats: {
-        data: Obat[];
-        total: number;
-    };
+    obats: { data: Obat[]; total: number };
     batches: {
         data: BatchRow[];
         current_page: number;
@@ -54,34 +49,21 @@ interface ObatIndexProps {
         total: number;
         per_page?: number;
     };
-    filters: {
-        search?: string;
-    };
+    filters: { search?: string };
 }
 
 type PageToken = number | 'dots-left' | 'dots-right';
 
 function getPageTokens(currentPage: number, lastPage: number): PageToken[] {
-    if (lastPage <= 7) {
-        return Array.from({ length: lastPage }, (_, i) => i + 1);
-    }
+    if (lastPage <= 7) return Array.from({ length: lastPage }, (_, i) => i + 1);
 
     const tokens: PageToken[] = [1];
     const start = Math.max(2, currentPage - 1);
     const end = Math.min(lastPage - 1, currentPage + 1);
 
-    if (start > 2) {
-        tokens.push('dots-left');
-    }
-
-    for (let page = start; page <= end; page += 1) {
-        tokens.push(page);
-    }
-
-    if (end < lastPage - 1) {
-        tokens.push('dots-right');
-    }
-
+    if (start > 2) tokens.push('dots-left');
+    for (let page = start; page <= end; page += 1) tokens.push(page);
+    if (end < lastPage - 1) tokens.push('dots-right');
     tokens.push(lastPage);
 
     return tokens;
@@ -98,22 +80,28 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
 
     const stokKritis = useMemo(() => obats.data.filter((item) => item.stok_total <= item.stok_minimum).length, [obats.data]);
 
-    const totalBatchValue = useMemo(() => {
-        return batches.data.reduce((sum, item) => sum + item.stok_tersedia * Number(item.harga_beli || 0), 0);
-    }, [batches.data]);
+    const totalBatchValue = useMemo(
+        () => batches.data.reduce((sum, item) => sum + item.stok_tersedia * Number(item.harga_beli || 0), 0),
+        [batches.data],
+    );
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         router.get('/obat', { search }, { preserveState: true });
     };
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('id-ID', {
+    const handleDeleteBatch = (id: number, batchNo: string) => {
+        if (confirm(`Apakah Anda yakin ingin menghapus batch "${batchNo}"?`)) {
+            router.delete(`/obat/batch/${id}`);
+        }
+    };
+
+    const formatCurrency = (amount: number) =>
+        new Intl.NumberFormat('id-ID', {
             style: 'currency',
             currency: 'IDR',
             minimumFractionDigits: 0,
         }).format(amount);
-    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -125,12 +113,20 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
                             <h1 className="text-2xl font-bold tracking-tight text-slate-800">Inventori Obat & Batch</h1>
                             <p className="text-sm text-slate-600">Satu tabel terpadu: setiap baris batch memuat informasi obat, supplier, stok, expired, dan harga beli.</p>
                         </div>
-                        <Button asChild>
-                            <Link href="/obat/create">
-                                <Plus className="mr-2 size-4" />
-                                Tambah Obat
-                            </Link>
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button asChild>
+                                <Link href="/obat/create">
+                                    <Plus className="mr-2 size-4" />
+                                    Tambah Obat
+                                </Link>
+                            </Button>
+                            <Button variant="outline" asChild>
+                                <Link href="/obat/trash">
+                                    <Trash className="mr-2 size-4" />
+                                    Trash
+                                </Link>
+                            </Button>
+                        </div>
                     </div>
                 </div>
 
@@ -168,7 +164,7 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
                 </form>
 
                 <div className="rounded-xl border border-slate-300 bg-card">
-                    <div className="border-b border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">Tabel Inventori Terpadu (Batch-Centric)</div>
+                    <div className="border-b border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">Tabel Inventori Terpadu</div>
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead className="border-b border-sidebar-border/70">
@@ -181,13 +177,13 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
                                     <th className="p-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">Stok</th>
                                     <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Expired</th>
                                     <th className="p-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">Harga Beli</th>
+                                    <th className="p-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {batches.data.length > 0 ? (
                                     batches.data.map((batch, index) => {
-                                        const expiredAt = new Date(batch.tanggal_expired);
-                                        const expiring = expiredAt.getTime() <= new Date().getTime() + 1000 * 60 * 60 * 24 * 30;
+                                        const expiring = new Date(batch.tanggal_expired).getTime() <= new Date().getTime() + 1000 * 60 * 60 * 24 * 30;
 
                                         return (
                                             <tr key={batch.id} className="border-b border-sidebar-border/50 last:border-0 hover:bg-slate-50/60">
@@ -208,12 +204,29 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
                                                     </span>
                                                 </td>
                                                 <td className="p-3 text-right text-sm font-semibold text-emerald-700">{formatCurrency(Number(batch.harga_beli || 0))}</td>
+                                                <td className="p-3 text-right">
+                                                    <div className="flex justify-end gap-2">
+                                                        <Button variant="ghost" size="sm" asChild>
+                                                            <Link href={`/obat/batch/${batch.id}`}>
+                                                                <Eye className="size-4" />
+                                                            </Link>
+                                                        </Button>
+                                                        <Button variant="ghost" size="sm" asChild>
+                                                            <Link href={`/obat/batch/${batch.id}/edit`}>
+                                                                <Pencil className="size-4" />
+                                                            </Link>
+                                                        </Button>
+                                                        <Button type="button" variant="ghost" size="sm" onClick={() => handleDeleteBatch(batch.id, batch.nomor_batch)}>
+                                                            <Trash2 className="size-4 text-destructive" />
+                                                        </Button>
+                                                    </div>
+                                                </td>
                                             </tr>
                                         );
                                     })
                                 ) : (
                                     <tr>
-                                        <td colSpan={8} className="p-8 text-center text-sm text-muted-foreground">
+                                        <td colSpan={9} className="p-8 text-center text-sm text-muted-foreground">
                                             <Package className="mx-auto mb-2 size-8" />
                                             Tidak ada data batch inventori
                                         </td>

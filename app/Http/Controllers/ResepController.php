@@ -6,7 +6,6 @@ use App\Actions\BuildOperationalInsights;
 use App\Models\DrugInteraction;
 use App\Models\Obat;
 use App\Models\Resep;
-use App\Models\UnitRumahSakit;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,7 +19,7 @@ class ResepController extends Controller
      */
     public function index(): Response
     {
-        $resep = Resep::with(['unit', 'processedBy', 'details.obat'])
+        $resep = Resep::with(['processedBy', 'details.obat'])
             ->latest()
             ->paginate(20);
 
@@ -39,11 +38,8 @@ class ResepController extends Controller
             ->orderBy('nama_obat')
             ->get();
 
-        $units = UnitRumahSakit::orderBy('nama_unit')->get();
-
         return Inertia::render('obat/resep/create', [
             'obat' => $obat,
-            'units' => $units,
         ]);
     }
 
@@ -53,13 +49,12 @@ class ResepController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nomor_rm' => 'required|string|max:50',
-            'nama_pasien' => 'required|string|max:200',
-            'nama_dokter' => 'required|string|max:200',
-            'unit_id' => 'nullable|exists:unit_rumah_sakit,id',
+            'nomor_referensi' => 'required|string|max:50',
+            'nama_pelanggan' => 'required|string|max:200',
+            'nama_dokter' => 'nullable|string|max:200',
             'tanggal_resep' => 'required|date',
-            'jenis_pasien' => 'required|in:rawat_jalan,rawat_inap,igd',
-            'cara_bayar' => 'required|in:umum,bpjs,asuransi',
+            'kategori_pelanggan' => 'required|in:reguler,pelanggan_rutin,rujukan_dokter',
+            'metode_pembayaran' => 'required|in:tunai_umum,non_tunai,asuransi_rekanan',
             'catatan' => 'nullable|string',
             'details' => 'required|array|min:1',
             'details.*.obat_id' => 'required|exists:obat,id',
@@ -70,6 +65,8 @@ class ResepController extends Controller
         ]);
 
         $this->assertNoBlockingInteraction($validated['details']);
+
+    $validated['unit_id'] = null;
 
         $resep = Resep::create($validated);
 
@@ -87,7 +84,7 @@ class ResepController extends Controller
      */
     public function show(string $id)
     {
-        $resep = Resep::with(['unit', 'processedBy', 'details.obat.satuan'])
+        $resep = Resep::with(['processedBy', 'details.obat.satuan'])
             ->findOrFail($id);
 
         return Inertia::render('obat/resep/show', [
@@ -113,12 +110,9 @@ class ResepController extends Controller
             ->orderBy('nama_obat')
             ->get();
 
-        $units = UnitRumahSakit::orderBy('nama_unit')->get();
-
         return Inertia::render('obat/resep/edit', [
             'resep' => $resep,
             'obat' => $obat,
-            'units' => $units,
         ]);
     }
 
@@ -136,13 +130,12 @@ class ResepController extends Controller
         }
 
         $validated = $request->validate([
-            'nomor_rm' => 'required|string|max:50',
-            'nama_pasien' => 'required|string|max:200',
-            'nama_dokter' => 'required|string|max:200',
-            'unit_id' => 'nullable|exists:unit_rumah_sakit,id',
+            'nomor_referensi' => 'required|string|max:50',
+            'nama_pelanggan' => 'required|string|max:200',
+            'nama_dokter' => 'nullable|string|max:200',
             'tanggal_resep' => 'required|date',
-            'jenis_pasien' => 'required|in:rawat_jalan,rawat_inap,igd',
-            'cara_bayar' => 'required|in:umum,bpjs,asuransi',
+            'kategori_pelanggan' => 'required|in:reguler,pelanggan_rutin,rujukan_dokter',
+            'metode_pembayaran' => 'required|in:tunai_umum,non_tunai,asuransi_rekanan',
             'catatan' => 'nullable|string',
             'details' => 'required|array|min:1',
             'details.*.obat_id' => 'required|exists:obat,id',
@@ -153,6 +146,8 @@ class ResepController extends Controller
         ]);
 
         $this->assertNoBlockingInteraction($validated['details']);
+
+    $validated['unit_id'] = null;
 
         $resep->update($validated);
 

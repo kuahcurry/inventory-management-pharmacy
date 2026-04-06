@@ -26,7 +26,7 @@ class ResepController extends Controller
         $status = $request->get('status');
         $search = $request->get('search');
 
-        $query = Resep::with(['unit', 'processedBy', 'details.obat'])
+        $query = Resep::with(['processedBy', 'details.obat'])
             ->latest('tanggal_resep');
 
         if ($status) {
@@ -36,8 +36,8 @@ class ResepController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nomor_resep', 'like', "%{$search}%")
-                    ->orWhere('nomor_rm', 'like', "%{$search}%")
-                    ->orWhere('nama_pasien', 'like', "%{$search}%");
+                    ->orWhere('nomor_referensi', 'like', "%{$search}%")
+                    ->orWhere('nama_pelanggan', 'like', "%{$search}%");
             });
         }
 
@@ -52,13 +52,12 @@ class ResepController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'nomor_rm' => 'required|string|max:50',
-            'nama_pasien' => 'required|string|max:200',
-            'nama_dokter' => 'required|string|max:200',
-            'unit_id' => 'nullable|exists:unit_rumah_sakit,id',
+            'nomor_referensi' => 'required|string|max:50',
+            'nama_pelanggan' => 'required|string|max:200',
+            'nama_dokter' => 'nullable|string|max:200',
             'tanggal_resep' => 'required|date',
-            'jenis_pasien' => 'required|in:rawat_jalan,rawat_inap,igd',
-            'cara_bayar' => 'required|in:umum,bpjs,asuransi',
+            'kategori_pelanggan' => 'required|in:reguler,pelanggan_rutin,rujukan_dokter',
+            'metode_pembayaran' => 'required|in:tunai_umum,non_tunai,asuransi_rekanan',
             'catatan' => 'nullable|string',
             'details' => 'required|array|min:1',
             'details.*.obat_id' => 'required|exists:obat,id',
@@ -74,13 +73,13 @@ class ResepController extends Controller
         return DB::transaction(function () use ($request) {
             // Create prescription
             $resep = Resep::create([
-                'nomor_rm' => $request->nomor_rm,
-                'nama_pasien' => $request->nama_pasien,
+                'nomor_referensi' => $request->nomor_referensi,
+                'nama_pelanggan' => $request->nama_pelanggan,
                 'nama_dokter' => $request->nama_dokter,
-                'unit_id' => $request->unit_id,
+                'unit_id' => null,
                 'tanggal_resep' => $request->tanggal_resep,
-                'jenis_pasien' => $request->jenis_pasien,
-                'cara_bayar' => $request->cara_bayar,
+                'kategori_pelanggan' => $request->kategori_pelanggan,
+                'metode_pembayaran' => $request->metode_pembayaran,
                 'catatan' => $request->catatan,
                 'status' => Resep::STATUS_PENDING,
             ]);
@@ -99,13 +98,13 @@ class ResepController extends Controller
 
             LogAktivitas::log(
                 auth()->user(),
-                "Membuat resep baru: {$resep->nomor_resep} untuk pasien {$resep->nama_pasien}",
+                "Membuat resep baru: {$resep->nomor_resep} untuk pelanggan {$resep->nama_pelanggan}",
                 'resep',
                 LogAktivitas::AKSI_CREATE,
                 $resep
             );
 
-            return response()->json($resep->load(['details.obat', 'unit']), 201);
+            return response()->json($resep->load(['details.obat']), 201);
         });
     }
 
@@ -114,7 +113,7 @@ class ResepController extends Controller
      */
     public function show(Resep $resep): JsonResponse
     {
-        $resep->load(['details.obat', 'unit', 'processedBy', 'transaksi']);
+        $resep->load(['details.obat', 'processedBy', 'transaksi']);
         
         return response()->json($resep);
     }
@@ -124,7 +123,7 @@ class ResepController extends Controller
      */
     public function pending(Request $request): JsonResponse
     {
-        $resep = Resep::with(['details.obat', 'unit'])
+        $resep = Resep::with(['details.obat'])
             ->pending()
             ->latest('tanggal_resep')
             ->get();

@@ -130,6 +130,32 @@ class OperationalInsightController extends Controller
         ]);
     }
 
+    private function normalizeQrCode(?string $rawCode): string
+    {
+        $code = trim((string) $rawCode);
+
+        if ($code === '') {
+            return '';
+        }
+
+        $decoded = json_decode($code, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE || ! is_array($decoded)) {
+            return $code;
+        }
+
+        return trim(
+            (string) (
+                $decoded['kode_qr']
+                ?? $decoded['kodeQr']
+                ?? $decoded['code']
+                ?? data_get($decoded, 'batch.kode_qr')
+                ?? data_get($decoded, 'batch.code')
+                ?? $code
+            )
+        );
+    }
+
     public function startStockScanSession()
     {
         $session = StockScanSession::query()->create([
@@ -157,11 +183,12 @@ class OperationalInsightController extends Controller
 
         $items = DB::transaction(function () use ($validated, $session) {
             $created = collect($validated['codes'])->map(function (string $code) use ($session) {
-                $batch = BatchObat::query()->where('kode_qr', trim($code))->first();
+                $normalizedCode = $this->normalizeQrCode($code);
+                $batch = BatchObat::query()->where('kode_qr', $normalizedCode)->first();
 
                 return StockScanSessionItem::query()->create([
                     'stock_scan_session_id' => $session->id,
-                    'kode_qr' => trim($code),
+                    'kode_qr' => $normalizedCode,
                     'batch_id' => $batch?->id,
                     'is_match' => $batch !== null,
                     'scanned_at' => now(),

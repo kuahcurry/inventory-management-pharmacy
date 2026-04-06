@@ -3,6 +3,7 @@ import { Html5Qrcode } from 'html5-qrcode';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Camera, Loader2, Search, Package, Calendar, TrendingUp, AlertTriangle, CheckCircle2 } from 'lucide-react';
@@ -37,7 +38,69 @@ export function QrScanner() {
   const [scanResult, setScanResult] = useState<ScanResponse | null>(null);
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [cameraLoading, setCameraLoading] = useState(false);
+  const [availableCameras, setAvailableCameras] = useState<Array<{ id: string; label: string }>>([]);
+  const [selectedCameraId, setSelectedCameraId] = useState('');
   const scannerRef = useRef<Html5Qrcode | null>(null);
+  const invalidAlertAtRef = useRef(0);
+
+  const showInvalidQrPopup = () => {
+    const now = Date.now();
+
+    if (now - invalidAlertAtRef.current < 2000) {
+      return;
+    }
+
+    invalidAlertAtRef.current = now;
+    alert('QR Code tidak valid silahkan periksa kembali');
+  };
+
+  const normalizeDecodedQr = (decodedText: string) => {
+    const text = decodedText.trim();
+
+    if (!text) return '';
+
+    try {
+      const data = JSON.parse(text);
+      return (
+        data.kode_qr ||
+        data.kodeQr ||
+        data.code ||
+        data.batch?.kode_qr ||
+        data.batch?.code ||
+        text
+      );
+    } catch {
+      return text;
+    }
+  };
+
+  const loadCameras = async () => {
+    const cameras = await Html5Qrcode.getCameras();
+    const mappedCameras = cameras.map((camera) => ({
+      id: camera.id,
+      label: camera.label || `Kamera ${camera.id.slice(0, 6)}`,
+    }));
+
+    setAvailableCameras(mappedCameras);
+
+    if (!selectedCameraId && mappedCameras.length > 0) {
+      const preferred = mappedCameras.find((camera) => {
+        const label = camera.label.toLowerCase();
+        return /(back|rear|environment)/i.test(label) && !/(wide|ultra)/i.test(label);
+      }) ?? mappedCameras.find((camera) => /(back|rear|environment)/i.test(camera.label)) ?? mappedCameras[0];
+
+      setSelectedCameraId(preferred.id);
+      return preferred.id;
+    }
+
+    return selectedCameraId;
+  };
+
+  const requestCameraPermission = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    stream.getTracks().forEach((track) => track.stop());
+  };
 
   const processScan = async (kodeQr: string, metode: 'camera' | 'scanner') => {
     setLoading(true);
@@ -58,6 +121,10 @@ export function QrScanner() {
     } catch (err: any) {
       const errorData = err.response?.data;
       setError(errorData?.message || 'Gagal memindai QR code');
+
+      if (metode === 'camera' && [404, 422].includes(err.response?.status)) {
+        showInvalidQrPopup();
+      }
       
       // If expired, still show batch info
       if (errorData?.batch) {
@@ -71,33 +138,46 @@ export function QrScanner() {
   };
 
   const startCameraScanner = async () => {
+    setCameraLoading(true);
+    setError('');
+
     try {
+      await requestCameraPermission();
+      const cameraId = await loadCameras();
       const scanner = new Html5Qrcode("qr-reader");
       scannerRef.current = scanner;
+
+      const cameraSource = cameraId
+        ? cameraId
+        : { facingMode: { ideal: 'environment' } };
       
       await scanner.start(
-        { facingMode: "environment" },
+        cameraSource,
         {
           fps: 10,
           qrbox: { width: 250, height: 250 },
         },
         (decodedText) => {
-          // Parse JSON from QR code
-          try {
-            const data = JSON.parse(decodedText);
-            processScan(data.kode_qr, 'camera');
-          } catch {
-            // If not JSON, treat as plain kode_qr
-            processScan(decodedText, 'camera');
+          const normalizedCode = normalizeDecodedQr(decodedText);
+
+          if (normalizedCode) {
+            processScan(normalizedCode, 'camera');
+          } else {
+            showInvalidQrPopup();
+            setError('QR Code tidak valid');
           }
         },
         undefined
       );
       
       setScanning(true);
-      setError('');
     } catch (err) {
+      console.error('Failed to start camera scanner:', err);
       setError('Gagal mengakses kamera. Pastikan izin kamera sudah diberikan atau gunakan input manual.');
+      setScanning(false);
+    }
+    finally {
+      setCameraLoading(false);
     }
   };
 
@@ -109,8 +189,10 @@ export function QrScanner() {
   };
 
   const handleManualScan = () => {
-    if (manualCode.trim()) {
-      processScan(manualCode.trim(), 'scanner');
+    const normalizedCode = normalizeDecodedQr(manualCode);
+
+    if (normalizedCode) {
+      processScan(normalizedCode, 'scanner');
     }
   };
 
@@ -150,10 +232,28 @@ export function QrScanner() {
           />
           
           <div className="flex gap-2">
+            <div className="flex-1">
+              <Select value={selectedCameraId} onValueChange={setSelectedCameraId}>
+                <SelectTrigger>
+                  <SelectValue placeholder={availableCameras.length ? 'Pilih kamera' : 'Kamera akan dimuat otomatis'} />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableCameras.length === 0 ? (
+                    <SelectItem value="auto">Auto</SelectItem>
+                  ) : (
+                    availableCameras.map((camera) => (
+                      <SelectItem key={camera.id} value={camera.id}>
+                        {camera.label}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
             {!scanning ? (
-              <Button onClick={startCameraScanner} className="flex-1" disabled={loading}>
+              <Button onClick={startCameraScanner} className="flex-1" disabled={loading || cameraLoading}>
                 <Camera className="mr-2 h-4 w-4" />
-                Start Camera
+                {cameraLoading ? 'Membuka Kamera...' : 'Start Camera'}
               </Button>
             ) : (
               <Button onClick={stopScanner} variant="destructive" className="flex-1">
@@ -273,7 +373,7 @@ export function QrScanner() {
               </div>
 
               <Button className="w-full" asChild>
-                <a href={`/obat/${scanResult.obat?.id}/batch/${scanResult.batch.id}`}>
+                <a href={`/obat/batch/${scanResult.batch.id}?from=qr`}>
                   Lihat Detail Batch
                 </a>
               </Button>
