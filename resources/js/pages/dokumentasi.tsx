@@ -10,7 +10,6 @@ import {
     TrendingUp,
     ClipboardCheck,
     FileText,
-    Users,
     Database,
     Shield,
     Zap,
@@ -74,6 +73,9 @@ export default function Dokumentasi() {
                                         Sistem Inventori Manajemen adalah platform operasional apotek yang dirancang untuk mengotomatisasi 
                                         dan mempermudah proses manajemen obat, transaksi, stok, resep, dan pelaporan secara 
                                         terintegrasi dan real-time.
+                                    </p>
+                                    <p className="mt-2 text-sm text-muted-foreground">
+                                        Untuk panduan operasional harian, dokumentasi ini menggunakan satu profil pengguna: <strong>Petugas</strong>.
                                     </p>
                                 </div>
 
@@ -390,7 +392,7 @@ export default function Dokumentasi() {
                                     <h3 className="mb-3 font-semibold">1. Login ke Sistem</h3>
                                     <ol className="list-inside list-decimal space-y-2 text-sm text-muted-foreground">
                                         <li>Buka aplikasi di browser (Chrome, Firefox, Edge recommended)</li>
-                                        <li>Masukkan email dan password yang diberikan admin</li>
+                                        <li>Masukkan email dan password akun petugas</li>
                                         <li>Jika 2FA aktif, masukkan kode dari aplikasi authenticator</li>
                                         <li>Klik tombol "Masuk"</li>
                                     </ol>
@@ -589,7 +591,7 @@ export default function Dokumentasi() {
                                         <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
                                             <li>Laravel Fortify untuk authentication</li>
                                             <li>Two-Factor Authentication (2FA) dengan QR code</li>
-                                            <li>Role-based access control (Admin, Pharmacist, Staff)</li>
+                                            <li>Panduan operasional menggunakan satu profil pengguna: Petugas</li>
                                             <li>Session management dengan secure cookies</li>
                                             <li>Password hashing dengan bcrypt</li>
                                         </ul>
@@ -660,6 +662,53 @@ export default function Dokumentasi() {
                                 </div>
                             </CardContent>
                         </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Database className="size-5" />
+                                    Return Value API (Audited)
+                                </CardTitle>
+                                <CardDescription>
+                                    Kontrak payload yang direkomendasikan untuk analisis data agar sinkron dengan implementasi backend saat ini.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4 text-sm">
+                                <div>
+                                    <p className="font-semibold">Laporan API</p>
+                                    <ul className="mt-1 list-inside list-disc space-y-1 text-muted-foreground">
+                                        <li><strong>/api/reports/stock</strong> mengembalikan <code>summary</code> (total_items, low_stock_items, total_value) + <code>data[]</code>.</li>
+                                        <li><strong>/api/reports/transactions</strong> mengembalikan <code>summary</code> (total_transactions, by_type, total_value) + <code>data[]</code>.</li>
+                                        <li><strong>/api/reports/expiry</strong> mengembalikan <code>summary</code> (expiring_soon_count/value, expired_count/value) + <code>expiring_soon[]</code> + <code>expired[]</code>.</li>
+                                    </ul>
+                                </div>
+
+                                <div>
+                                    <p className="font-semibold">Endpoint Search & Procurement</p>
+                                    <ul className="mt-1 list-inside list-disc space-y-1 text-muted-foreground">
+                                        <li><strong>/api/medicines/search</strong> dan <strong>/api/suppliers/search</strong> memakai wrapper <code>{`{ data: [...] }`}</code>.</li>
+                                        <li><strong>/api/inventory/create-with-batch</strong> mengembalikan <code>{`{ message, data: { obat, batch } }`}</code> dengan status <code>201</code>.</li>
+                                        <li><strong>/api/hutang</strong> mengembalikan payload paginasi; pembayaran mengembalikan <code>{`{ message, hutang }`}</code>.</li>
+                                    </ul>
+                                </div>
+
+                                <div>
+                                    <p className="font-semibold">Operational Insight</p>
+                                    <ul className="mt-1 list-inside list-disc space-y-1 text-muted-foreground">
+                                        <li><strong>/api/insights/margins</strong>: <code>summary</code>, <code>per_item[]</code>, <code>per_batch[]</code>.</li>
+                                        <li><strong>/api/insights/reorder-suggestions</strong> dan <strong>/api/insights/forecasts</strong>: <code>{`{ summary, data }`}</code>.</li>
+                                        <li><strong>/api/insights/check-interactions</strong>: <code>{`{ has_blocking, data }`}</code>.</li>
+                                    </ul>
+                                </div>
+
+                                <div className="rounded-lg border-l-4 border-blue-500 bg-blue-50 p-3 text-blue-900 dark:bg-blue-950/20 dark:text-blue-100">
+                                    Rumus nilai yang digunakan backend untuk metrik inti:
+                                    <br />
+                                    Margin = Revenue - Cost, Margin% = (Margin / Revenue) x 100,
+                                    Nilai Stok/Nilai Risiko Expired = stok x harga_beli.
+                                </div>
+                            </CardContent>
+                        </Card>
                     </TabsContent>
 
                     {/* WORKFLOW TAB */}
@@ -685,7 +734,7 @@ export default function Dokumentasi() {
                                         <div className="flex-1">
                                             <h4 className="mb-1 font-semibold">Penerimaan Obat dari Supplier</h4>
                                             <p className="text-sm text-muted-foreground">
-                                                Staff farmasi menerima obat dari supplier → Cek fisik barang → Buat transaksi masuk 
+                                                Petugas menerima obat dari supplier → Cek fisik barang → Buat transaksi masuk 
                                                 di sistem → Input nomor batch & tanggal expired → Stok otomatis bertambah
                                             </p>
                                         </div>
@@ -713,7 +762,7 @@ export default function Dokumentasi() {
                                         <div className="flex-1">
                                             <h4 className="mb-1 font-semibold">Permintaan dari Unit/Resep</h4>
                                             <p className="text-sm text-muted-foreground">
-                                                Unit membuat permintaan obat OR Dokter menulis resep → Apoteker review → 
+                                                Unit membuat permintaan obat OR Dokter menulis resep → Petugas melakukan review sesuai SOP → 
                                                 Verifikasi ketersediaan stok → Persiapan obat sesuai FEFO
                                             </p>
                                         </div>
@@ -802,7 +851,7 @@ export default function Dokumentasi() {
                                         <div>
                                             <p className="font-medium">Approval</p>
                                             <p className="text-sm text-muted-foreground">
-                                                Supervisor/admin review hasil → Approve jika sesuai → Sistem update stok otomatis 
+                                                Verifikasi sesuai SOP internal → Approve jika sesuai → Sistem update stok otomatis 
                                                 sesuai hasil fisik
                                             </p>
                                         </div>
@@ -875,7 +924,7 @@ export default function Dokumentasi() {
                             <div>
                                 <h3 className="font-semibold">Butuh Bantuan Lebih Lanjut?</h3>
                                 <p className="text-sm text-muted-foreground">
-                                    Kunjungi halaman FAQ atau hubungi administrator sistem
+                                    Kunjungi halaman FAQ atau hubungi tim sistem
                                 </p>
                             </div>
                             <div className="flex gap-2">

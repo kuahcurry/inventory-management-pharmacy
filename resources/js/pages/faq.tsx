@@ -59,12 +59,13 @@ export default function FAQ() {
                             <AccordionItem value="item-2">
                                 <AccordionTrigger>Siapa saja yang bisa menggunakan sistem ini?</AccordionTrigger>
                                 <AccordionContent>
-                                    Sistem ini dapat digunakan oleh:
+                                    Secara operasional harian, sistem ini digunakan oleh <strong>Petugas Farmasi</strong>.
+                                    Peran petugas mencakup:
                                     <ul className="mt-2 list-inside list-disc space-y-1">
-                                        <li><strong>Admin:</strong> Memiliki akses penuh ke semua fitur sistem</li>
-                                        <li><strong>Apoteker:</strong> Dapat mengelola obat, transaksi, resep, dan laporan</li>
-                                        <li><strong>Staff Farmasi:</strong> Dapat mengelola stok dan transaksi harian</li>
-                                        <li><strong>Unit Layanan:</strong> Dapat membuat permintaan obat dari apotek</li>
+                                        <li>Mengelola data obat dan batch</li>
+                                        <li>Mencatat transaksi masuk, keluar, dan penjualan</li>
+                                        <li>Memproses stok opname dan pemusnahan sesuai SOP</li>
+                                        <li>Mengakses laporan operasional untuk monitoring</li>
                                     </ul>
                                 </AccordionContent>
                             </AccordionItem>
@@ -74,12 +75,12 @@ export default function FAQ() {
                                 <AccordionContent>
                                     <ol className="list-inside list-decimal space-y-1">
                                         <li>Buka halaman login sistem</li>
-                                        <li>Masukkan email dan password yang telah diberikan admin</li>
+                                        <li>Masukkan email dan password akun petugas</li>
                                         <li>Klik tombol "Masuk"</li>
                                         <li>Jika Two-Factor Authentication aktif, masukkan kode verifikasi</li>
                                     </ol>
                                     <p className="mt-2 text-sm text-muted-foreground">
-                                        Hubungi administrator jika lupa password atau belum memiliki akun.
+                                        Hubungi tim sistem jika lupa password atau belum memiliki akun.
                                     </p>
                                 </AccordionContent>
                             </AccordionItem>
@@ -349,7 +350,7 @@ export default function FAQ() {
                                             </ul>
                                         </li>
                                         <li>Klik "Selesaikan Opname"</li>
-                                        <li>Admin/supervisor akan menyetujui</li>
+                                        <li>Kirim hasil opname untuk verifikasi sesuai SOP internal</li>
                                     </ol>
                                     <p className="mt-2 text-sm text-blue-600">
                                         💡 Disarankan melakukan stok opname minimal 1 bulan sekali atau sesuai kebijakan rumah sakit.
@@ -437,6 +438,25 @@ export default function FAQ() {
                                     </p>
                                 </AccordionContent>
                             </AccordionItem>
+
+                            <AccordionItem value="report-4">
+                                <AccordionTrigger>Return value apa yang dipakai untuk analisis laporan agar akurat?</AccordionTrigger>
+                                <AccordionContent>
+                                    <p>
+                                        Untuk analisis yang konsisten, gunakan nilai return dari endpoint laporan dan insight berikut:
+                                    </p>
+                                    <ul className="mt-2 list-inside list-disc space-y-1">
+                                        <li><strong>GET /api/reports/stock:</strong> <code>summary.total_items</code>, <code>summary.low_stock_items</code>, <code>summary.total_value</code>, dan <code>data[]</code>.</li>
+                                        <li><strong>GET /api/reports/transactions:</strong> <code>summary.total_transactions</code>, <code>summary.by_type</code>, <code>summary.total_value</code>, dan <code>data[]</code>.</li>
+                                        <li><strong>GET /api/reports/expiry:</strong> <code>summary.expiring_soon_count</code>, <code>summary.expiring_soon_value</code>, <code>summary.expired_count</code>, <code>summary.expired_value</code>, serta <code>expiring_soon[]</code> dan <code>expired[]</code>.</li>
+                                        <li><strong>GET /api/insights/margins:</strong> <code>summary.revenue_30d</code>, <code>summary.cost_30d</code>, <code>summary.margin_value_30d</code>, <code>summary.avg_margin_percentage_30d</code>, plus <code>per_item[]</code> dan <code>per_batch[]</code>.</li>
+                                    </ul>
+                                    <p className="mt-2 text-sm text-muted-foreground">
+                                        Rumus kunci yang dipakai sistem: Margin = Revenue - Cost, Margin% = (Margin/Revenue) x 100,
+                                        Nilai stok/risiko kadaluarsa = stok x harga beli.
+                                    </p>
+                                </AccordionContent>
+                            </AccordionItem>
                         </Accordion>
                     </CardContent>
                 </Card>
@@ -446,66 +466,38 @@ export default function FAQ() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Users className="size-5" />
-                            Manajemen Pengguna
+                            Akun Petugas
                         </CardTitle>
                         <CardDescription>
-                            Cara mengelola akun pengguna (khusus Admin)
+                            Informasi pengelolaan akun untuk operasional petugas
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Accordion type="single" collapsible className="w-full">
                             <AccordionItem value="user-1">
-                                <AccordionTrigger>Bagaimana cara menambah pengguna baru? (Admin)</AccordionTrigger>
+                                <AccordionTrigger>Bagaimana jika perlu menambah akun petugas baru?</AccordionTrigger>
                                 <AccordionContent>
                                     <ol className="list-inside list-decimal space-y-1">
-                                        <li>Buka menu "Users" (hanya tersedia untuk Admin)</li>
-                                        <li>Klik "Tambah User"</li>
-                                        <li>Isi data pengguna:
+                                        <li>Ajukan permintaan pembuatan akun ke tim sistem</li>
+                                        <li>Siapkan data petugas yang dibutuhkan:</li>
+                                        <li>
+                                            Data yang biasanya diminta:
                                             <ul className="ml-6 mt-1 list-inside list-disc">
                                                 <li>Nama lengkap</li>
                                                 <li>Email (akan digunakan untuk login)</li>
-                                                <li>Password</li>
-                                                <li>Role (Admin/Pharmacist/Staff)</li>
+                                                <li>Nomor HP aktif</li>
                                             </ul>
                                         </li>
-                                        <li>Klik "Simpan"</li>
-                                        <li>Berikan informasi login kepada user baru</li>
+                                        <li>Setelah akun dibuat, lakukan login awal dan ganti password</li>
                                     </ol>
                                 </AccordionContent>
                             </AccordionItem>
 
                             <AccordionItem value="user-2">
-                                <AccordionTrigger>Apa perbedaan role Admin, Pharmacist, dan Staff?</AccordionTrigger>
+                                <AccordionTrigger>Apakah ada pembagian role operasional di aplikasi ini?</AccordionTrigger>
                                 <AccordionContent>
-                                    <ul className="space-y-2">
-                                        <li>
-                                            <strong>Admin:</strong>
-                                            <ul className="ml-6 mt-1 list-inside list-disc">
-                                                <li>Akses penuh ke semua fitur</li>
-                                                <li>Dapat mengelola pengguna</li>
-                                                <li>Dapat approve stok opname</li>
-                                                <li>Dapat mengelola master data</li>
-                                            </ul>
-                                        </li>
-                                        <li>
-                                            <strong>Pharmacist (Apoteker):</strong>
-                                            <ul className="ml-6 mt-1 list-inside list-disc">
-                                                <li>Dapat mengelola obat dan transaksi</li>
-                                                <li>Dapat membuat resep</li>
-                                                <li>Dapat melakukan stok opname</li>
-                                                <li>Dapat melihat semua laporan</li>
-                                            </ul>
-                                        </li>
-                                        <li>
-                                            <strong>Staff Farmasi:</strong>
-                                            <ul className="ml-6 mt-1 list-inside list-disc">
-                                                <li>Dapat mencatat transaksi harian</li>
-                                                <li>Dapat melihat stok</li>
-                                                <li>Dapat membuat permintaan</li>
-                                                <li>Akses terbatas ke fitur tertentu</li>
-                                            </ul>
-                                        </li>
-                                    </ul>
+                                    Untuk penggunaan operasional, panduan ini menggunakan model <strong>satu role: Petugas</strong>.
+                                    Artinya alur kerja harian difokuskan pada satu profil pengguna agar lebih sederhana dan konsisten.
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
@@ -553,7 +545,7 @@ export default function FAQ() {
                                         <li><strong>Duplikat data:</strong> Kode obat/nomor batch mungkin sudah ada</li>
                                     </ul>
                                     <p className="mt-2 text-sm">
-                                        Jika masalah berlanjut, hubungi administrator atau IT support.
+                                        Jika masalah berlanjut, hubungi tim sistem atau IT support.
                                     </p>
                                 </AccordionContent>
                             </AccordionItem>
@@ -583,7 +575,7 @@ export default function FAQ() {
                                         <li>Batch yang dipilih memiliki stok yang cukup</li>
                                     </ul>
                                     <p className="mt-2 text-sm text-amber-600">
-                                        Jika stok tetap tidak berkurang, segera hubungi administrator untuk investigasi lebih lanjut.
+                                        Jika stok tetap tidak berkurang, segera hubungi tim sistem untuk investigasi lebih lanjut.
                                     </p>
                                 </AccordionContent>
                             </AccordionItem>
