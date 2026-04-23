@@ -42,7 +42,8 @@ interface StokOpname {
     tanggal_opname: string;
     status: 'draft' | 'in_progress' | 'completed' | 'approved';
     penanggung_jawab: User;
-    unit: Unit;
+    unit: Unit | null;
+    unit_nama?: string | null;
     approved_by: User | null;
     approved_at: string | null;
     catatan: string | null;
@@ -354,8 +355,8 @@ export default function StokOpnameIndex({ stokOpname, stats, units, filters }: P
                                             </TableCell>
                                             <TableCell>
                                                 <div>
-                                                    <p className="font-medium">{item.unit.nama_unit}</p>
-                                                    <p className="text-xs text-muted-foreground">{item.unit.kode_unit}</p>
+                                                    <p className="font-medium">{item.unit?.nama_unit ?? item.unit_nama ?? '-'}</p>
+                                                    <p className="text-xs text-muted-foreground">{item.unit?.kode_unit ?? '-'}</p>
                                                 </div>
                                             </TableCell>
                                             <TableCell>

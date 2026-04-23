@@ -25,6 +25,7 @@ class StokOpname extends Model
         'tanggal_opname',
         'penanggung_jawab',
         'unit_id',
+        'unit_nama',
         'status',
         'approved_by',
         'approved_at',

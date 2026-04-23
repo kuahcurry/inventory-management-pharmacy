@@ -125,11 +125,14 @@ class StokOpnameController extends Controller
 
         DB::beginTransaction();
         try {
+            $unit = UnitRumahSakit::query()->findOrFail($validated['unit_id']);
+
             // Create stock opname
             $opname = StokOpname::create([
                 'tanggal_opname' => $validated['tanggal_opname'],
                 'penanggung_jawab' => auth()->id(),
                 'unit_id' => $validated['unit_id'],
+                'unit_nama' => $unit->nama_unit,
                 'status' => StokOpname::STATUS_DRAFT,
                 'catatan' => $validated['catatan'],
             ]);
@@ -245,9 +248,12 @@ class StokOpnameController extends Controller
 
         DB::beginTransaction();
         try {
+            $unit = UnitRumahSakit::query()->findOrFail($validated['unit_id']);
+
             $stokOpname->update([
                 'tanggal_opname' => $validated['tanggal_opname'],
                 'unit_id' => $validated['unit_id'],
+                'unit_nama' => $unit->nama_unit,
                 'catatan' => $validated['catatan'],
             ]);
 
