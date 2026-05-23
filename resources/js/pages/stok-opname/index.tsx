@@ -43,6 +43,10 @@ interface StokOpname {
     status: 'draft' | 'in_progress' | 'completed' | 'approved';
     penanggung_jawab: User;
     unit: Unit | null;
+<<<<<<< HEAD
+=======
+    unit_nama?: string | null;
+>>>>>>> refs/remotes/origin/main
     approved_by: User | null;
     approved_at: string | null;
     catatan: string | null;
@@ -353,6 +357,7 @@ export default function StokOpnameIndex({ stokOpname, stats, units, filters }: P
                                                 <p className="text-sm">{formatDate(item.tanggal_opname)}</p>
                                             </TableCell>
                                             <TableCell>
+<<<<<<< HEAD
                                                 {item.unit ? (
                                                     <div>
                                                         <p className="font-medium">{item.unit.nama_unit}</p>
@@ -361,6 +366,12 @@ export default function StokOpnameIndex({ stokOpname, stats, units, filters }: P
                                                 ) : (
                                                     <span className="text-muted-foreground">Retail (tanpa unit)</span>
                                                 )}
+=======
+                                                <div>
+                                                    <p className="font-medium">{item.unit?.nama_unit ?? item.unit_nama ?? '-'}</p>
+                                                    <p className="text-xs text-muted-foreground">{item.unit?.kode_unit ?? '-'}</p>
+                                                </div>
+>>>>>>> refs/remotes/origin/main
                                             </TableCell>
                                             <TableCell>
                                                 <p className="font-medium">{item.penanggung_jawab.name}</p>

@@ -13,6 +13,7 @@ use App\Models\Obat;
 use App\Models\ReorderSuggestion;
 use App\Models\Transaksi;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -27,147 +28,11 @@ class ReportController extends Controller
     public function __construct(private BuildOperationalInsights $insights) {}
 
     /**
-     * Display merged report center with grouped report packs.
+     * Redirect legacy report center to an actionable report page.
      */
-    public function index(): Response
+    public function index(): RedirectResponse
     {
-        $overview = [
-            'total_obat' => Obat::count(),
-            'total_stok' => (int) Obat::sum('stok_total'),
-            'total_transaksi_30d' => (int) Transaksi::query()
-                ->whereDate('tanggal_transaksi', '>=', now()->subDays(30)->toDateString())
-                ->count(),
-            'nilai_transaksi_30d' => (float) Transaksi::query()
-                ->whereDate('tanggal_transaksi', '>=', now()->subDays(30)->toDateString())
-                ->sum('total_harga'),
-            'batch_expired' => (int) BatchObat::query()
-                ->where('stok_tersedia', '>', 0)
-                ->whereDate('tanggal_expired', '<', now())
-                ->count(),
-            'batch_expiring_30d' => (int) BatchObat::query()
-                ->where('stok_tersedia', '>', 0)
-                ->whereDate('tanggal_expired', '>=', now())
-                ->whereDate('tanggal_expired', '<=', now()->addDays(30))
-                ->count(),
-        ];
-
-        $mergedReports = [
-            [
-                'key' => 'pembelian_suite',
-                'title' => 'Pembelian Suite',
-                'description' => 'Satu paket laporan pembelian untuk semua dimensi utama agar tidak memecah menu.',
-                'status' => 'ready',
-                'primary_link' => '/reports/pembelian',
-                'secondary_link' => '/transaksi/masuk',
-                'contains' => [
-                    'Laporan Pembelian',
-                    'Laporan Pembelian Detail',
-                    'Laporan Pembelian Detail Suplier',
-                    'Laporan Pembelian per Barang',
-                    'Laporan Pembelian per Suplier',
-                    'Laporan Pembelian Kredit',
-                    'Laporan Pembelian Tunai',
-                ],
-            ],
-            [
-                'key' => 'penjualan_suite',
-                'title' => 'Penjualan Suite',
-                'description' => 'Satu paket penjualan berbasis filter dinamis (tanggal, barang, kategori, metode bayar, operator).',
-                'status' => 'ready',
-                'primary_link' => '/reports/penjualan',
-                'secondary_link' => '/transaksi/keluar',
-                'contains' => [
-                    'Laporan Penjualan',
-                    'Laporan Penjualan Detail',
-                    'Laporan Penjualan Detail Pelanggan',
-                    'Laporan Penjualan Detail Dokter',
-                    'Laporan Penjualan Detail Sales',
-                    'Laporan Penjualan Operator',
-                    'Laporan Penjualan Kasir',
-                    'Laporan Penjualan per Tanggal',
-                    'Laporan Penjualan per Barang',
-                    'Laporan Penjualan per Kategori',
-                    'Laporan Penjualan per Pelanggan',
-                    'Laporan Penjualan per Dokter',
-                    'Laporan Penjualan Tunai',
-                    'Laporan Penjualan Debit',
-                    'Laporan Penjualan Kredit',
-                    'Laporan Penjualan Transfer',
-                    'Laporan Penjualan QRIS',
-                    'Laporan Penjualan Biasa',
-                    'Laporan Penjualan Resep',
-                    'Laporan Penjualan Pajak',
-                    'Laporan Penjualan Grafik',
-                ],
-            ],
-            [
-                'key' => 'ar_ap_suite',
-                'title' => 'AR/AP Suite (Hutang & Piutang)',
-                'description' => 'Gabungan aging hutang dan piutang agar monitoring kewajiban dan tagihan dalam satu layar.',
-                'status' => 'ready',
-                'primary_link' => '/reports/hutang-piutang',
-                'secondary_link' => '/kasir',
-                'contains' => [
-                    'Laporan Hutang',
-                    'Laporan Hutang Lunas',
-                    'Laporan Hutang Belum-Lunas',
-                    'Laporan Piutang',
-                    'Laporan Piutang Lunas',
-                    'Laporan Piutang Belum-Lunas',
-                ],
-            ],
-            [
-                'key' => 'cashflow_suite',
-                'title' => 'Cashflow Suite',
-                'description' => 'Kas masuk/keluar disatukan dari transaksi untuk pemantauan arus kas bersih.',
-                'status' => 'ready',
-                'primary_link' => '/reports/cashflow',
-                'secondary_link' => '/transaksi',
-                'contains' => [
-                    'Laporan Cashflow',
-                    'Laporan Cashflow Masuk',
-                    'Laporan Cashflow Keluar',
-                ],
-            ],
-            [
-                'key' => 'obat_suite',
-                'title' => 'Obat Intelligence Suite',
-                'description' => 'Semua laporan obat digabung dalam satu paket stok, mutasi, laris/tidak laku, dan expired.',
-                'status' => 'ready',
-                'primary_link' => '/reports/obat',
-                'secondary_link' => '/reports/expiry',
-                'contains' => [
-                    'Lap. Obat Terlaris',
-                    'Lap. Obat Tidak Laku',
-                    'Lap. Obat Expired',
-                    'Lap. Obat Stok',
-                    'Lap. Obat Stok Total',
-                    'Lap. Obat Stok Minimal',
-                    'Lap. Obat Stok Habis',
-                    'Lap. Obat Keluar Masuk',
-                    'Lap. Obat Keluar',
-                    'Lap. Obat Masuk',
-                    'Lap. Obat Kartu Stok',
-                ],
-            ],
-            [
-                'key' => 'keuangan_suite',
-                'title' => 'Keuangan Suite',
-                'description' => 'Ringkasan laba rugi dan modal barang dikonsolidasikan untuk pengambilan keputusan cepat.',
-                'status' => 'ready',
-                'primary_link' => '/reports/keuangan',
-                'secondary_link' => '/reports/transactions',
-                'contains' => [
-                    'Laba Rugi',
-                    'Modal Barang',
-                ],
-            ],
-        ];
-
-        return Inertia::render('laporan/index/index', [
-            'overview' => $overview,
-            'mergedReports' => $mergedReports,
-        ]);
+        return redirect()->route('reports.operational');
     }
 
     public function pembelian(Request $request): Response

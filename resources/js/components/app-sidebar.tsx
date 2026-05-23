@@ -99,10 +99,6 @@ const mainNavItems: NavItem[] = [
         icon: FileText,
         items: [
             {
-                title: 'Pusat Laporan',
-                href: '/reports',
-            },
-            {
                 title: 'Pembelian',
                 href: '/reports/pembelian',
             },

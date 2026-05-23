@@ -1,0 +1,94 @@
+1. Autentikasi;;;;;
+No;Skenario Pengujian;Input;Hasil yang Diharapkan;Hasil Pengujian;Kesimpulan
+1;Login dengan kredensial valid;Email & password benar;Berhasil masuk ke halaman dashboard;OK;Sesuai
+2;Login dengan password salah;Email benar, password salah;"Muncul pesan ""Kredensial tidak valid""";OK;Sesuai
+3;Login dengan email tidak terdaftar;Email tidak terdaftar;Muncul pesan error autentikasi;OK;Sesuai
+4;Login dengan field kosong;Email & password kosong;Muncul validasi field wajib diisi;OK;Sesuai
+5;Logout dari sistem;Klik tombol logout;Sesi berakhir, diarahkan ke halaman login;OK;Sesuai
+2. Master Data Obat;;;;;
+No;Skenario Pengujian;Input;Hasil yang Diharapkan;Hasil Pengujian;Kesimpulan
+6;Menambah data obat baru;Data obat lengkap dan valid;Data obat tersimpan, tampil di daftar;OK;Sesuai
+7;Menambah obat dengan kode duplikat;Kode obat yang sudah ada;Muncul pesan error kode sudah terdaftar;OK;Sesuai
+8;Menambah obat dengan field wajib kosong;Data tidak lengkap;Muncul validasi field wajib diisi;OK;Sesuai
+9;Mengubah data obat;Data obat yang sudah ada, diubah;Data berhasil diperbarui;OK;Sesuai
+10;Menghapus data obat;Klik hapus pada data obat;Data obat terhapus dari sistem;OK;Sesuai
+11;Mencari data obat;Nama/kode obat di kolom pencarian;Menampilkan hasil pencarian yang relevan;OK;Sesuai
+3. Batch Obat;;;;;
+No;Skenario Pengujian;Input;Hasil yang Diharapkan;Hasil Pengujian;Kesimpulan
+12;Menambah batch obat baru;Data batch lengkap (nomor batch, exp date, stok);Batch tersimpan dan stok obat terupdate;OK;Sesuai
+13;Menambah batch dengan tanggal kadaluarsa sudah lewat;Tanggal exp sebelum hari ini;"Batch tersimpan dengan status ""Kadaluarsa""";OK;Sesuai
+14;Mengubah data batch;Data batch yang diperbarui;Data batch berhasil diperbarui;OK;Sesuai
+15;Menghapus batch obat;Klik hapus pada batch;Batch terhapus dari sistem;OK;Sesuai
+16;Scan QR Code batch;QR Code batch yang valid;Menampilkan informasi detail batch;OK;Sesuai
+17;Scan QR Code tidak valid;QR Code rusak/tidak dikenal;Muncul pesan QR tidak valid;OK;Sesuai
+18;Upload file QR Code (fitur dihapus);User mengunggah file QR;Tidak tersedia pada versi saat ini;N/A;Tidak diuji (fitur dihapus)
+4. Resep;;;;;
+No;Skenario Pengujian;Input;Hasil yang Diharapkan;Hasil Pengujian;Kesimpulan
+19;Membuat resep baru;Data resep dan detail obat lengkap;"Resep tersimpan dengan status ""Pending""";OK;Sesuai
+20;Membuat resep tanpa detail obat;Data resep tanpa item obat;Muncul validasi minimal 1 obat harus ditambahkan;OK;Sesuai
+21;Mengubah resep dengan status pending;Data resep yang diperbarui;Resep berhasil diperbarui;OK;Sesuai
+22;Mengubah resep dengan status selesai;Mencoba edit resep selesai;Muncul pesan resep tidak dapat diubah;OK;Sesuai
+23;Menandai resep sebagai selesai;Klik tombol selesaikan pada resep pending;"Status resep berubah menjadi ""Selesai""";OK;Sesuai
+24;Menghapus resep pending;Klik hapus pada resep;Resep terhapus dari sistem;OK;Sesuai
+25;Menghapus resep yang sudah selesai;Klik hapus pada resep selesai;Muncul pesan resep tidak dapat dihapus;OK;Sesuai
+5. Transaksi;;;;;
+No;Skenario Pengujian;Input;Hasil yang Diharapkan;Hasil Pengujian;Kesimpulan
+26;Membuat transaksi pengeluaran obat;Data transaksi dan jumlah obat;Transaksi tersimpan, stok batch berkurang;OK;Sesuai
+27;Transaksi dengan jumlah melebihi stok;Jumlah > stok tersedia;Muncul pesan stok tidak mencukupi;OK;Sesuai
+28;Membuat transaksi penerimaan obat;Data penerimaan dari supplier;Transaksi tersimpan, stok bertambah;OK;Sesuai
+29;Melihat riwayat transaksi;Buka halaman transaksi;Daftar transaksi tampil dengan benar;OK;Sesuai
+30;Filter transaksi berdasarkan tanggal;Rentang tanggal tertentu;Menampilkan transaksi sesuai filter;OK;Sesuai
+6. Pemusnahan Obat;;;;;
+No;Skenario Pengujian;Input;Hasil yang Diharapkan;Hasil Pengujian;Kesimpulan
+42;Membuat berita acara pemusnahan;Data pemusnahan dan detail batch;"Data tersimpan dengan status ""Draft""";OK;Sesuai
+43;Input jumlah pemusnahan melebihi stok;Jumlah > stok batch;Muncul pesan stok tidak mencukupi;OK;Sesuai
+44;Menyelesaikan pemusnahan (complete);Klik selesaikan;"Status berubah ""Completed""";OK;Sesuai
+45;Menyetujui pemusnahan (approve);Klik approve pada status completed;"Status berubah ""Approved"", stok batch berkurang";OK;Sesuai
+46;Menghapus pemusnahan draft;Klik hapus;Data pemusnahan terhapus;OK;Sesuai
+47;Menghapus pemusnahan yang sudah approved;Klik hapus pada approved;Muncul pesan tidak dapat dihapus;OK;Sesuai
+7. Notifikasi;;;;;
+No;Skenario Pengujian;Input;Hasil yang Diharapkan;Hasil Pengujian;Kesimpulan
+48;Notifikasi stok menipis;Stok obat di bawah batas minimum;Notifikasi stok rendah muncul;OK;Sesuai
+49;Notifikasi obat mendekati kadaluarsa;Tanggal exp ? 30 hari;Notifikasi hampir kadaluarsa muncul;OK;Sesuai
+50;Notifikasi obat kadaluarsa;Tanggal exp sudah lewat;Notifikasi kadaluarsa muncul;OK;Sesuai
+51;Notifikasi permintaan baru (fitur dihapus);Ada permintaan unit baru;Tidak tersedia pada versi saat ini;N/A;Tidak diuji (fitur dihapus)
+52;Menandai notifikasi sudah dibaca;Klik notifikasi;Status notifikasi berubah menjadi dibaca;OK;Sesuai
+8. Laporan;;;;;
+No;Skenario Pengujian;Input;Hasil yang Diharapkan;Hasil Pengujian;Kesimpulan
+53;Melihat laporan transaksi;Buka halaman laporan transaksi;Data laporan tampil dengan benar;OK;Sesuai
+54;Filter laporan berdasarkan periode;Rentang tanggal tertentu;Laporan menampilkan data sesuai periode;OK;Sesuai
+55;Export laporan (CSV/JSON);Klik export dengan format CSV/JSON;File CSV terunduh / data JSON ditampilkan;OK;Sesuai
+9. Kasir & Penjualan;;;;;
+No;Skenario Pengujian;Input;Hasil yang Diharapkan;Hasil Pengujian;Kesimpulan
+56;Transaksi kasir tunai berhasil;Mode penjualan, metode cash, item valid;Transaksi tersimpan, stok batch berkurang, total sesuai;OK;Sesuai
+57;Transaksi kasir transfer wajib pilih bank;Mode penjualan, metode transfer tanpa bank;Muncul validasi bank wajib dipilih;OK;Sesuai
+58;Filter resep sesuai item keranjang;Tambah item obat tertentu lalu buka pilihan resep;Daftar resep terfilter hanya resep yang mengandung item terkait;OK;Sesuai
+59;Pembayaran kurang dari total ditolak;Pembayaran diterima < grand total;Muncul validasi pembayaran tidak mencukupi / gagal submit;OK;Sesuai
+60;Penjualan dengan resep memproses status resep;Mode penjualan resep dengan resep_id valid;Resep diproses sesuai lifecycle dan transaksi tersimpan;OK;Sesuai
+61;Input scan QR manual mengisi item kasir;Masukkan kode QR batch valid di kasir;Batch/obat terdeteksi dan item keranjang terisi otomatis;OK;Sesuai
+62;Transaksi biaya operasional tersimpan;Mode biaya dengan data kategori dan nominal valid;Biaya operasional tersimpan dengan metode pembayaran benar;OK;Sesuai
+10. Stok Opname;;;;;
+No;Skenario Pengujian;Input;Hasil yang Diharapkan;Hasil Pengujian;Kesimpulan
+63;Membuat stok opname baru;Isi form stok opname dengan unit dan catatan valid;Data stok opname tersimpan dengan status draft/pending;OK;Sesuai
+64;Input hasil hitung fisik per batch;Isi jumlah fisik pada beberapa batch;Selisih sistem vs fisik terhitung dengan benar;OK;Sesuai
+65;Selesaikan stok opname;Klik selesai pada stok opname yang sudah diisi;Status berubah completed dan siap approval;OK;Sesuai
+66;Approve stok opname melakukan penyesuaian;Approve stok opname completed;Stok batch/obat terupdate sesuai hasil fisik;OK;Sesuai
+67;Tolak akses approval tanpa otoritas;User non-otorisasi mencoba approve;Aksi ditolak sesuai kontrol akses;OK;Sesuai
+11. Hutang Suite;;;;;
+No;Skenario Pengujian;Input;Hasil yang Diharapkan;Hasil Pengujian;Kesimpulan
+68;Daftar hutang tampil akurat;Buka halaman hutang;Data hutang, sisa tagihan, dan status tampil benar;OK;Sesuai
+69;Tambah pembayaran hutang parsial;Input nominal < sisa hutang;Saldo hutang berkurang dan status masih belum lunas;OK;Sesuai
+70;Pelunasan penuh mengubah status;Input nominal = sisa hutang;Status hutang berubah lunas;OK;Sesuai
+71;Nominal pembayaran melebihi sisa ditolak;Input nominal > sisa hutang;Muncul validasi nominal tidak valid;OK;Sesuai
+72;Riwayat pembayaran hutang tercatat;Simpan beberapa pembayaran;Timeline/detail pembayaran tersimpan lengkap;OK;Sesuai
+12. QR Analytics & Riwayat;;;;;
+No;Skenario Pengujian;Input;Hasil yang Diharapkan;Hasil Pengujian;Kesimpulan
+73;Riwayat scan QR dapat difilter;Filter hasil scan: sukses/expired/not_found/error;Tabel riwayat menampilkan data sesuai filter;OK;Sesuai
+74;Generate QR dari daftar batch aktif;Pilih batch pada tab generate;QR code preview berhasil ditampilkan;OK;Sesuai
+75;Download QR menghasilkan file PNG;Klik tombol download pada preview QR;File PNG terunduh dengan nama sesuai kode QR;OK;Sesuai
+76;Copy kode QR ke clipboard;Klik tombol copy pada preview QR;Kode QR tersalin ke clipboard;OK;Sesuai
+77;Navigasi detail batch dari scanner valid;Scan QR valid lalu klik lihat detail batch;Halaman detail terbuka dan tombol kembali kembali ke /qr;OK;Sesuai
+13. Validasi API;;;;;
+No;Skenario Pengujian;Input;Hasil yang Diharapkan;Hasil Pengujian;Kesimpulan
+78;API unit menerima payload legacy;POST /api/unit-rumah-sakit dengan field kode,nama;Data tersimpan ke kolom kode_unit,nama_unit;OK;Sesuai
+79;Export laporan tipe tidak valid;GET /api/reports/export/unknown;Mengembalikan status 422 dengan pesan validasi;OK;Sesuai

@@ -1,0 +1,182 @@
+LAPORAN EQUATIONS AUDIT
+Generated: 2026-04-21
+
+Scope:
+- app/Http/Controllers/ReportController.php
+- app/Actions/BuildOperationalInsights.php
+- app/Http/Controllers/Api/ReportController.php
+
+==================================================
+A) KEUANGAN SUITE (Laba/Rugi/Modal)
+Source: app/Http/Controllers/ReportController.php
+
+1) Revenue
+Formula:
+Revenue = sum(total_harga) for jenis_transaksi = penjualan
+
+2) HPP (Harga Pokok Penjualan)
+Formula:
+HPP = sum(cost_per_unit * jumlah)
+where cost_per_unit = batch.harga_beli OR obat.harga_beli OR 0
+
+3) Laba Kotor
+Formula:
+GrossProfit = Revenue - HPP
+
+4) Biaya Operasional
+Formula:
+OperatingExpense = RentExpense + OtherOperatingExpense
+(Only kategori sewa + lainnya)
+
+5) Laba Operasional
+Formula:
+OperatingProfit = GrossProfit - OperatingExpense
+
+6) Laba Bersih
+Formula:
+NetProfit = OperatingProfit - TaxExpenseApplied - InterestExpenseApplied
+
+7) Modal Barang Aktif
+Formula:
+ModalBarang = sum(stok_tersedia * harga_beli) for stok_tersedia > 0
+
+8) Expense toggle logic
+TaxExpenseApplied = include_pajak ? taxExpense : 0
+InterestExpenseApplied = include_bunga ? interestExpense : 0
+
+==================================================
+B) MARGIN (Operasional Cerdas)
+Source: app/Actions/BuildOperationalInsights.php
+
+Per item and per batch:
+
+1) Revenue
+Formula:
+Revenue = sum(total_harga)
+
+2) Cost
+Formula:
+Cost = sum(buy_price * jumlah)
+where buy_price = batch.harga_beli OR obat.harga_beli OR 0
+
+3) Margin value
+Formula:
+MarginValue = Revenue - Cost
+
+4) Margin percentage
+Formula:
+MarginPct = (MarginValue / Revenue) * 100, if Revenue > 0 else 0
+
+5) Summary 30 days
+- revenue_30d = sum(perItem.revenue)
+- cost_30d = sum(perItem.cost)
+- margin_value_30d = sum(perItem.margin_value)
+- avg_margin_percentage_30d = average(perItem.margin_percentage)
+
+==================================================
+C) CASHFLOW SUITE
+Source: app/Http/Controllers/ReportController.php
+
+1) Cash in components
+- CashInFromMasuk = sum(total_harga where jenis_transaksi = masuk)
+- CashInFromDirectSales = sum(total_harga where jenis_transaksi = penjualan AND hutang is null)
+- CashInFromHutangPayments = sum(hutang_payments.amount in selected date range)
+
+2) Total Cash In
+Formula:
+CashIn = CashInFromMasuk + CashInFromDirectSales + CashInFromHutangPayments
+
+3) Cash Out
+Formula:
+CashOut = sum(total_harga where jenis_transaksi = keluar)
+
+4) Net Cashflow
+Formula:
+NetCashflow = CashIn - CashOut
+
+5) PPN collected from sales
+Formula:
+PPNCollected = sum(total_harga * ppn_percent/100) for taxed sales
+Default ppn_percent = 11
+Override source: parsed from keterangan text pattern "PPN: x%"
+
+==================================================
+D) PENJUALAN SUITE (Sales vs Debt)
+Source: app/Http/Controllers/ReportController.php
+
+1) Total sales
+Formula:
+TotalSales = sum(total_harga) for jenis_transaksi = penjualan
+
+2) Outstanding debt
+Formula:
+OutstandingDebt = sum(hutang.remaining_amount)
+
+3) Paid sales
+Formula:
+PaidSales = max(TotalSales - OutstandingDebt, 0)
+
+==================================================
+E) STOCK + EXPIRY VALUE (Web Reports)
+Source: app/Http/Controllers/ReportController.php
+
+1) Stock total value
+Formula:
+StockValue = sum(stok_tersedia * harga_beli) for stok_tersedia > 0
+
+2) Expiry risk total value
+Formula:
+TotalValueAtRisk = sum(stok_tersedia * harga_beli) for batches within expiry scope
+
+3) Per-row expiry risk value
+Formula:
+NilaiRisiko = stok_tersedia * harga_beli
+
+==================================================
+F) API REPORT EQUATIONS
+Source: app/Http/Controllers/Api/ReportController.php
+
+1) Stock report total value
+Formula:
+TotalValue = sum(stok_total * harga_beli)
+
+2) Transaction report total value per type
+Formula:
+TotalValueByType[jenis] = sum(jumlah * harga_satuan)
+for masuk / keluar / penjualan
+
+3) Expiry report values
+Formula:
+ExpiringSoonValue = sum(stok_tersedia * harga_beli)
+ExpiredValue = sum(stok_tersedia * harga_beli)
+
+4) Export stock row value
+Formula:
+nilai_stok = stok_total * harga_beli
+
+==================================================
+G) REPORT CENTER REMOVAL STATUS
+
+Implemented:
+- Legacy report center endpoint now redirects to reports.operational
+- Old center page component removed
+
+Compatibility:
+- Existing entry routes /reports and /laporan are preserved and now redirect
+- Dedicated report pages remain unchanged
+
+==================================================
+H) QUICK VALIDATION CHECKLIST FOR FURTHER ANALYSIS
+
+1) Ensure all revenue metrics use same source field:
+   total_harga vs (jumlah * harga_satuan)
+
+2) Confirm purchase transactions are expected to count as cash in in your business logic.
+
+3) Verify whether biaya operasional should include pajak and bunga in operating expense,
+   or remain separate as currently implemented.
+
+4) Confirm PPN extraction from keterangan text is robust enough.
+
+5) Validate that discount/retur scenarios are represented in total_harga
+   before deriving margin/laba.

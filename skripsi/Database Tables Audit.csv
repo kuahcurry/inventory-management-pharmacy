@@ -1,0 +1,400 @@
+Table,Column,Data Type,Keterangan Penggunaan
+approval_requests,id,id,Permintaan persetujuan operasional.
+approval_requests,request_type,string(50),Permintaan persetujuan operasional.
+approval_requests,obat_id,foreignId,Permintaan persetujuan operasional.
+approval_requests,transaksi_id,foreignId,Permintaan persetujuan operasional.
+approval_requests,requested_by,foreignId,Permintaan persetujuan operasional.
+approval_requests,approved_by,foreignId,Permintaan persetujuan operasional.
+approval_requests,approval_level_required,unsignedTinyInteger,Permintaan persetujuan operasional.
+approval_requests,status,enum,Permintaan persetujuan operasional.
+approval_requests,requested_quantity,unsignedInteger,Permintaan persetujuan operasional.
+approval_requests,reason,text,Permintaan persetujuan operasional.
+approval_requests,decision_note,text,Permintaan persetujuan operasional.
+approval_requests,approved_at,timestamp,Permintaan persetujuan operasional.
+approval_requests,created_at,timestamp,Permintaan persetujuan operasional.
+approval_requests,updated_at,timestamp,Permintaan persetujuan operasional.
+batch_obat,id,id,Data batch/lot obat.
+batch_obat,obat_id,foreignId,Data batch/lot obat.
+batch_obat,nomor_batch,string(100),Data batch/lot obat.
+batch_obat,tanggal_produksi,date,Data batch/lot obat.
+batch_obat,tanggal_expired,date,Data batch/lot obat.
+batch_obat,tanggal_masuk,date,Data batch/lot obat.
+batch_obat,stok_awal,integer,Data batch/lot obat.
+batch_obat,stok_tersedia,integer,Data batch/lot obat.
+batch_obat,harga_beli,"decimal(15,2)",Data batch/lot obat.
+batch_obat,kode_qr,string,Data batch/lot obat.
+batch_obat,qr_data,text,Data batch/lot obat.
+batch_obat,status,enum,Data batch/lot obat.
+batch_obat,catatan,text,Data batch/lot obat.
+batch_obat,created_at,timestamp,Data batch/lot obat.
+batch_obat,updated_at,timestamp,Data batch/lot obat.
+batch_obat,deleted_at,timestamp,Data batch/lot obat.
+biaya_operasional,id,id,Biaya operasional apotek.
+biaya_operasional,tanggal_biaya,date,Biaya operasional apotek.
+biaya_operasional,kategori,string(30),Biaya operasional apotek.
+biaya_operasional,nominal,"decimal(15,2)",Biaya operasional apotek.
+biaya_operasional,keterangan,text,Biaya operasional apotek.
+biaya_operasional,metode_pembayaran,string(30),Biaya operasional apotek.
+biaya_operasional,kasir_nama,string,Biaya operasional apotek.
+biaya_operasional,user_id,foreignId,Biaya operasional apotek.
+biaya_operasional,created_at,timestamp,Biaya operasional apotek.
+biaya_operasional,updated_at,timestamp,Biaya operasional apotek.
+cache,key,string,Cache aplikasi (framework).
+cache,value,mediumText,Cache aplikasi (framework).
+cache,expiration,integer,Cache aplikasi (framework).
+cache_locks,key,string,Lock cache aplikasi (framework).
+cache_locks,owner,string,Lock cache aplikasi (framework).
+cache_locks,expiration,integer,Lock cache aplikasi (framework).
+demand_forecasts,id,id,Hasil peramalan permintaan.
+demand_forecasts,obat_id,foreignId,Hasil peramalan permintaan.
+demand_forecasts,period_type,enum,Hasil peramalan permintaan.
+demand_forecasts,lookback_days,unsignedInteger,Hasil peramalan permintaan.
+demand_forecasts,avg_daily_usage,unsignedInteger,Hasil peramalan permintaan.
+demand_forecasts,seasonality_factor,"decimal(6,2)",Hasil peramalan permintaan.
+demand_forecasts,forecast_quantity,unsignedInteger,Hasil peramalan permintaan.
+demand_forecasts,confidence_percentage,unsignedTinyInteger,Hasil peramalan permintaan.
+demand_forecasts,forecast_start_date,date,Hasil peramalan permintaan.
+demand_forecasts,forecast_end_date,date,Hasil peramalan permintaan.
+demand_forecasts,created_at,timestamp,Hasil peramalan permintaan.
+demand_forecasts,updated_at,timestamp,Hasil peramalan permintaan.
+drug_interactions,id,id,Referensi interaksi obat.
+drug_interactions,obat_id,foreignId,Referensi interaksi obat.
+drug_interactions,interacts_with_obat_id,foreignId,Referensi interaksi obat.
+drug_interactions,severity,enum,Referensi interaksi obat.
+drug_interactions,effect_description,text,Referensi interaksi obat.
+drug_interactions,recommendation,text,Referensi interaksi obat.
+drug_interactions,is_active,boolean,Referensi interaksi obat.
+drug_interactions,created_at,timestamp,Referensi interaksi obat.
+drug_interactions,updated_at,timestamp,Referensi interaksi obat.
+failed_jobs,id,id,Log job gagal (framework).
+failed_jobs,uuid,string,Log job gagal (framework).
+failed_jobs,connection,text,Log job gagal (framework).
+failed_jobs,queue,text,Log job gagal (framework).
+failed_jobs,payload,longText,Log job gagal (framework).
+failed_jobs,exception,longText,Log job gagal (framework).
+failed_jobs,failed_at,timestamp,Log job gagal (framework).
+hutang,id,id,Catatan hutang pembelian.
+hutang,transaksi_id,foreignId,Catatan hutang pembelian.
+hutang,customer_name,string,Catatan hutang pembelian.
+hutang,total_amount,"decimal(15,2)",Catatan hutang pembelian.
+hutang,remaining_amount,"decimal(15,2)",Catatan hutang pembelian.
+hutang,payment_status,enum,Catatan hutang pembelian.
+hutang,settled_at,timestamp,Catatan hutang pembelian.
+hutang,user_id,foreignId,Catatan hutang pembelian.
+hutang,created_at,timestamp,Catatan hutang pembelian.
+hutang,updated_at,timestamp,Catatan hutang pembelian.
+hutang_payments,id,id,Pembayaran hutang pembelian.
+hutang_payments,hutang_id,foreignId,Pembayaran hutang pembelian.
+hutang_payments,amount,"decimal(15,2)",Pembayaran hutang pembelian.
+hutang_payments,paid_at,timestamp,Pembayaran hutang pembelian.
+hutang_payments,metode_pembayaran,string(30),Pembayaran hutang pembelian.
+hutang_payments,keterangan,text,Pembayaran hutang pembelian.
+hutang_payments,user_id,foreignId,Pembayaran hutang pembelian.
+hutang_payments,created_at,timestamp,Pembayaran hutang pembelian.
+hutang_payments,updated_at,timestamp,Pembayaran hutang pembelian.
+jenis_obat,id,id,Master jenis obat.
+jenis_obat,nama_jenis,string(50),Master jenis obat.
+jenis_obat,deskripsi,text,Master jenis obat.
+jenis_obat,is_active,boolean,Master jenis obat.
+jenis_obat,created_at,timestamp,Master jenis obat.
+jenis_obat,updated_at,timestamp,Master jenis obat.
+job_batches,id,string,Batch job (framework).
+job_batches,name,string,Batch job (framework).
+job_batches,total_jobs,integer,Batch job (framework).
+job_batches,pending_jobs,integer,Batch job (framework).
+job_batches,failed_jobs,integer,Batch job (framework).
+job_batches,failed_job_ids,longText,Batch job (framework).
+job_batches,options,mediumText,Batch job (framework).
+job_batches,cancelled_at,integer,Batch job (framework).
+job_batches,created_at,integer,Batch job (framework).
+job_batches,finished_at,integer,Batch job (framework).
+jobs,id,id,Antrian job aplikasi (framework).
+jobs,queue,string,Antrian job aplikasi (framework).
+jobs,payload,longText,Antrian job aplikasi (framework).
+jobs,attempts,unsignedTinyInteger,Antrian job aplikasi (framework).
+jobs,reserved_at,unsignedInteger,Antrian job aplikasi (framework).
+jobs,available_at,unsignedInteger,Antrian job aplikasi (framework).
+jobs,created_at,unsignedInteger,Antrian job aplikasi (framework).
+kategori_obat,id,id,Master kategori obat.
+kategori_obat,nama_kategori,string(100),Master kategori obat.
+kategori_obat,deskripsi,text,Master kategori obat.
+kategori_obat,is_active,boolean,Master kategori obat.
+kategori_obat,created_at,timestamp,Master kategori obat.
+kategori_obat,updated_at,timestamp,Master kategori obat.
+log_aktivitas,id,id,Log aktivitas pengguna.
+log_aktivitas,user_id,foreignId,Log aktivitas pengguna.
+log_aktivitas,aktivitas,string(255),Log aktivitas pengguna.
+log_aktivitas,modul,string(50),Log aktivitas pengguna.
+log_aktivitas,aksi,string(50),Log aktivitas pengguna.
+log_aktivitas,loggable_id,unsignedBigInteger,Log aktivitas pengguna.
+log_aktivitas,loggable_type,string,Log aktivitas pengguna.
+log_aktivitas,data_lama,json,Log aktivitas pengguna.
+log_aktivitas,data_baru,json,Log aktivitas pengguna.
+log_aktivitas,ip_address,string(45),Log aktivitas pengguna.
+log_aktivitas,user_agent,text,Log aktivitas pengguna.
+log_aktivitas,waktu,timestamp,Log aktivitas pengguna.
+log_aktivitas,created_at,timestamp,Log aktivitas pengguna.
+log_aktivitas,updated_at,timestamp,Log aktivitas pengguna.
+notifikasi,id,id,Notifikasi sistem.
+notifikasi,user_id,foreignId,Notifikasi sistem.
+notifikasi,judul,string(255),Notifikasi sistem.
+notifikasi,pesan,text,Notifikasi sistem.
+notifikasi,tipe,enum,Notifikasi sistem.
+notifikasi,kategori,enum,Notifikasi sistem.
+notifikasi,notifiable_id,unsignedBigInteger,Notifikasi sistem.
+notifikasi,notifiable_type,string,Notifikasi sistem.
+notifikasi,link,string,Notifikasi sistem.
+notifikasi,is_read,boolean,Notifikasi sistem.
+notifikasi,read_at,timestamp,Notifikasi sistem.
+notifikasi,is_email_sent,boolean,Notifikasi sistem.
+notifikasi,email_sent_at,timestamp,Notifikasi sistem.
+notifikasi,created_at,timestamp,Notifikasi sistem.
+notifikasi,updated_at,timestamp,Notifikasi sistem.
+obat,id,id,Master data obat.
+obat,kode_obat,string(50),Master data obat.
+obat,nama_obat,string(120),Master data obat.
+obat,nama_generik,string(120),Master data obat.
+obat,nama_brand,string(191),Master data obat.
+obat,kategori_id,foreignId,Master data obat.
+obat,jenis_id,foreignId,Master data obat.
+obat,satuan_id,foreignId,Master data obat.
+obat,stok_total,integer,Master data obat.
+obat,stok_minimum,integer,Master data obat.
+obat,harga_beli,"decimal(15,2)",Master data obat.
+obat,harga_jual,"decimal(15,2)",Master data obat.
+obat,lokasi_penyimpanan,string(100),Master data obat.
+obat,deskripsi,text,Master data obat.
+obat,efek_samping,text,Master data obat.
+obat,indikasi,text,Master data obat.
+obat,kontraindikasi,text,Master data obat.
+obat,gambar,string,Master data obat.
+obat,is_active,boolean,Master data obat.
+obat,created_at,timestamp,Master data obat.
+obat,updated_at,timestamp,Master data obat.
+obat,deleted_at,timestamp,Master data obat.
+obat,is_high_risk_drug,boolean,Master data obat.
+obat,supplier_lead_time_days,unsignedInteger,Master data obat.
+obat,review_period_days,unsignedInteger,Master data obat.
+obat,target_margin_percentage,"decimal(5,2)",Master data obat.
+password_reset_tokens,email,string,Token reset password pengguna.
+password_reset_tokens,token,string,Token reset password pengguna.
+password_reset_tokens,created_at,timestamp,Token reset password pengguna.
+pemusnahan_obat,id,id,Header pemusnahan obat.
+pemusnahan_obat,nomor_berita_acara,string(50),Header pemusnahan obat.
+pemusnahan_obat,tanggal_pemusnahan,date,Header pemusnahan obat.
+pemusnahan_obat,penanggung_jawab,foreignId,Header pemusnahan obat.
+pemusnahan_obat,lokasi_pemusnahan,string(200),Header pemusnahan obat.
+pemusnahan_obat,metode_pemusnahan,text,Header pemusnahan obat.
+pemusnahan_obat,saksi,json,Header pemusnahan obat.
+pemusnahan_obat,alasan,enum,Header pemusnahan obat.
+pemusnahan_obat,keterangan,text,Header pemusnahan obat.
+pemusnahan_obat,file_berita_acara,string,Header pemusnahan obat.
+pemusnahan_obat,status,enum,Header pemusnahan obat.
+pemusnahan_obat,approved_by,foreignId,Header pemusnahan obat.
+pemusnahan_obat,approved_at,timestamp,Header pemusnahan obat.
+pemusnahan_obat,created_at,timestamp,Header pemusnahan obat.
+pemusnahan_obat,updated_at,timestamp,Header pemusnahan obat.
+pemusnahan_obat,deleted_at,timestamp,Header pemusnahan obat.
+pemusnahan_obat_detail,id,id,Detail pemusnahan obat.
+pemusnahan_obat_detail,pemusnahan_id,foreignId,Detail pemusnahan obat.
+pemusnahan_obat_detail,batch_id,foreignId,Detail pemusnahan obat.
+pemusnahan_obat_detail,jumlah,integer,Detail pemusnahan obat.
+pemusnahan_obat_detail,nilai_perolehan,"decimal(15,2)",Detail pemusnahan obat.
+pemusnahan_obat_detail,kondisi,text,Detail pemusnahan obat.
+pemusnahan_obat_detail,created_at,timestamp,Detail pemusnahan obat.
+pemusnahan_obat_detail,updated_at,timestamp,Detail pemusnahan obat.
+permintaan_unit,id,id,Permintaan obat dari unit.
+permintaan_unit,kode_permintaan,string(50),Permintaan obat dari unit.
+permintaan_unit,unit_id,foreignId,Permintaan obat dari unit.
+permintaan_unit,obat_id,foreignId,Permintaan obat dari unit.
+permintaan_unit,jumlah_diminta,integer,Permintaan obat dari unit.
+permintaan_unit,jumlah_disetujui,integer,Permintaan obat dari unit.
+permintaan_unit,tanggal_permintaan,date,Permintaan obat dari unit.
+permintaan_unit,status,enum,Permintaan obat dari unit.
+permintaan_unit,prioritas,enum,Permintaan obat dari unit.
+permintaan_unit,catatan,text,Permintaan obat dari unit.
+permintaan_unit,catatan_farmasi,text,Permintaan obat dari unit.
+permintaan_unit,processed_by,foreignId,Permintaan obat dari unit.
+permintaan_unit,processed_at,timestamp,Permintaan obat dari unit.
+permintaan_unit,created_at,timestamp,Permintaan obat dari unit.
+permintaan_unit,updated_at,timestamp,Permintaan obat dari unit.
+permintaan_unit,deleted_at,timestamp,Permintaan obat dari unit.
+qr_scan_log,id,id,Log pemindaian QR.
+qr_scan_log,batch_id,foreignId,Log pemindaian QR.
+qr_scan_log,user_id,foreignId,Log pemindaian QR.
+qr_scan_log,kode_qr_scanned,string(255),Log pemindaian QR.
+qr_scan_log,metode_scan,enum,Log pemindaian QR.
+qr_scan_log,hasil_scan,enum,Log pemindaian QR.
+qr_scan_log,pesan_error,text,Log pemindaian QR.
+qr_scan_log,data_hasil,json,Log pemindaian QR.
+qr_scan_log,ip_address,string(45),Log pemindaian QR.
+qr_scan_log,user_agent,text,Log pemindaian QR.
+qr_scan_log,waktu_scan,timestamp,Log pemindaian QR.
+qr_scan_log,created_at,timestamp,Log pemindaian QR.
+qr_scan_log,updated_at,timestamp,Log pemindaian QR.
+reorder_suggestions,id,id,Saran pemesanan ulang.
+reorder_suggestions,obat_id,foreignId,Saran pemesanan ulang.
+reorder_suggestions,avg_daily_usage,unsignedInteger,Saran pemesanan ulang.
+reorder_suggestions,lead_time_days,unsignedInteger,Saran pemesanan ulang.
+reorder_suggestions,safety_stock,unsignedInteger,Saran pemesanan ulang.
+reorder_suggestions,reorder_point,unsignedInteger,Saran pemesanan ulang.
+reorder_suggestions,suggested_order_qty,unsignedInteger,Saran pemesanan ulang.
+reorder_suggestions,period_start,date,Saran pemesanan ulang.
+reorder_suggestions,period_end,date,Saran pemesanan ulang.
+reorder_suggestions,calculated_at,timestamp,Saran pemesanan ulang.
+reorder_suggestions,is_applied,boolean,Saran pemesanan ulang.
+reorder_suggestions,created_at,timestamp,Saran pemesanan ulang.
+reorder_suggestions,updated_at,timestamp,Saran pemesanan ulang.
+resep,id,id,Data resep pasien.
+resep,nomor_resep,string(50),Data resep pasien.
+resep,nama_dokter,string(200),Data resep pasien.
+resep,unit_id,foreignId,Data resep pasien.
+resep,tanggal_resep,date,Data resep pasien.
+resep,status,enum,Data resep pasien.
+resep,processed_by,foreignId,Data resep pasien.
+resep,processed_at,timestamp,Data resep pasien.
+resep,catatan,text,Data resep pasien.
+resep,created_at,timestamp,Data resep pasien.
+resep,updated_at,timestamp,Data resep pasien.
+resep,deleted_at,timestamp,Data resep pasien.
+resep,nomor_rm,string(50),Data resep pasien.
+resep,nama_pasien,string(200),Data resep pasien.
+resep,jenis_pasien,enum,Data resep pasien.
+resep,cara_bayar,enum,Data resep pasien.
+resep_detail,id,id,Detail item pada resep.
+resep_detail,resep_id,foreignId,Detail item pada resep.
+resep_detail,obat_id,foreignId,Detail item pada resep.
+resep_detail,jumlah,integer,Detail item pada resep.
+resep_detail,dosis,string(100),Detail item pada resep.
+resep_detail,aturan_pakai,string(200),Detail item pada resep.
+resep_detail,catatan,text,Detail item pada resep.
+resep_detail,is_dispensed,boolean,Detail item pada resep.
+resep_detail,created_at,timestamp,Detail item pada resep.
+resep_detail,updated_at,timestamp,Detail item pada resep.
+satuan_obat,id,id,Master satuan obat.
+satuan_obat,nama_satuan,string(50),Master satuan obat.
+satuan_obat,singkatan,string(10),Master satuan obat.
+satuan_obat,is_active,boolean,Master satuan obat.
+satuan_obat,created_at,timestamp,Master satuan obat.
+satuan_obat,updated_at,timestamp,Master satuan obat.
+sessions,id,string,Session login pengguna (framework).
+sessions,user_id,foreignId,Session login pengguna (framework).
+sessions,ip_address,string(45),Session login pengguna (framework).
+sessions,user_agent,text,Session login pengguna (framework).
+sessions,payload,longText,Session login pengguna (framework).
+sessions,last_activity,integer,Session login pengguna (framework).
+stock_scan_session_items,id,id,Item hasil scan sesi stok.
+stock_scan_session_items,stock_scan_session_id,foreignId,Item hasil scan sesi stok.
+stock_scan_session_items,kode_qr,string(100),Item hasil scan sesi stok.
+stock_scan_session_items,batch_id,foreignId,Item hasil scan sesi stok.
+stock_scan_session_items,is_match,boolean,Item hasil scan sesi stok.
+stock_scan_session_items,scanned_at,timestamp,Item hasil scan sesi stok.
+stock_scan_session_items,created_at,timestamp,Item hasil scan sesi stok.
+stock_scan_session_items,updated_at,timestamp,Item hasil scan sesi stok.
+stock_scan_sessions,id,id,Sesi scan stok.
+stock_scan_sessions,user_id,foreignId,Sesi scan stok.
+stock_scan_sessions,session_code,string(50),Sesi scan stok.
+stock_scan_sessions,status,enum,Sesi scan stok.
+stock_scan_sessions,started_at,timestamp,Sesi scan stok.
+stock_scan_sessions,completed_at,timestamp,Sesi scan stok.
+stock_scan_sessions,total_scans,unsignedInteger,Sesi scan stok.
+stock_scan_sessions,matched_scans,unsignedInteger,Sesi scan stok.
+stock_scan_sessions,unmatched_scans,unsignedInteger,Sesi scan stok.
+stock_scan_sessions,created_at,timestamp,Sesi scan stok.
+stock_scan_sessions,updated_at,timestamp,Sesi scan stok.
+stok_opname,id,id,Header stok opname.
+stok_opname,nomor_opname,string(50),Header stok opname.
+stok_opname,tanggal_opname,date,Header stok opname.
+stok_opname,penanggung_jawab,foreignId,Header stok opname.
+stok_opname,unit_id,foreignId,Header stok opname.
+stok_opname,status,enum,Header stok opname.
+stok_opname,approved_by,foreignId,Header stok opname.
+stok_opname,approved_at,timestamp,Header stok opname.
+stok_opname,catatan,text,Header stok opname.
+stok_opname,berita_acara,text,Header stok opname.
+stok_opname,created_at,timestamp,Header stok opname.
+stok_opname,updated_at,timestamp,Header stok opname.
+stok_opname,deleted_at,timestamp,Header stok opname.
+stok_opname_detail,id,id,Detail stok opname.
+stok_opname_detail,stok_opname_id,foreignId,Detail stok opname.
+stok_opname_detail,batch_id,foreignId,Detail stok opname.
+stok_opname_detail,stok_sistem,integer,Detail stok opname.
+stok_opname_detail,stok_fisik,integer,Detail stok opname.
+stok_opname_detail,selisih,integer,Detail stok opname.
+stok_opname_detail,keterangan_selisih,text,Detail stok opname.
+stok_opname_detail,created_at,timestamp,Detail stok opname.
+stok_opname_detail,updated_at,timestamp,Detail stok opname.
+supplier,id,id,Master supplier obat.
+supplier,kode_supplier,string(50),Master supplier obat.
+supplier,nama_supplier,string(200),Master supplier obat.
+supplier,alamat,text,Master supplier obat.
+supplier,no_telepon,string(20),Master supplier obat.
+supplier,email,string(100),Master supplier obat.
+supplier,kontak_person,string(100),Master supplier obat.
+supplier,no_hp_kontak,string(20),Master supplier obat.
+supplier,npwp,string(30),Master supplier obat.
+supplier,status,enum,Master supplier obat.
+supplier,catatan,text,Master supplier obat.
+supplier,created_at,timestamp,Master supplier obat.
+supplier,updated_at,timestamp,Master supplier obat.
+supplier,deleted_at,timestamp,Master supplier obat.
+sync_queue,id,id,Antrian sinkronisasi/integrasi.
+sync_queue,model_type,string(100),Antrian sinkronisasi/integrasi.
+sync_queue,model_id,unsignedBigInteger,Antrian sinkronisasi/integrasi.
+sync_queue,action,enum,Antrian sinkronisasi/integrasi.
+sync_queue,data,json,Antrian sinkronisasi/integrasi.
+sync_queue,status,enum,Antrian sinkronisasi/integrasi.
+sync_queue,retry_count,integer,Antrian sinkronisasi/integrasi.
+sync_queue,error_message,text,Antrian sinkronisasi/integrasi.
+sync_queue,synced_at,timestamp,Antrian sinkronisasi/integrasi.
+sync_queue,created_at,timestamp,Antrian sinkronisasi/integrasi.
+sync_queue,updated_at,timestamp,Antrian sinkronisasi/integrasi.
+transaksi,id,id,"Transaksi masuk, keluar, dan penjualan."
+transaksi,kode_transaksi,string(50),"Transaksi masuk, keluar, dan penjualan."
+transaksi,obat_id,foreignId,"Transaksi masuk, keluar, dan penjualan."
+transaksi,batch_id,foreignId,"Transaksi masuk, keluar, dan penjualan."
+transaksi,user_id,foreignId,"Transaksi masuk, keluar, dan penjualan."
+transaksi,unit_id,foreignId,"Transaksi masuk, keluar, dan penjualan."
+transaksi,jenis_transaksi,enum,"Transaksi masuk, keluar, dan penjualan."
+transaksi,jumlah,integer,"Transaksi masuk, keluar, dan penjualan."
+transaksi,harga_satuan,"decimal(15,2)","Transaksi masuk, keluar, dan penjualan."
+transaksi,total_harga,"decimal(15,2)","Transaksi masuk, keluar, dan penjualan."
+transaksi,tanggal_transaksi,date,"Transaksi masuk, keluar, dan penjualan."
+transaksi,waktu_transaksi,time,"Transaksi masuk, keluar, dan penjualan."
+transaksi,keterangan,text,"Transaksi masuk, keluar, dan penjualan."
+transaksi,nomor_referensi,string,"Transaksi masuk, keluar, dan penjualan."
+transaksi,created_at,timestamp,"Transaksi masuk, keluar, dan penjualan."
+transaksi,updated_at,timestamp,"Transaksi masuk, keluar, dan penjualan."
+transaksi,deleted_at,timestamp,"Transaksi masuk, keluar, dan penjualan."
+transaksi,supplier_nama,string,"Transaksi masuk, keluar, dan penjualan."
+transaksi,pelanggan_nama,string,"Transaksi masuk, keluar, dan penjualan."
+transaksi,dokter_nama,string,"Transaksi masuk, keluar, dan penjualan."
+transaksi,sales_nama,string,"Transaksi masuk, keluar, dan penjualan."
+transaksi,operator_nama,string,"Transaksi masuk, keluar, dan penjualan."
+transaksi,kasir_nama,string,"Transaksi masuk, keluar, dan penjualan."
+transaksi,metode_pembayaran,string(30),"Transaksi masuk, keluar, dan penjualan."
+transaksi,tipe_penjualan,string(30),"Transaksi masuk, keluar, dan penjualan."
+transaksi,kategori_keuangan,string(30),"Transaksi masuk, keluar, dan penjualan."
+transaksi,status_pelunasan,string(30),"Transaksi masuk, keluar, dan penjualan."
+transaksi,jatuh_tempo,date,"Transaksi masuk, keluar, dan penjualan."
+transaksi,is_taxed,boolean,"Transaksi masuk, keluar, dan penjualan."
+unit_rumah_sakit,id,id,Master unit/ruangan.
+unit_rumah_sakit,nama_unit,string(100),Master unit/ruangan.
+unit_rumah_sakit,kode_unit,string(20),Master unit/ruangan.
+unit_rumah_sakit,penanggung_jawab,string(100),Master unit/ruangan.
+unit_rumah_sakit,no_telepon,string(20),Master unit/ruangan.
+unit_rumah_sakit,lokasi,text,Master unit/ruangan.
+unit_rumah_sakit,is_active,boolean,Master unit/ruangan.
+unit_rumah_sakit,created_at,timestamp,Master unit/ruangan.
+unit_rumah_sakit,updated_at,timestamp,Master unit/ruangan.
+users,id,id,Data akun pengguna dan profil apotek.
+users,name,string,Data akun pengguna dan profil apotek.
+users,email,string,Data akun pengguna dan profil apotek.
+users,email_verified_at,timestamp,Data akun pengguna dan profil apotek.
+users,password,string,Data akun pengguna dan profil apotek.
+users,remember_token,string(100),Data akun pengguna dan profil apotek.
+users,created_at,timestamp,Data akun pengguna dan profil apotek.
+users,updated_at,timestamp,Data akun pengguna dan profil apotek.
+users,two_factor_secret,text,Data akun pengguna dan profil apotek.
+users,two_factor_recovery_codes,text,Data akun pengguna dan profil apotek.
+users,two_factor_confirmed_at,timestamp,Data akun pengguna dan profil apotek.

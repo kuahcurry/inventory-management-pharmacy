@@ -1,171 +1,238 @@
-# API Endpoints Reference
+# API Endpoints Reference (Audited)
 
-## 📊 Complete API Endpoint List
+Generated from current route/controller implementation in:
+- routes/api.php
+- app/Http/Controllers/Api/*
 
-### Authentication
-- POST `/login` - User login
-- POST `/register` - User registration
-- POST `/logout` - User logout
+All endpoints below are under auth:web middleware.
 
-### Dashboard (Analytics)
-- GET `/api/dashboard/stats` - Overall statistics
-- GET `/api/dashboard/stock-levels` - Stock level overview
-- GET `/api/dashboard/transaction-trends` - Transaction trends chart data
-- GET `/api/dashboard/expiring-soon` - Medicines expiring soon
-- GET `/api/dashboard/low-stock` - Low stock medicines
-- GET `/api/dashboard/top-medicines` - Most used medicines
-- GET `/api/dashboard/recent-transactions` - Recent transactions
-- GET `/api/dashboard/unit-requests` - Unit request summary
+## 1) Response Patterns (Important for analysis)
 
-### Medicine Management (Obat)
-- GET `/api/obat` - List all medicines (with pagination, search, filters)
-- POST `/api/obat` - Create new medicine
-- GET `/api/obat/{id}` - Get medicine details
-- PUT `/api/obat/{id}` - Update medicine
-- DELETE `/api/obat/{id}` - Delete medicine
-- GET `/api/obat/search?q={query}` - Search medicines
-- GET `/api/obat/low-stock` - Get low stock medicines
-- GET `/api/obat/{id}/batches` - Get medicine batches
-- POST `/api/obat/{id}/recalculate-stock` - Recalculate total stock
+This codebase currently uses multiple return styles:
 
-### Batch Management (FEFO)
-- GET `/api/batch` - List all batches
-- GET `/api/batch/{id}` - Get batch details
-- GET `/api/batch/expiring-soon?days=30` - Batches expiring soon
-- GET `/api/batch/expired` - Expired batches
-- POST `/api/batch/{id}/update-status` - Update batch status (quarantine, expired, etc.)
+1. Plain pagination object
+- Example: GET /api/obat, GET /api/transaksi, GET /api/hutang
+- Returns Laravel paginator JSON directly (data, links, meta)
 
-### Transactions
-- GET `/api/transaksi` - List transactions
-- POST `/api/transaksi/masuk` - Record incoming stock
-- POST `/api/transaksi/keluar` - Record outgoing stock (FEFO)
-- POST `/api/transaksi/penjualan` - Record sales
-- GET `/api/transaksi/today` - Today's transactions
-- GET `/api/transaksi/by-type/{type}` - Filter by transaction type
-- GET `/api/transaksi/{id}` - Transaction details
+2. Wrapper object
+- Example: GET /api/medicines/search, GET /api/suppliers/search
+- Returns { "data": [...] }
 
-### QR Code System
-- GET `/api/qr/generate/{batch_id}` - Generate QR code for batch
-- POST `/api/qr/scan` - Scan QR code and log
-- GET `/api/qr/scan-logs` - QR scan history
+3. Message + payload object
+- Example: POST /api/inventory/create-with-batch
+- Returns { "message": "...", "data": { ... } }
 
-### Unit Requests (Pharmacy to Departments)
-- GET `/api/permintaan` - List all requests
-- POST `/api/permintaan` - Create new request
-- GET `/api/permintaan/pending` - Pending requests
-- GET `/api/permintaan/urgent` - Urgent requests
-- POST `/api/permintaan/{id}/process` - Process request
-- POST `/api/permintaan/{id}/complete` - Complete request
-- POST `/api/permintaan/{id}/cancel` - Cancel request
-- GET `/api/permintaan/{id}` - Request details
+4. Report summary + detail object
+- Example: GET /api/reports/stock
+- Returns { "summary": {...}, "data": [...] }
 
-### Notifications (Real-time)
-- GET `/api/notifikasi` - List notifications
-- GET `/api/notifikasi/unread` - Unread notifications
-- GET `/api/notifikasi/unread-count` - Count unread
-- POST `/api/notifikasi/{id}/read` - Mark as read
-- POST `/api/notifikasi/read-all` - Mark all as read
+Use endpoint-specific parsing. Do not assume one global schema.
 
-### Prescriptions (Resep)
-- GET `/api/resep` - List prescriptions
-- POST `/api/resep` - Create prescription
-- GET `/api/resep/pending` - Pending prescriptions
-- POST `/api/resep/{id}/process` - Validate stock before dispensing
-- POST `/api/resep/{id}/complete` - Mark as dispensed
-- GET `/api/resep/{id}` - Prescription details
+## 2) High-impact audited endpoints + return values
 
-### Stock Opname (Physical Count)
-- GET `/api/stok-opname` - List stock opname records
-- POST `/api/stok-opname` - Create stock opname
-- GET `/api/stok-opname/pending-approval` - Pending approvals
-- POST `/api/stok-opname/{id}/complete` - Complete opname
-- POST `/api/stok-opname/{id}/approve` - Approve & adjust stock
-- GET `/api/stok-opname/{id}` - Opname details
+### 2.1 Inventory unified create
+- POST /api/inventory/create-with-batch
+- Success 201:
 
-### Drug Destruction (Pemusnahan Obat)
-- GET `/api/pemusnahan` - List destruction records
-- POST `/api/pemusnahan` - Create destruction record
-- GET `/api/pemusnahan/eligible` - Eligible batches for destruction
-- GET `/api/pemusnahan/pending-approval` - Pending approvals
-- POST `/api/pemusnahan/{id}/upload-ba` - Upload berita acara PDF
-- POST `/api/pemusnahan/{id}/approve` - Approve & adjust stock
-- GET `/api/pemusnahan/{id}` - Destruction details
+```json
+{
+	"message": "Obat dan batch berhasil dibuat.",
+	"data": {
+		"obat": { "id": 123, "nama_obat": "...", "kategori": {}, "jenis": {}, "satuan": {} },
+		"batch": { "id": 456, "obat_id": 123, "supplier": {} }
+	}
+}
+```
 
-### Master Data - Kategori Obat (Medicine Category)
-- GET `/api/kategori` - List categories
-- GET `/api/kategori/active` - Active categories (for dropdown)
-- POST `/api/kategori` - Create category
-- GET `/api/kategori/{id}` - Category details
-- PUT `/api/kategori/{id}` - Update category
-- DELETE `/api/kategori/{id}` - Delete category
-- POST `/api/kategori/{id}/toggle-status` - Activate/deactivate
+- Notes:
+	- existing_obat_id mode supports adding batch to existing medicine
+	- Duplicate medicine+supplier and duplicate nomor_batch (per obat) return 422
 
-### Master Data - Jenis Obat (Medicine Form)
-- GET `/api/jenis` - List forms (tablet, syrup, injection, etc.)
-- GET `/api/jenis/active` - Active forms (for dropdown)
-- POST `/api/jenis` - Create form
-- GET `/api/jenis/{id}` - Form details
-- PUT `/api/jenis/{id}` - Update form
-- DELETE `/api/jenis/{id}` - Delete form
-- POST `/api/jenis/{id}/toggle-status` - Activate/deactivate
+### 2.2 Procurement autocomplete
+- GET /api/medicines/search?q=...&supplier_id=&category_id=&limit=
+- Return:
 
-### Master Data - Satuan Obat (Unit of Measure)
-- GET `/api/satuan` - List units
-- GET `/api/satuan/active` - Active units (for dropdown)
-- POST `/api/satuan` - Create unit
-- GET `/api/satuan/{id}` - Unit details
-- PUT `/api/satuan/{id}` - Update unit
-- DELETE `/api/satuan/{id}` - Delete unit
-- POST `/api/satuan/{id}/toggle-status` - Activate/deactivate
+```json
+{
+	"data": [
+		{
+			"id": 1,
+			"kode_obat": "OBT-001",
+			"nama_obat": "...",
+			"stok_total": 100,
+			"last_buy_price": 12500,
+			"kategori": { "id": 1, "nama_kategori": "..." },
+			"satuan": { "id": 1, "nama_satuan": "..." },
+			"default_supplier": { "id": 2, "nama_supplier": "..." }
+		}
+	]
+}
+```
 
-### Master Data - Unit Rumah Sakit (Hospital Department)
-- GET `/api/unit` - List departments
-- GET `/api/unit/active` - Active departments (for dropdown)
-- POST `/api/unit` - Create department
-- GET `/api/unit/{id}` - Department details
-- GET `/api/unit/{id}/statistics` - Department request stats
-- PUT `/api/unit/{id}` - Update department
-- DELETE `/api/unit/{id}` - Delete department
-- POST `/api/unit/{id}/toggle-status` - Activate/deactivate
+- GET /api/suppliers/search?q=...&limit=
+- Return: { "data": [ { "id", "kode_supplier", "nama_supplier", "no_telepon", "status" } ] }
 
-### Supplier Management
-- GET `/api/supplier` - List suppliers
-- GET `/api/supplier/active` - Active suppliers (for dropdown)
-- POST `/api/supplier` - Create supplier
-- GET `/api/supplier/{id}` - Supplier details
-- GET `/api/supplier/{id}/statistics` - Purchase history stats
-- PUT `/api/supplier/{id}` - Update supplier
-- DELETE `/api/supplier/{id}` - Delete supplier
-- POST `/api/supplier/{id}/toggle-status` - Activate/deactivate
+### 2.3 Hutang
+- GET /api/hutang?status=unpaid|partially_paid|paid&supplier_id=&per_page=
+- Return: paginator JSON with relationships transaksi.obat, supplier, payments
 
-### User Management (Admin Only)
-- GET `/api/users` - List users
-- POST `/api/users` - Create user
-- GET `/api/users/{id}` - User details
-- PUT `/api/users/{id}` - Update user
-- DELETE `/api/users/{id}` - Delete user
-- POST `/api/users/{id}/toggle-active` - Activate/deactivate user
+- POST /api/hutang/{hutang}/pay
+- POST /api/hutang/{hutang}/partial-pay
+- Return:
 
-### Activity Logs (Admin Only)
-- GET `/api/log-aktivitas` - List activity logs
-- GET `/api/log-aktivitas/{id}` - Log details
-- GET `/api/log-aktivitas/user/{user_id}` - Logs by specific user
+```json
+{
+	"message": "...",
+	"hutang": { "id": 1, "payment_status": "...", "remaining_amount": 0, "payments": [] }
+}
+```
 
-### Reports (Manager & Admin)
-- GET `/api/reports/stock` - Stock report
-- GET `/api/reports/transactions` - Transaction report
-- GET `/api/reports/expiry` - Expiry report
-- GET `/api/reports/unit-requests` - Unit request report
-- GET `/api/reports/export/{type}` - Export to PDF/Excel (requires additional packages)
+### 2.4 Reports API
 
+- GET /api/reports/stock
 
-## 🎯 Next Steps
+```json
+{
+	"summary": {
+		"total_items": 100,
+		"low_stock_items": 8,
+		"total_value": 1234567.89
+	},
+	"data": []
+}
+```
 
-1. ✅ Backend API complete
-2. ⏳ Install QR package: `composer require simplesoftwareio/simple-qrcode`
-3. ⏳ Install real-time: `npm install laravel-echo pusher-js`
-4. ⏳ Create React frontend components
-5. ⏳ Setup Laravel Echo for WebSocket
-6. ⏳ Build dashboard with visualizations
-7. ⏳ Create QR scanner page
-8. ⏳ Implement role-based middleware
+- GET /api/reports/transactions
+
+```json
+{
+	"summary": {
+		"total_transactions": 1000,
+		"by_type": { "masuk": 100, "keluar": 700, "penjualan": 200 },
+		"total_value": { "masuk": 1, "keluar": 2, "penjualan": 3 }
+	},
+	"data": []
+}
+```
+
+- GET /api/reports/expiry
+
+```json
+{
+	"summary": {
+		"expiring_soon_count": 10,
+		"expiring_soon_value": 100000,
+		"expired_count": 3,
+		"expired_value": 45000
+	},
+	"expiring_soon": [],
+	"expired": []
+}
+```
+
+- GET /api/reports/export/{type}
+	- type: stock | transactions | expiry
+	- Default format: CSV stream download
+	- If format != csv, returns JSON payload like above
+
+### 2.5 Operational insights
+- GET /api/insights/margins
+- Return:
+
+```json
+{
+	"summary": {
+		"revenue_30d": 0,
+		"cost_30d": 0,
+		"margin_value_30d": 0,
+		"avg_margin_percentage_30d": 0
+	},
+	"per_item": [],
+	"per_batch": []
+}
+```
+
+- GET /api/insights/reorder-suggestions
+- GET /api/insights/forecasts
+- Return: { "summary": { ... }, "data": [...] }
+
+- POST /api/insights/check-interactions
+- Return: { "has_blocking": true|false, "data": [...] }
+
+## 3) Core endpoint map from routes/api.php
+
+### Onboarding
+- GET /api/onboarding/status
+- POST /api/onboarding/tutorial
+- PATCH /api/onboarding/preferences
+
+### Dashboard
+- GET /api/dashboard/stats
+- GET /api/dashboard/stock-levels
+- GET /api/dashboard/transaction-trends
+- GET /api/dashboard/expiring-soon
+- GET /api/dashboard/low-stock
+- GET /api/dashboard/top-medicines
+- GET /api/dashboard/recent-transactions
+
+### Obat, Batch, Transaksi
+- /api/obat (resource)
+- GET /api/obat/low-stock
+- GET /api/obat/search
+- GET /api/obat/{obat}/batches
+- POST /api/obat/{obat}/recalculate-stock
+- GET /api/medicines/search
+
+- /api/batch (resource)
+- GET /api/batch/expiring-soon
+- GET /api/batch/expired
+- POST /api/batch/{batch}/update-status
+
+- /api/transaksi (index, store, show)
+- GET /api/transaksi/today
+- GET /api/transaksi/by-type/{type}
+- POST /api/transaksi/masuk
+- POST /api/transaksi/keluar
+- POST /api/transaksi/penjualan
+- POST /api/transactions (alias to storePenjualan)
+
+### Procurement & debt
+- POST /api/inventory/create-with-batch
+- GET /api/hutang
+- POST /api/hutang/{hutang}/pay
+- POST /api/hutang/{hutang}/partial-pay
+
+### QR, notification, resep, stock opname, destruction
+- /api/qr/*
+- /api/notifikasi/*
+- /api/resep/*
+- /api/stok-opname/*
+- /api/pemusnahan/*
+
+### Reports & insights
+- /api/reports/*
+- /api/insights/*
+
+### Master data
+- /api/kategori-obat, /api/jenis-obat, /api/satuan-obat, /api/unit-rumah-sakit (resource)
+- /api/kategori, /api/jenis, /api/satuan, /api/unit, /api/supplier (resource + active/toggle helpers)
+- GET /api/suppliers/search (alias search)
+
+### Admin only
+- /api/users (resource) + POST /api/users/{user}/toggle-active
+- /api/log-aktivitas, /api/log-aktivitas/{log}, /api/log-aktivitas/user/{user}
+
+## 4) Financial equations used by report payloads
+
+- Margin value = revenue - cost
+- Margin percentage = (margin value / revenue) * 100, when revenue > 0
+- Stock value = stok * harga_beli
+- Expiry value at risk = stok_tersedia * harga_beli
+- Transaction total value (report API) = jumlah * harga_satuan
+
+## 5) Accuracy notes
+
+1. Some endpoints return direct model/paginator payloads, others return wrapped objects.
+2. For analytics pipelines, normalize to one internal schema before aggregation.
+3. For procurement autocomplete, minimum query length is 2 characters.
+4. Report export endpoint returns CSV stream by default.

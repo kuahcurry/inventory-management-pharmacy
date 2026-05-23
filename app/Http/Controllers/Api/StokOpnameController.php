@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\LogAktivitas;
 use App\Models\StokOpname;
 use App\Models\StokOpnameDetail;
+use App\Models\UnitRumahSakit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -53,11 +54,17 @@ class StokOpnameController extends Controller
         }
 
         return DB::transaction(function () use ($request) {
+            $unitNama = null;
+            if (filled($request->unit_id)) {
+                $unitNama = UnitRumahSakit::query()->find($request->unit_id)?->nama_unit;
+            }
+
             // Create stock opname
             $opname = StokOpname::create([
                 'tanggal_opname' => $request->tanggal_opname,
                 'penanggung_jawab' => $request->penanggung_jawab,
                 'unit_id' => $request->unit_id,
+                'unit_nama' => $unitNama,
                 'catatan' => $request->catatan,
                 'status' => StokOpname::STATUS_IN_PROGRESS,
             ]);
