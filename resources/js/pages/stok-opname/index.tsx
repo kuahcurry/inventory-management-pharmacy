@@ -42,7 +42,7 @@ interface StokOpname {
     tanggal_opname: string;
     status: 'draft' | 'in_progress' | 'completed' | 'approved';
     penanggung_jawab: User;
-    unit: Unit;
+    unit: Unit | null;
     approved_by: User | null;
     approved_at: string | null;
     catatan: string | null;
@@ -353,10 +353,14 @@ export default function StokOpnameIndex({ stokOpname, stats, units, filters }: P
                                                 <p className="text-sm">{formatDate(item.tanggal_opname)}</p>
                                             </TableCell>
                                             <TableCell>
-                                                <div>
-                                                    <p className="font-medium">{item.unit.nama_unit}</p>
-                                                    <p className="text-xs text-muted-foreground">{item.unit.kode_unit}</p>
-                                                </div>
+                                                {item.unit ? (
+                                                    <div>
+                                                        <p className="font-medium">{item.unit.nama_unit}</p>
+                                                        <p className="text-xs text-muted-foreground">{item.unit.kode_unit}</p>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-muted-foreground">Retail (tanpa unit)</span>
+                                                )}
                                             </TableCell>
                                             <TableCell>
                                                 <p className="font-medium">{item.penanggung_jawab.name}</p>
