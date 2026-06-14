@@ -42,11 +42,6 @@ interface StokOpname {
     tanggal_opname: string;
     status: 'draft' | 'in_progress' | 'completed' | 'approved';
     penanggung_jawab: User;
-    unit: Unit | null;
-<<<<<<< HEAD
-=======
-    unit_nama?: string | null;
->>>>>>> refs/remotes/origin/main
     approved_by: User | null;
     approved_at: string | null;
     catatan: string | null;
@@ -73,7 +68,6 @@ interface Stats {
 interface Filters {
     search?: string;
     status?: string;
-    unit_id?: string;
     start_date?: string;
     end_date?: string;
 }
@@ -81,7 +75,6 @@ interface Filters {
 interface Props {
     stokOpname: PaginatedData;
     stats: Stats;
-    units: Unit[];
     filters: Filters;
 }
 
@@ -90,10 +83,9 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Stok Opname', href: '/stok-opname' },
 ];
 
-export default function StokOpnameIndex({ stokOpname, stats, units, filters }: Props) {
+export default function StokOpnameIndex({ stokOpname, stats, filters }: Props) {
     const [search, setSearch] = useState(filters.search || '');
     const [status, setStatus] = useState(filters.status || '');
-    const [unitId, setUnitId] = useState(filters.unit_id || '');
     const [startDate, setStartDate] = useState(filters.start_date || '');
     const [endDate, setEndDate] = useState(filters.end_date || '');
     const [showFilters, setShowFilters] = useState(false);
@@ -111,7 +103,6 @@ export default function StokOpnameIndex({ stokOpname, stats, units, filters }: P
         router.get('/stok-opname', {
             search: search || undefined,
             status: status || undefined,
-            unit_id: unitId || undefined,
             start_date: startDate || undefined,
             end_date: endDate || undefined,
         }, {
@@ -122,7 +113,6 @@ export default function StokOpnameIndex({ stokOpname, stats, units, filters }: P
     const handleReset = () => {
         setSearch('');
         setStatus('');
-        setUnitId('');
         setStartDate('');
         setEndDate('');
         router.get('/stok-opname');
@@ -240,7 +230,7 @@ export default function StokOpnameIndex({ stokOpname, stats, units, filters }: P
                                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                                         <Input
                                             id="search"
-                                            placeholder="Nomor opname, unit..."
+                                            placeholder="Nomor opname..."
                                             value={search}
                                             onChange={(e) => setSearch(e.target.value)}
                                             onKeyDown={(e) => e.key === 'Enter' && handleFilter()}
@@ -261,23 +251,6 @@ export default function StokOpnameIndex({ stokOpname, stats, units, filters }: P
                                             <SelectItem value="in_progress">In Progress</SelectItem>
                                             <SelectItem value="completed">Selesai</SelectItem>
                                             <SelectItem value="approved">Disetujui</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="unit_id">Unit</Label>
-                                    <Select value={unitId} onValueChange={setUnitId}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Semua Unit" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="">Semua</SelectItem>
-                                            {units.map(unit => (
-                                                <SelectItem key={unit.id} value={unit.id.toString()}>
-                                                    {unit.nama_unit}
-                                                </SelectItem>
-                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -332,7 +305,6 @@ export default function StokOpnameIndex({ stokOpname, stats, units, filters }: P
                                 <TableRow>
                                     <TableHead className="w-[160px]">Nomor Opname</TableHead>
                                     <TableHead>Tanggal</TableHead>
-                                    <TableHead>Unit</TableHead>
                                     <TableHead>Penanggung Jawab</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead>Disetujui Oleh</TableHead>
@@ -342,7 +314,7 @@ export default function StokOpnameIndex({ stokOpname, stats, units, filters }: P
                             <TableBody>
                                 {stokOpname.data.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="text-center py-8">
+                                        <TableCell colSpan={6} className="text-center py-8">
                                             <ClipboardCheck className="mx-auto mb-2 size-12 text-muted-foreground" />
                                             <p className="text-muted-foreground">Belum ada stok opname</p>
                                         </TableCell>
@@ -355,23 +327,6 @@ export default function StokOpnameIndex({ stokOpname, stats, units, filters }: P
                                             </TableCell>
                                             <TableCell>
                                                 <p className="text-sm">{formatDate(item.tanggal_opname)}</p>
-                                            </TableCell>
-                                            <TableCell>
-<<<<<<< HEAD
-                                                {item.unit ? (
-                                                    <div>
-                                                        <p className="font-medium">{item.unit.nama_unit}</p>
-                                                        <p className="text-xs text-muted-foreground">{item.unit.kode_unit}</p>
-                                                    </div>
-                                                ) : (
-                                                    <span className="text-muted-foreground">Retail (tanpa unit)</span>
-                                                )}
-=======
-                                                <div>
-                                                    <p className="font-medium">{item.unit?.nama_unit ?? item.unit_nama ?? '-'}</p>
-                                                    <p className="text-xs text-muted-foreground">{item.unit?.kode_unit ?? '-'}</p>
-                                                </div>
->>>>>>> refs/remotes/origin/main
                                             </TableCell>
                                             <TableCell>
                                                 <p className="font-medium">{item.penanggung_jawab.name}</p>

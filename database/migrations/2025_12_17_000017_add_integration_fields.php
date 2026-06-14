@@ -13,7 +13,7 @@ return new class extends Migration
     {
         // Add resep_id to transaksi for prescription-based validation
         Schema::table('transaksi', function (Blueprint $table) {
-            $table->foreignId('resep_id')->nullable()->after('unit_id')->constrained('resep')->onDelete('restrict');
+            $table->foreignId('resep_id')->nullable()->after('user_id')->constrained('resep')->onDelete('restrict');
         });
 
         // Add kode formularium and BPJS mapping

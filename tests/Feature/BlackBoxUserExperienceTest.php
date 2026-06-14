@@ -7,7 +7,6 @@ use App\Models\JenisObat;
 use App\Models\KategoriObat;
 use App\Models\Obat;
 use App\Models\SatuanObat;
-use App\Models\UnitRumahSakit;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -37,56 +36,6 @@ class BlackBoxUserExperienceTest extends TestCase
             ->assertJsonPath('message', 'Jenis laporan tidak dikenali.');
     }
 
-    public function test_api_unit_store_accepts_legacy_payload_keys(): void
-    {
-        $user = User::factory()->create();
-
-        $this->actingAs($user)
-            ->postJson('/api/unit-rumah-sakit', [
-                'kode' => 'UGD01',
-                'nama' => 'Unit Gawat Darurat',
-                'lokasi' => 'Lantai 1',
-                'is_active' => true,
-            ])
-            ->assertCreated()
-            ->assertJsonPath('data.kode_unit', 'UGD01')
-            ->assertJsonPath('data.nama_unit', 'Unit Gawat Darurat');
-    }
-
-    public function test_web_unit_page_supports_create_and_delete_flow(): void
-    {
-        $user = User::factory()->create();
-
-        $this->actingAs($user)
-            ->get('/unit-rumah-sakit')
-            ->assertOk();
-
-        $this->actingAs($user)
-            ->post('/unit-rumah-sakit', [
-                'kode_unit' => 'RAW01',
-                'nama_unit' => 'Rawat Jalan',
-                'lokasi' => 'Lantai 2',
-                'penanggung_jawab' => 'dr. Sinta',
-                'no_telepon' => '021123456',
-                'is_active' => true,
-            ])
-            ->assertRedirect('/unit-rumah-sakit');
-
-        $this->assertDatabaseHas('unit_rumah_sakit', [
-            'kode_unit' => 'RAW01',
-            'nama_unit' => 'Rawat Jalan',
-        ]);
-
-        $unit = UnitRumahSakit::query()->where('kode_unit', 'RAW01')->firstOrFail();
-
-        $this->actingAs($user)
-            ->delete('/unit-rumah-sakit/'.$unit->id)
-            ->assertRedirect('/unit-rumah-sakit');
-
-        $this->assertDatabaseMissing('unit_rumah_sakit', [
-            'id' => $unit->id,
-        ]);
-    }
 
     public function test_kasir_transfer_requires_bank_information(): void
     {

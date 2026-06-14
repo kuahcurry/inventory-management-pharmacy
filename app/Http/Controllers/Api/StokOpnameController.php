@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\LogAktivitas;
 use App\Models\StokOpname;
 use App\Models\StokOpnameDetail;
-use App\Models\UnitRumahSakit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +21,7 @@ class StokOpnameController extends Controller
         $perPage = $request->get('per_page', 15);
         $status = $request->get('status');
 
-        $query = StokOpname::with(['penanggungJawab', 'approvedBy', 'unit'])
+        $query = StokOpname::with(['penanggungJawab', 'approvedBy'])
             ->latest('tanggal_opname');
 
         if ($status) {
@@ -42,7 +41,6 @@ class StokOpnameController extends Controller
         $validator = Validator::make($request->all(), [
             'tanggal_opname' => 'required|date',
             'penanggung_jawab' => 'required|exists:users,id',
-            'unit_id' => 'nullable|exists:unit_rumah_sakit,id',
             'catatan' => 'nullable|string',
             'details' => 'required|array|min:1',
             'details.*.batch_id' => 'required|exists:batch_obat,id',
@@ -54,17 +52,10 @@ class StokOpnameController extends Controller
         }
 
         return DB::transaction(function () use ($request) {
-            $unitNama = null;
-            if (filled($request->unit_id)) {
-                $unitNama = UnitRumahSakit::query()->find($request->unit_id)?->nama_unit;
-            }
-
             // Create stock opname
             $opname = StokOpname::create([
                 'tanggal_opname' => $request->tanggal_opname,
                 'penanggung_jawab' => $request->penanggung_jawab,
-                'unit_id' => $request->unit_id,
-                'unit_nama' => $unitNama,
                 'catatan' => $request->catatan,
                 'status' => StokOpname::STATUS_IN_PROGRESS,
             ]);
@@ -99,7 +90,7 @@ class StokOpnameController extends Controller
      */
     public function show(StokOpname $stokOpname): JsonResponse
     {
-        $stokOpname->load(['details.batch.obat', 'penanggungJawab', 'approvedBy', 'unit']);
+        $stokOpname->load(['details.batch.obat', 'penanggungJawab', 'approvedBy']);
         
         return response()->json($stokOpname);
     }
@@ -166,7 +157,7 @@ class StokOpnameController extends Controller
      */
     public function pendingApproval(Request $request): JsonResponse
     {
-        $opname = StokOpname::with(['penanggungJawab', 'unit'])
+        $opname = StokOpname::with(['penanggungJawab'])
             ->pendingApproval()
             ->latest('tanggal_opname')
             ->get();

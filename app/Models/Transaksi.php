@@ -28,7 +28,6 @@ class Transaksi extends Model
         'obat_id',
         'batch_id',
         'user_id',
-        'unit_id',
         'resep_id',
         'supplier_id',
         'jenis_transaksi',
@@ -172,14 +171,6 @@ class Transaksi extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
-    }
-
-    /**
-     * Get the hospital unit for this transaction
-     */
-    public function unit(): BelongsTo
-    {
-        return $this->belongsTo(UnitRumahSakit::class, 'unit_id');
     }
 
     /**

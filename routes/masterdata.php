@@ -22,7 +22,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // Supplier
     Route::resource('supplier', \App\Http\Controllers\SupplierController::class);
-    
-    // Unit Rumah Sakit (kept for backend compatibility)
-    Route::resource('unit-rumah-sakit', \App\Http\Controllers\UnitRumahSakitController::class);
 });

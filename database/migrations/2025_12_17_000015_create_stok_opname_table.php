@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('nomor_opname', 50)->unique();
             $table->date('tanggal_opname');
             $table->foreignId('penanggung_jawab')->constrained('users')->onDelete('restrict')->comment('Apoteker PJ');
-            $table->foreignId('unit_id')->nullable()->constrained('unit_rumah_sakit')->onDelete('restrict');
             $table->enum('status', ['draft', 'in_progress', 'completed', 'approved'])->default('draft');
             $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('restrict');
             $table->timestamp('approved_at')->nullable();

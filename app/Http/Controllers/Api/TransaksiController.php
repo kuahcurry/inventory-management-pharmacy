@@ -28,7 +28,7 @@ class TransaksiController extends Controller
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
 
-        $query = Transaksi::with(['obat', 'batch', 'user', 'unit', 'hutang'])
+        $query = Transaksi::with(['obat', 'batch', 'user', 'hutang'])
             ->latest('tanggal_transaksi')
             ->latest('waktu_transaksi');
 
@@ -50,7 +50,7 @@ class TransaksiController extends Controller
      */
     public function show(Transaksi $transaksi): JsonResponse
     {
-        $transaksi->load(['obat', 'batch', 'user', 'unit', 'hutang']);
+        $transaksi->load(['obat', 'batch', 'user', 'hutang']);
         
         return response()->json($transaksi);
     }
@@ -123,7 +123,6 @@ class TransaksiController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'obat_id' => 'required|exists:obat,id',
-            'unit_id' => 'required|exists:unit_rumah_sakit,id',
             'jumlah' => 'required|integer|min:1',
             'keterangan' => 'nullable|string',
         ]);
@@ -161,7 +160,6 @@ class TransaksiController extends Controller
                     'obat_id' => $obat->id,
                     'batch_id' => $batch->id,
                     'user_id' => auth()->id(),
-                    'unit_id' => $request->unit_id,
                     'jenis_transaksi' => Transaksi::JENIS_KELUAR,
                     'jumlah' => $takeFromBatch,
                     'harga_satuan' => $obat->harga_jual,
@@ -341,7 +339,7 @@ class TransaksiController extends Controller
      */
     public function today(Request $request): JsonResponse
     {
-        $transaksi = Transaksi::with(['obat', 'batch', 'user', 'unit'])
+        $transaksi = Transaksi::with(['obat', 'batch', 'user'])
             ->with('hutang')
             ->today()
             ->latest('waktu_transaksi')
@@ -357,7 +355,7 @@ class TransaksiController extends Controller
     {
         $perPage = $request->get('per_page', 15);
         
-        $transaksi = Transaksi::with(['obat', 'batch', 'user', 'unit', 'hutang'])
+        $transaksi = Transaksi::with(['obat', 'batch', 'user', 'hutang'])
             ->where('jenis_transaksi', $type)
             ->latest('tanggal_transaksi')
             ->latest('waktu_transaksi')

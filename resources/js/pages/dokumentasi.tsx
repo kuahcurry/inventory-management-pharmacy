@@ -338,16 +338,6 @@ export default function Dokumentasi() {
                                 <div className="grid gap-4 md:grid-cols-2">
                                     <div>
                                         <h4 className="mb-2 flex items-center gap-2 font-semibold">
-                                            <Activity className="size-4" />
-                                            Permintaan Unit
-                                        </h4>
-                                        <p className="text-sm text-muted-foreground">
-                                            Unit rumah sakit dapat membuat permintaan obat ke apotek dengan workflow 
-                                            approval (pending → diproses → selesai)
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <h4 className="mb-2 flex items-center gap-2 font-semibold">
                                             <ClipboardCheck className="size-4" />
                                             Stok Opname
                                         </h4>
@@ -406,7 +396,6 @@ export default function Dokumentasi() {
                                         <li>Lengkapi jenis obat (contoh: Tablet, Kapsul, Sirup)</li>
                                         <li>Lengkapi satuan obat (contoh: Strip, Botol, Box)</li>
                                         <li>Tambahkan data supplier</li>
-                                        <li>Tambahkan unit rumah sakit jika belum ada</li>
                                     </ol>
                                 </div>
 
@@ -560,9 +549,6 @@ export default function Dokumentasi() {
                                             </div>
                                             <div className="font-mono">
                                                 <span className="text-blue-600">stok_opname</span> - Perhitungan fisik
-                                            </div>
-                                            <div className="font-mono">
-                                                <span className="text-blue-600">permintaan_unit</span> - Permintaan dari unit
                                             </div>
                                             <div className="font-mono">
                                                 <span className="text-blue-600">pemusnahan_obat</span> - Dokumentasi pemusnahan

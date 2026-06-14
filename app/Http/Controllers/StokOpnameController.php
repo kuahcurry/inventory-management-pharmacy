@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\StokOpname;
 use App\Models\BatchObat;
-use App\Models\UnitRumahSakit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -17,17 +16,12 @@ class StokOpnameController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = StokOpname::with(['penanggungJawab', 'approvedBy', 'unit'])
+        $query = StokOpname::with(['penanggungJawab', 'approvedBy'])
             ->latest('tanggal_opname');
 
         // Filter by status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
-        }
-
-        // Filter by unit
-        if ($request->filled('unit_id')) {
-            $query->where('unit_id', $request->unit_id);
         }
 
         // Filter by date range
@@ -38,15 +32,10 @@ class StokOpnameController extends Controller
             $query->whereDate('tanggal_opname', '<=', $request->end_date);
         }
 
-        // Search by nomor opname or unit name
+        // Search by nomor opname
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('nomor_opname', 'like', "%{$search}%")
-                  ->orWhereHas('unit', function ($q) use ($search) {
-                      $q->where('nama_unit', 'like', "%{$search}%");
-                  });
-            });
+            $query->where('nomor_opname', 'like', "%{$search}%");
         }
 
         $stokOpname = $query->paginate(20)->withQueryString();
@@ -59,15 +48,10 @@ class StokOpnameController extends Controller
             'total_approved' => StokOpname::where('status', StokOpname::STATUS_APPROVED)->count(),
         ];
 
-        $units = UnitRumahSakit::where('is_active', true)
-            ->orderBy('nama_unit')
-            ->get(['id', 'nama_unit', 'kode_unit']);
-
         return Inertia::render('stok-opname/index', [
             'stokOpname' => $stokOpname,
             'stats' => $stats,
-            'units' => $units,
-            'filters' => $request->only(['search', 'status', 'unit_id', 'start_date', 'end_date']),
+            'filters' => $request->only(['search', 'status', 'start_date', 'end_date']),
         ]);
     }
 
@@ -76,9 +60,6 @@ class StokOpnameController extends Controller
      */
     public function create(): Response
     {
-        $units = UnitRumahSakit::where('is_active', true)
-            ->orderBy('nama_unit')
-            ->get(['id', 'nama_unit', 'kode_unit']);
 
         // Get all batches with available stock
         $batches = BatchObat::with(['obat.kategori', 'obat.satuan'])
@@ -103,7 +84,6 @@ class StokOpnameController extends Controller
             });
 
         return Inertia::render('stok-opname/create', [
-            'units' => $units,
             'batches' => $batches,
         ]);
     }
@@ -114,7 +94,6 @@ class StokOpnameController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'unit_id' => 'required|exists:unit_rumah_sakit,id',
             'tanggal_opname' => 'required|date',
             'catatan' => 'nullable|string',
             'details' => 'required|array|min:1',
@@ -125,14 +104,10 @@ class StokOpnameController extends Controller
 
         DB::beginTransaction();
         try {
-            $unit = UnitRumahSakit::query()->findOrFail($validated['unit_id']);
-
             // Create stock opname
             $opname = StokOpname::create([
                 'tanggal_opname' => $validated['tanggal_opname'],
                 'penanggung_jawab' => auth()->id(),
-                'unit_id' => $validated['unit_id'],
-                'unit_nama' => $unit->nama_unit,
                 'status' => StokOpname::STATUS_DRAFT,
                 'catatan' => $validated['catatan'],
             ]);
@@ -169,7 +144,6 @@ class StokOpnameController extends Controller
             'details.batch.obat.satuan',
             'penanggungJawab',
             'approvedBy',
-            'unit'
         ]);
 
         return Inertia::render('stok-opname/show', [
@@ -191,12 +165,7 @@ class StokOpnameController extends Controller
         $stokOpname->load([
             'details.batch.obat.kategori',
             'details.batch.obat.satuan',
-            'unit'
         ]);
-
-        $units = UnitRumahSakit::where('is_active', true)
-            ->orderBy('nama_unit')
-            ->get(['id', 'nama_unit', 'kode_unit']);
 
         $batches = BatchObat::with(['obat.kategori', 'obat.satuan'])
             ->where('stok_tersedia', '>', 0)
@@ -221,7 +190,6 @@ class StokOpnameController extends Controller
 
         return Inertia::render('stok-opname/edit', [
             'stokOpname' => $stokOpname,
-            'units' => $units,
             'batches' => $batches,
         ]);
     }
@@ -237,7 +205,6 @@ class StokOpnameController extends Controller
         }
 
         $validated = $request->validate([
-            'unit_id' => 'required|exists:unit_rumah_sakit,id',
             'tanggal_opname' => 'required|date',
             'catatan' => 'nullable|string',
             'details' => 'required|array|min:1',
@@ -248,12 +215,8 @@ class StokOpnameController extends Controller
 
         DB::beginTransaction();
         try {
-            $unit = UnitRumahSakit::query()->findOrFail($validated['unit_id']);
-
             $stokOpname->update([
                 'tanggal_opname' => $validated['tanggal_opname'],
-                'unit_id' => $validated['unit_id'],
-                'unit_nama' => $unit->nama_unit,
                 'catatan' => $validated['catatan'],
             ]);
 

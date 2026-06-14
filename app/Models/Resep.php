@@ -26,7 +26,6 @@ class Resep extends Model
         'nomor_referensi',
         'nama_pelanggan',
         'nama_dokter',
-        'unit_id',
         'tanggal_resep',
         'kategori_pelanggan',
         'metode_pembayaran',
@@ -64,14 +63,6 @@ class Resep extends Model
         $date = now()->format('Ymd');
         $random = strtoupper(Str::random(4));
         return "{$prefix}-{$date}-{$random}";
-    }
-
-    /**
-     * Get the hospital unit
-     */
-    public function unit(): BelongsTo
-    {
-        return $this->belongsTo(UnitRumahSakit::class, 'unit_id');
     }
 
     /**

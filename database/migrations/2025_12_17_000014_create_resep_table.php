@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('nomor_rm', 50)->comment('Nomor Rekam Medis pasien');
             $table->string('nama_pasien', 200);
             $table->string('nama_dokter', 200);
-            $table->foreignId('unit_id')->nullable()->constrained('unit_rumah_sakit')->onDelete('restrict');
             $table->date('tanggal_resep');
             $table->enum('jenis_pasien', ['rawat_jalan', 'rawat_inap', 'igd'])->default('rawat_jalan');
             $table->enum('cara_bayar', ['umum', 'bpjs', 'asuransi'])->default('umum');

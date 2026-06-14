@@ -24,8 +24,6 @@ class StokOpname extends Model
         'nomor_opname',
         'tanggal_opname',
         'penanggung_jawab',
-        'unit_id',
-        'unit_nama',
         'status',
         'approved_by',
         'approved_at',
@@ -77,14 +75,6 @@ class StokOpname extends Model
     public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
-    }
-
-    /**
-     * Get the hospital unit
-     */
-    public function unit(): BelongsTo
-    {
-        return $this->belongsTo(UnitRumahSakit::class, 'unit_id');
     }
 
     /**

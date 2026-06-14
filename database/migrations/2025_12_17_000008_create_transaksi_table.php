@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('obat_id')->constrained('obat')->onDelete('restrict');
             $table->foreignId('batch_id')->nullable()->constrained('batch_obat')->onDelete('restrict');
             $table->foreignId('user_id')->constrained('users')->onDelete('restrict')->comment('User yang melakukan transaksi');
-            $table->foreignId('unit_id')->nullable()->constrained('unit_rumah_sakit')->onDelete('restrict')->comment('Unit tujuan jika keluar');
             $table->enum('jenis_transaksi', ['masuk', 'keluar', 'penjualan'])->comment('masuk: restocking, keluar: dispensing ke unit, penjualan: penjualan langsung');
             $table->integer('jumlah');
             $table->decimal('harga_satuan', 15, 2)->default(0);

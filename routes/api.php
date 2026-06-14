@@ -19,7 +19,6 @@ use App\Http\Controllers\Api\SatuanObatController;
 use App\Http\Controllers\Api\StokOpnameController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\TransaksiController;
-use App\Http\Controllers\Api\UnitRumahSakitController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -77,15 +76,6 @@ Route::middleware(['auth:web'])->group(function () {
         'show' => 'api.satuan-obat.show',
         'update' => 'api.satuan-obat.update',
         'destroy' => 'api.satuan-obat.destroy',
-    ]);
-
-    // Master Data - Unit Rumah Sakit
-    Route::apiResource('unit-rumah-sakit', UnitRumahSakitController::class)->names([
-        'index' => 'api.unit-rumah-sakit.index',
-        'store' => 'api.unit-rumah-sakit.store',
-        'show' => 'api.unit-rumah-sakit.show',
-        'update' => 'api.unit-rumah-sakit.update',
-        'destroy' => 'api.unit-rumah-sakit.destroy',
     ]);
 
     // Obat (Medicine)
@@ -255,19 +245,6 @@ Route::middleware(['auth:web'])->group(function () {
         'show' => 'api.satuan.show',
         'update' => 'api.satuan.update',
         'destroy' => 'api.satuan.destroy',
-    ]);
-
-    Route::prefix('unit')->group(function () {
-        Route::get('/active', [UnitRumahSakitController::class, 'active'])->name('api.unit.active');
-        Route::get('/{unitRumahSakit}/statistics', [UnitRumahSakitController::class, 'statistics'])->name('api.unit.statistics');
-        Route::post('/{unitRumahSakit}/toggle-status', [UnitRumahSakitController::class, 'toggleStatus'])->name('api.unit.toggle-status');
-    });
-    Route::apiResource('unit', UnitRumahSakitController::class)->names([
-        'index' => 'api.unit.index',
-        'store' => 'api.unit.store',
-        'show' => 'api.unit.show',
-        'update' => 'api.unit.update',
-        'destroy' => 'api.unit.destroy',
     ]);
 
     Route::prefix('supplier')->group(function () {

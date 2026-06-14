@@ -11,7 +11,6 @@ use App\Models\Resep;
 use App\Models\SatuanObat;
 use App\Models\StokOpname;
 use App\Models\StokOpnameDetail;
-use App\Models\UnitRumahSakit;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -162,12 +161,10 @@ class BlackBoxRemainingCoverageTest extends TestCase
     public function test_stok_opname_full_flow_updates_batch_stock_after_approval(): void
     {
         $user = User::factory()->create();
-        $unit = $this->createUnit();
         $batch = $this->createBatchWithMedicine(20, 15000, 'SOFLOW');
 
         $this->actingAs($user)
             ->post(route('stok-opname.store'), [
-                'unit_id' => $unit->id,
                 'tanggal_opname' => now()->toDateString(),
                 'catatan' => 'Opname mingguan',
                 'details' => [[
@@ -216,12 +213,10 @@ class BlackBoxRemainingCoverageTest extends TestCase
     {
         $user = User::factory()->create();
         $batch = $this->createBatchWithMedicine(12, 10000, 'SODTL');
-        $unit = $this->createUnit('SOU02');
 
         $opname = StokOpname::query()->create([
             'tanggal_opname' => now()->toDateString(),
             'penanggung_jawab' => $user->id,
-            'unit_id' => $unit->id,
             'status' => StokOpname::STATUS_DRAFT,
             'catatan' => 'Detail selisih',
         ]);
@@ -245,13 +240,11 @@ class BlackBoxRemainingCoverageTest extends TestCase
     public function test_stok_opname_approval_requires_login(): void
     {
         $batch = $this->createBatchWithMedicine(12, 10000, 'SOAUTH');
-        $unit = $this->createUnit('SOU03');
         $user = User::factory()->create();
 
         $opname = StokOpname::query()->create([
             'tanggal_opname' => now()->toDateString(),
             'penanggung_jawab' => $user->id,
-            'unit_id' => $unit->id,
             'status' => StokOpname::STATUS_COMPLETED,
             'catatan' => 'Approval harus login',
         ]);
@@ -384,15 +377,5 @@ class BlackBoxRemainingCoverageTest extends TestCase
         ]);
     }
 
-    private function createUnit(string $kode = 'SOU01'): UnitRumahSakit
-    {
-        return UnitRumahSakit::query()->create([
-            'kode_unit' => $kode,
-            'nama_unit' => 'Unit '.$kode,
-            'lokasi' => 'Lantai 1',
-            'penanggung_jawab' => 'Apoteker Test',
-            'no_telepon' => '021555777',
-            'is_active' => true,
-        ]);
-    }
+
 }
