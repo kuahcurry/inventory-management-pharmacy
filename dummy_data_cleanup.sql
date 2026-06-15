@@ -67,8 +67,8 @@ DELETE FROM batch_obat
 WHERE nomor_batch LIKE 'B-EXP-DMY26-%'
   AND catatan = 'DMY26-near-expiry';
 
-DELETE FROM unit_rumah_sakit
-WHERE kode_unit IN ('FAR-UTM-01', 'FAR-UTM-02', 'FAR-UTM-03');
+DELETE FROM log_aktivitas
+WHERE ip_address = '127.0.0.9';
 
 -- 4) Check remaining dummy rows (should all be 0)
 SELECT 'transaksi' AS entity, COUNT(*) AS total FROM transaksi WHERE kode_transaksi LIKE 'DMY26-%'

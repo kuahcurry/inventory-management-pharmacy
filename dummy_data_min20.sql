@@ -82,6 +82,9 @@ DELETE FROM batch_obat
 WHERE nomor_batch LIKE 'B-EXP-DMY26-%'
   AND catatan = 'DMY26-near-expiry';
 
+DELETE FROM log_aktivitas
+WHERE ip_address = '127.0.0.9';
+
 -- ------------------------------------------------------------------
 -- Ensure every obat has at least one batch
 -- ------------------------------------------------------------------
@@ -122,6 +125,32 @@ INSERT INTO tmp_num (n) VALUES
 (41),(42),(43),(44),(45),(46),(47),(48),(49),(50);
 
 -- ------------------------------------------------------------------
+-- Make some obat have critical stock (stok_total <= stok_minimum)
+-- ------------------------------------------------------------------
+UPDATE batch_obat b
+JOIN (
+  SELECT id FROM obat WHERE deleted_at IS NULL ORDER BY id ASC LIMIT 7
+) o ON b.obat_id = o.id
+SET b.stok_tersedia = CASE o.id
+  WHEN 1 THEN 5
+  WHEN 2 THEN 2
+  WHEN 3 THEN 0
+  WHEN 4 THEN 8
+  WHEN 5 THEN 10
+  WHEN 6 THEN 3
+  ELSE 1
+END
+WHERE b.status = 'active';
+
+UPDATE obat o
+SET o.stok_total = (
+  SELECT COALESCE(SUM(b.stok_tersedia), 0)
+  FROM batch_obat b
+  WHERE b.obat_id = o.id AND b.status = 'active' AND b.deleted_at IS NULL
+)
+WHERE o.id IN (1,2,3,4,5,6,7);
+
+-- ------------------------------------------------------------------
 -- Pick 20 active batches as seed backbone
 -- ------------------------------------------------------------------
 DROP TEMPORARY TABLE IF EXISTS tmp_seed_map;
@@ -151,6 +180,8 @@ WHERE b.deleted_at IS NULL
 ORDER BY b.id
 LIMIT 50;
 
+SET @seed_count = (SELECT COUNT(*) FROM tmp_seed_map);
+
 -- ------------------------------------------------------------------
 -- Near-expiry batches for expiry report (7 obat)
 -- ------------------------------------------------------------------
@@ -176,7 +207,7 @@ SELECT
   @now_ts,
   @now_ts
 FROM tmp_num n
-JOIN tmp_seed_map m ON m.rn = n.n
+JOIN tmp_seed_map m ON m.rn = (MOD(n.n - 1, @seed_count) + 1)
 WHERE n.n <= 7;
 
 -- ------------------------------------------------------------------
@@ -184,7 +215,7 @@ WHERE n.n <= 7;
 -- ------------------------------------------------------------------
 INSERT INTO resep
 (
-  nomor_resep, nomor_referensi, nama_pelanggan, nama_dokter, unit_id, tanggal_resep,
+  nomor_resep, nomor_referensi, nama_pelanggan, nama_dokter, tanggal_resep,
   kategori_pelanggan, metode_pembayaran, status, processed_by, processed_at,
   catatan, created_at, updated_at
 )
@@ -220,7 +251,6 @@ SELECT
     WHEN 3 THEN 'dr. Budi Santoso'
     ELSE 'dr. Maya Lestari'
   END,
-  NULL,
   DATE_SUB(@today, INTERVAL (20 - n.n) DAY),
   CASE MOD(n.n, 3)
     WHEN 1 THEN 'reguler'
@@ -265,7 +295,7 @@ SELECT
   @now_ts,
   @now_ts
 FROM tmp_num n
-JOIN tmp_seed_map m ON m.rn = n.n
+JOIN tmp_seed_map m ON m.rn = (MOD(n.n - 1, @seed_count) + 1)
 JOIN resep r ON r.nomor_resep = CONCAT('RSP-DMY26-', LPAD(n.n, 4, '0'));
 
 INSERT INTO resep_detail
@@ -283,7 +313,7 @@ SELECT
   @now_ts,
   @now_ts
 FROM tmp_num n
-JOIN tmp_seed_map m2 ON m2.rn = CASE WHEN n.n = 20 THEN 1 ELSE n.n + 1 END
+JOIN tmp_seed_map m2 ON m2.rn = (MOD(n.n, @seed_count) + 1)
 JOIN resep r ON r.nomor_resep = CONCAT('RSP-DMY26-', LPAD(n.n, 4, '0'));
 
 -- ------------------------------------------------------------------
@@ -291,7 +321,7 @@ JOIN resep r ON r.nomor_resep = CONCAT('RSP-DMY26-', LPAD(n.n, 4, '0'));
 -- ------------------------------------------------------------------
 INSERT INTO transaksi
 (
-  kode_transaksi, obat_id, batch_id, user_id, unit_id, resep_id, jenis_transaksi,
+  kode_transaksi, obat_id, batch_id, user_id, resep_id, jenis_transaksi,
   jumlah, harga_satuan, total_harga, tanggal_transaksi, waktu_transaksi,
   keterangan, nomor_referensi, supplier_id, supplier_nama,
   pelanggan_nama, dokter_nama, sales_nama, operator_nama, kasir_nama,
@@ -305,12 +335,15 @@ SELECT
   m.batch_id,
   @user_primary,
   NULL,
-  NULL,
   'masuk',
   10 + n.n,
   m.harga_beli,
   (10 + n.n) * m.harga_beli,
-  DATE_SUB(@today, INTERVAL (40 - n.n) DAY),
+  CASE
+    WHEN n.n <= 5 THEN @today
+    WHEN n.n <= 10 THEN DATE_SUB(@today, INTERVAL 1 DAY)
+    ELSE DATE_SUB(@today, INTERVAL MOD(n.n, 7) DAY)
+  END,
   '08:00:00',
   'Dummy transaksi barang masuk',
   CONCAT('PO-DMY26-', LPAD(n.n, 4, '0')),
@@ -334,14 +367,15 @@ SELECT
   @now_ts,
   @now_ts
 FROM tmp_num n
-JOIN tmp_seed_map m ON m.rn = n.n;
+JOIN tmp_seed_map m ON m.rn = (MOD(n.n - 1, @seed_count) + 1)
+WHERE n.n <= 20;
 
 -- ------------------------------------------------------------------
 -- 4b) TRANSAKSI PENJUALAN KASIR (20) + PPN 11% + 4 transaksi diskon
 -- ------------------------------------------------------------------
 INSERT INTO transaksi
 (
-  kode_transaksi, obat_id, batch_id, user_id, unit_id, resep_id, jenis_transaksi,
+  kode_transaksi, obat_id, batch_id, user_id, resep_id, jenis_transaksi,
   jumlah, harga_satuan, total_harga, tanggal_transaksi, waktu_transaksi,
   keterangan, nomor_referensi, supplier_id, supplier_nama,
   pelanggan_nama, dokter_nama, sales_nama, operator_nama, kasir_nama,
@@ -354,7 +388,6 @@ SELECT
   m.obat_id,
   m.batch_id,
   @user_primary,
-  NULL,
   r.id,
   'penjualan',
   1 + MOD(n.n, 2),
@@ -369,7 +402,11 @@ SELECT
     ) * 1.11,
     2
   ),
-  DATE_SUB(@today, INTERVAL (12 - MOD(n.n, 12)) DAY),
+  CASE
+    WHEN n.n <= 5 THEN @today
+    WHEN n.n <= 10 THEN DATE_SUB(@today, INTERVAL 1 DAY)
+    ELSE DATE_SUB(@today, INTERVAL MOD(n.n, 7) DAY)
+  END,
   '14:00:00',
   CONCAT(
     'Checkout kasir | Mode: Penjualan | Diskon: ',
@@ -433,7 +470,7 @@ SELECT
   @now_ts,
   @now_ts
 FROM tmp_num n
-JOIN tmp_seed_map m ON m.rn = n.n
+JOIN tmp_seed_map m ON m.rn = (MOD(n.n - 1, @seed_count) + 1)
 JOIN resep r ON r.nomor_resep = CONCAT('RSP-DMY26-', LPAD(n.n, 4, '0'));
 
 -- ------------------------------------------------------------------
@@ -441,7 +478,7 @@ JOIN resep r ON r.nomor_resep = CONCAT('RSP-DMY26-', LPAD(n.n, 4, '0'));
 -- ------------------------------------------------------------------
 INSERT INTO transaksi
 (
-  kode_transaksi, obat_id, batch_id, user_id, unit_id, resep_id, jenis_transaksi,
+  kode_transaksi, obat_id, batch_id, user_id, resep_id, jenis_transaksi,
   jumlah, harga_satuan, total_harga, tanggal_transaksi, waktu_transaksi,
   keterangan, nomor_referensi, supplier_id, supplier_nama,
   pelanggan_nama, dokter_nama, sales_nama, operator_nama, kasir_nama,
@@ -455,12 +492,15 @@ SELECT
   m.batch_id,
   @user_primary,
   NULL,
-  NULL,
   'keluar',
   2 + MOD(n.n, 4),
   m.harga_jual,
   (2 + MOD(n.n, 4)) * m.harga_jual,
-  DATE_SUB(@today, INTERVAL (20 - n.n) DAY),
+  CASE
+    WHEN n.n <= 5 THEN @today
+    WHEN n.n <= 10 THEN DATE_SUB(@today, INTERVAL 1 DAY)
+    ELSE DATE_SUB(@today, INTERVAL MOD(n.n, 7) DAY)
+  END,
   '10:00:00',
   'Dummy transaksi barang keluar retail',
   CONCAT('REQ-DMY26-', LPAD(n.n, 4, '0')),
@@ -484,14 +524,15 @@ SELECT
   @now_ts,
   @now_ts
 FROM tmp_num n
-JOIN tmp_seed_map m ON m.rn = n.n;
+JOIN tmp_seed_map m ON m.rn = (MOD(n.n - 1, @seed_count) + 1)
+WHERE n.n <= 20;
 
 -- ------------------------------------------------------------------
 -- 5) HUTANG SUITE (20 hutang transactions + hutang + payments)
 -- ------------------------------------------------------------------
 INSERT INTO transaksi
 (
-  kode_transaksi, obat_id, batch_id, user_id, unit_id, resep_id, jenis_transaksi,
+  kode_transaksi, obat_id, batch_id, user_id, resep_id, jenis_transaksi,
   jumlah, harga_satuan, total_harga, tanggal_transaksi, waktu_transaksi,
   keterangan, nomor_referensi, supplier_id, supplier_nama,
   pelanggan_nama, dokter_nama, sales_nama, operator_nama, kasir_nama,
@@ -504,13 +545,16 @@ SELECT
   m.obat_id,
   m.batch_id,
   @user_primary,
-  NULL,
   r.id,
   'penjualan',
   1 + MOD(n.n, 3),
   m.harga_jual,
   (1 + MOD(n.n, 3)) * m.harga_jual,
-  DATE_SUB(@today, INTERVAL (15 - n.n) DAY),
+  CASE
+    WHEN n.n <= 5 THEN @today
+    WHEN n.n <= 10 THEN DATE_SUB(@today, INTERVAL 1 DAY)
+    ELSE DATE_SUB(@today, INTERVAL MOD(n.n, 7) DAY)
+  END,
   '13:00:00',
   'Dummy transaksi hutang suite',
   CONCAT('INV-DMY26-', LPAD(n.n, 4, '0')),
@@ -542,7 +586,7 @@ SELECT
   @now_ts,
   @now_ts
 FROM tmp_num n
-JOIN tmp_seed_map m ON m.rn = n.n
+JOIN tmp_seed_map m ON m.rn = (MOD(n.n - 1, @seed_count) + 1)
 JOIN resep r ON r.nomor_resep = CONCAT('RSP-DMY26-', LPAD(n.n, 4, '0'));
 
 INSERT INTO hutang
@@ -662,7 +706,7 @@ FROM tmp_num n;
 -- ------------------------------------------------------------------
 INSERT INTO transaksi
 (
-  kode_transaksi, obat_id, batch_id, user_id, unit_id, resep_id, jenis_transaksi,
+  kode_transaksi, obat_id, batch_id, user_id, resep_id, jenis_transaksi,
   jumlah, harga_satuan, total_harga, tanggal_transaksi, waktu_transaksi,
   keterangan, nomor_referensi, supplier_id, supplier_nama,
   pelanggan_nama, dokter_nama, sales_nama, operator_nama, kasir_nama,
@@ -676,12 +720,11 @@ SELECT
   m.batch_id,
   @user_primary,
   NULL,
-  NULL,
   'penjualan',
   24 + MOD(n.n, 17),
   ROUND(GREATEST(m.harga_jual * 1.08, m.harga_beli * 1.18), 2),
   ROUND((24 + MOD(n.n, 17)) * ROUND(GREATEST(m.harga_jual * 1.08, m.harga_beli * 1.18), 2) * 1.11, 2),
-  DATE_SUB(@today, INTERVAL (14 - n.n) DAY),
+  DATE_SUB(@today, INTERVAL MOD(n.n, 7) DAY),
   '15:30:00',
   'DMY26-boost-profit-realistis | Penjualan volume puluhan item | PPN: 11% | Diskon: 0%',
   CONCAT('BOOST-DMY26-', LPAD(n.n, 4, '0')),
@@ -755,7 +798,7 @@ SELECT
   @now_ts,
   @now_ts
 FROM tmp_num n
-JOIN tmp_seed_map m ON m.rn = n.n
+JOIN tmp_seed_map m ON m.rn = (MOD(n.n - 1, @seed_count) + 1)
 WHERE n.n <= 12;
 
 SET @target_net_30d = 10000000.00;
@@ -836,7 +879,7 @@ SET @adj_qty_needed = CEIL(GREATEST(@dummy_gap_30d, 0) / @adj_profit_unit);
 -- dengan kuantitas puluhan item per transaksi (bukan menaikkan harga per item secara ekstrem).
 INSERT INTO transaksi
 (
-  kode_transaksi, obat_id, batch_id, user_id, unit_id, resep_id, jenis_transaksi,
+  kode_transaksi, obat_id, batch_id, user_id, resep_id, jenis_transaksi,
   jumlah, harga_satuan, total_harga, tanggal_transaksi, waktu_transaksi,
   keterangan, nomor_referensi, supplier_id, supplier_nama,
   pelanggan_nama, dokter_nama, sales_nama, operator_nama, kasir_nama,
@@ -850,12 +893,11 @@ SELECT
   @adj_batch_id,
   @user_primary,
   NULL,
-  NULL,
   'penjualan',
   CAST(LEAST(75, GREATEST(@adj_qty_needed - ((n.n - 1) * 75), 0)) AS UNSIGNED),
   @adj_harga_satuan,
   ROUND(CAST(LEAST(75, GREATEST(@adj_qty_needed - ((n.n - 1) * 75), 0)) AS UNSIGNED) * @adj_harga_satuan * 1.11, 2),
-  DATE_SUB(@today, INTERVAL (5 - MOD(n.n, 5)) DAY),
+  DATE_SUB(@today, INTERVAL MOD(n.n, 7) DAY),
   '16:10:00',
   'DMY26-target-net-up-realistis | Transaksi volume puluhan item | PPN: 11%',
   CONCAT('NET-ADJ-UP-DMY26-', LPAD(n.n, 4, '0')),
@@ -1022,7 +1064,8 @@ SELECT
   @now_ts,
   @now_ts
 FROM tmp_num n
-JOIN tmp_seed_map m ON m.rn = n.n;
+JOIN tmp_seed_map m ON m.rn = (MOD(n.n - 1, @seed_count) + 1)
+WHERE n.n <= 20;
 
 INSERT INTO demand_forecasts
 (
@@ -1046,7 +1089,8 @@ SELECT
   @now_ts,
   @now_ts
 FROM tmp_num n
-JOIN tmp_seed_map m ON m.rn = n.n;
+JOIN tmp_seed_map m ON m.rn = (MOD(n.n - 1, @seed_count) + 1)
+WHERE n.n <= 20;
 
 INSERT INTO approval_requests
 (
@@ -1069,7 +1113,7 @@ SELECT
   @now_ts,
   @now_ts
 FROM tmp_num n
-JOIN tmp_seed_map m ON m.rn = n.n
+JOIN tmp_seed_map m ON m.rn = (MOD(n.n - 1, @seed_count) + 1)
 JOIN transaksi t ON t.kode_transaksi = CONCAT('DMY26-HTG-', LPAD(n.n, 4, '0'));
 
 -- ------------------------------------------------------------------
@@ -1124,7 +1168,7 @@ SELECT
   @now_ts,
   @now_ts
 FROM tmp_num n
-JOIN tmp_seed_map m ON m.rn = n.n
+JOIN tmp_seed_map m ON m.rn = (MOD(n.n - 1, @seed_count) + 1)
 JOIN pemusnahan_obat p ON p.nomor_berita_acara = CONCAT('BA-DMY26-', LPAD(n.n, 4, '0'));
 
 -- ------------------------------------------------------------------
@@ -1132,7 +1176,7 @@ JOIN pemusnahan_obat p ON p.nomor_berita_acara = CONCAT('BA-DMY26-', LPAD(n.n, 4
 -- ------------------------------------------------------------------
 INSERT INTO stok_opname
 (
-  nomor_opname, tanggal_opname, penanggung_jawab, unit_id,
+  nomor_opname, tanggal_opname, penanggung_jawab,
   status, approved_by, approved_at, catatan, berita_acara,
   created_at, updated_at
 )
@@ -1140,7 +1184,6 @@ SELECT
   CONCAT('SO-DMY26-', LPAD(n.n, 4, '0')),
   DATE_SUB(@today, INTERVAL (25 - n.n) DAY),
   @user_primary,
-  NULL,
   CASE MOD(n.n, 4)
     WHEN 1 THEN 'draft'
     WHEN 2 THEN 'in_progress'
@@ -1182,8 +1225,28 @@ SELECT
   @now_ts,
   @now_ts
 FROM tmp_num n
-JOIN tmp_seed_map m ON m.rn = n.n
+JOIN tmp_seed_map m ON m.rn = (MOD(n.n - 1, @seed_count) + 1)
 JOIN stok_opname so ON so.nomor_opname = CONCAT('SO-DMY26-', LPAD(n.n, 4, '0'));
+
+-- ------------------------------------------------------------------
+-- 7) LOG AKTIVITAS DUMMY
+-- ------------------------------------------------------------------
+INSERT INTO log_aktivitas
+(
+  user_id, aktivitas, modul, aksi, loggable_type, loggable_id,
+  ip_address, user_agent, waktu, created_at, updated_at
+)
+VALUES
+( @user_primary, 'DMY26-User admin login sukses', 'auth', 'login', 'App\\Models\\User', @user_primary, '127.0.0.9', 'Mozilla/5.0', DATE_SUB(@now_ts, INTERVAL 8 HOUR), @now_ts, @now_ts ),
+( @user_primary, 'DMY26-Melihat detail obat Paracetamol 500mg', 'obat', 'view', 'App\\Models\\Obat', 1, '127.0.0.9', 'Mozilla/5.0', DATE_SUB(@now_ts, INTERVAL 7 HOUR), @now_ts, @now_ts ),
+( @user_primary, 'DMY26-Melakukan scanning QR Code batch B-AUTO-0001', 'qr', 'scan', 'App\\Models\\BatchObat', 1, '127.0.0.9', 'Mozilla/5.0', DATE_SUB(@now_ts, INTERVAL 6 HOUR), @now_ts, @now_ts ),
+( @user_primary, 'DMY26-Menambahkan transaksi penjualan kasir KSR-DMY26-0001', 'transaksi', 'create', 'App\\Models\\Transaksi', 1, '127.0.0.9', 'Mozilla/5.0', DATE_SUB(@now_ts, INTERVAL 5 HOUR), @now_ts, @now_ts ),
+( @user_secondary, 'DMY26-User apoteker login sukses', 'auth', 'login', 'App\\Models\\User', @user_secondary, '127.0.0.9', 'Mozilla/5.0', DATE_SUB(@now_ts, INTERVAL 4 HOUR), @now_ts, @now_ts ),
+( @user_secondary, 'DMY26-Melakukan stok opname untuk batch B-AUTO-0002', 'stok-opname', 'update', 'App\\Models\\StokOpname', 1, '127.0.0.9', 'Mozilla/5.0', DATE_SUB(@now_ts, INTERVAL 3 HOUR), @now_ts, @now_ts ),
+( @user_primary, 'DMY26-Menyetujui permintaan approval penjualan risiko tinggi', 'approval', 'update', 'App\\Models\\ApprovalRequest', 1, '127.0.0.9', 'Mozilla/5.0', DATE_SUB(@now_ts, INTERVAL 2 HOUR), @now_ts, @now_ts ),
+( @user_primary, 'DMY26-Mengekspor laporan keuangan laba rugi', 'laporan', 'view', 'App\\Models\\Transaksi', 1, '127.0.0.9', 'Mozilla/5.0', DATE_SUB(@now_ts, INTERVAL 1 HOUR), @now_ts, @now_ts ),
+( @user_secondary, 'DMY26-Mengubah detail data obat Amoxicillin 500mg', 'obat', 'update', 'App\\Models\\Obat', 2, '127.0.0.9', 'Mozilla/5.0', DATE_SUB(@now_ts, INTERVAL 30 MINUTE), @now_ts, @now_ts ),
+( @user_primary, 'DMY26-Melakukan scan log QR masuk unit', 'qr', 'scan', 'App\\Models\\BatchObat', 2, '127.0.0.9', 'Mozilla/5.0', DATE_SUB(@now_ts, INTERVAL 10 MINUTE), @now_ts, @now_ts );
 
 -- ------------------------------------------------------------------
 -- Summary checks
