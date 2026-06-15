@@ -1,0 +1,61 @@
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../wayfinder'
+/**
+* @see \App\Http\Controllers\Api\TransaksiController::store
+ * @see app/Http/Controllers/Api/TransaksiController.php:215
+ * @route '/api/transactions'
+ */
+export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: store.url(options),
+    method: 'post',
+})
+
+store.definition = {
+    methods: ["post"],
+    url: '/api/transactions',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\Api\TransaksiController::store
+ * @see app/Http/Controllers/Api/TransaksiController.php:215
+ * @route '/api/transactions'
+ */
+store.url = (options?: RouteQueryOptions) => {
+    return store.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\TransaksiController::store
+ * @see app/Http/Controllers/Api/TransaksiController.php:215
+ * @route '/api/transactions'
+ */
+store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: store.url(options),
+    method: 'post',
+})
+
+    /**
+* @see \App\Http\Controllers\Api\TransaksiController::store
+ * @see app/Http/Controllers/Api/TransaksiController.php:215
+ * @route '/api/transactions'
+ */
+    const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: store.url(options),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Http\Controllers\Api\TransaksiController::store
+ * @see app/Http/Controllers/Api/TransaksiController.php:215
+ * @route '/api/transactions'
+ */
+        storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: store.url(options),
+            method: 'post',
+        })
+    
+    store.form = storeForm
+const transactions = {
+    store: Object.assign(store, store),
+}
+
+export default transactions
