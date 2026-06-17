@@ -223,7 +223,7 @@ SELECT
   CONCAT('RSP-DMY26-', LPAD(n.n, 4, '0')),
   CONCAT('REF-DMY26-', LPAD(n.n, 4, '0')),
   ELT(
-    n.n,
+    MOD(n.n - 1, 20) + 1,
     'Ahmad Fauzan',
     'Siti Nurhaliza',
     'Budi Hartono',
@@ -251,7 +251,11 @@ SELECT
     WHEN 3 THEN 'dr. Budi Santoso'
     ELSE 'dr. Maya Lestari'
   END,
-  DATE_SUB(@today, INTERVAL (20 - n.n) DAY),
+  CASE
+    WHEN n.n <= 12 THEN @today
+    WHEN n.n <= 24 THEN DATE_SUB(@today, INTERVAL 1 DAY)
+    ELSE DATE_SUB(@today, INTERVAL (MOD(n.n, 10) + 2) DAY)
+  END,
   CASE MOD(n.n, 3)
     WHEN 1 THEN 'reguler'
     WHEN 2 THEN 'pelanggan_rutin'
@@ -278,7 +282,8 @@ SELECT
   'Dummy resep untuk pengujian skripsi',
   @now_ts,
   @now_ts
-FROM tmp_num n;
+FROM tmp_num n
+WHERE n.n <= 35;
 
 INSERT INTO resep_detail
 (
@@ -342,7 +347,7 @@ SELECT
   CASE
     WHEN n.n <= 5 THEN @today
     WHEN n.n <= 10 THEN DATE_SUB(@today, INTERVAL 1 DAY)
-    ELSE DATE_SUB(@today, INTERVAL MOD(n.n, 7) DAY)
+    ELSE DATE_SUB(@today, INTERVAL (MOD(n.n, 7) + 2) DAY)
   END,
   '08:00:00',
   'Dummy transaksi barang masuk',
@@ -403,9 +408,9 @@ SELECT
     2
   ),
   CASE
-    WHEN n.n <= 5 THEN @today
-    WHEN n.n <= 10 THEN DATE_SUB(@today, INTERVAL 1 DAY)
-    ELSE DATE_SUB(@today, INTERVAL MOD(n.n, 7) DAY)
+    WHEN n.n <= 12 THEN @today
+    WHEN n.n <= 24 THEN DATE_SUB(@today, INTERVAL 1 DAY)
+    ELSE DATE_SUB(@today, INTERVAL (MOD(n.n, 7) + 2) DAY)
   END,
   '14:00:00',
   CONCAT(
@@ -471,7 +476,8 @@ SELECT
   @now_ts
 FROM tmp_num n
 JOIN tmp_seed_map m ON m.rn = (MOD(n.n - 1, @seed_count) + 1)
-JOIN resep r ON r.nomor_resep = CONCAT('RSP-DMY26-', LPAD(n.n, 4, '0'));
+JOIN resep r ON r.nomor_resep = CONCAT('RSP-DMY26-', LPAD(n.n, 4, '0'))
+WHERE n.n <= 35;
 
 -- ------------------------------------------------------------------
 -- 4) TRANSAKSI BARANG KELUAR (20)
@@ -499,7 +505,7 @@ SELECT
   CASE
     WHEN n.n <= 5 THEN @today
     WHEN n.n <= 10 THEN DATE_SUB(@today, INTERVAL 1 DAY)
-    ELSE DATE_SUB(@today, INTERVAL MOD(n.n, 7) DAY)
+    ELSE DATE_SUB(@today, INTERVAL (MOD(n.n, 7) + 2) DAY)
   END,
   '10:00:00',
   'Dummy transaksi barang keluar retail',
@@ -551,9 +557,9 @@ SELECT
   m.harga_jual,
   (1 + MOD(n.n, 3)) * m.harga_jual,
   CASE
-    WHEN n.n <= 5 THEN @today
-    WHEN n.n <= 10 THEN DATE_SUB(@today, INTERVAL 1 DAY)
-    ELSE DATE_SUB(@today, INTERVAL MOD(n.n, 7) DAY)
+    WHEN n.n <= 3 THEN @today
+    WHEN n.n <= 6 THEN DATE_SUB(@today, INTERVAL 1 DAY)
+    ELSE DATE_SUB(@today, INTERVAL (MOD(n.n, 7) + 2) DAY)
   END,
   '13:00:00',
   'Dummy transaksi hutang suite',
@@ -587,7 +593,8 @@ SELECT
   @now_ts
 FROM tmp_num n
 JOIN tmp_seed_map m ON m.rn = (MOD(n.n - 1, @seed_count) + 1)
-JOIN resep r ON r.nomor_resep = CONCAT('RSP-DMY26-', LPAD(n.n, 4, '0'));
+JOIN resep r ON r.nomor_resep = CONCAT('RSP-DMY26-', LPAD(n.n, 4, '0'))
+WHERE n.n <= 12;
 
 INSERT INTO hutang
 (
@@ -647,7 +654,11 @@ INSERT INTO biaya_operasional
   bank_code, bank_nama, kasir_nama, user_id, created_at, updated_at
 )
 SELECT
-  DATE_SUB(@today, INTERVAL (10 - MOD(n.n, 10)) DAY),
+  CASE
+    WHEN n.n <= 2 THEN @today
+    WHEN n.n <= 4 THEN DATE_SUB(@today, INTERVAL 1 DAY)
+    ELSE DATE_SUB(@today, INTERVAL (MOD(n.n, 10) + 2) DAY)
+  END,
   CASE MOD(n.n, 4)
     WHEN 1 THEN 'pajak'
     WHEN 2 THEN 'bunga'
@@ -699,7 +710,8 @@ SELECT
   @user_primary,
   @now_ts,
   @now_ts
-FROM tmp_num n;
+FROM tmp_num n
+WHERE n.n <= 15;
 
 -- ------------------------------------------------------------------
 -- 5c) BOOST TRANSAKSI + TARGET LABA BERSIH 10 JUTA (30 HARI)
@@ -724,14 +736,18 @@ SELECT
   24 + MOD(n.n, 17),
   ROUND(GREATEST(m.harga_jual * 1.08, m.harga_beli * 1.18), 2),
   ROUND((24 + MOD(n.n, 17)) * ROUND(GREATEST(m.harga_jual * 1.08, m.harga_beli * 1.18), 2) * 1.11, 2),
-  DATE_SUB(@today, INTERVAL MOD(n.n, 7) DAY),
+  CASE
+    WHEN n.n <= 12 THEN @today
+    WHEN n.n <= 24 THEN DATE_SUB(@today, INTERVAL 1 DAY)
+    ELSE DATE_SUB(@today, INTERVAL (MOD(n.n, 7) + 2) DAY)
+  END,
   '15:30:00',
   'DMY26-boost-profit-realistis | Penjualan volume puluhan item | PPN: 11% | Diskon: 0%',
   CONCAT('BOOST-DMY26-', LPAD(n.n, 4, '0')),
   NULL,
   NULL,
   ELT(
-    n.n,
+    MOD(n.n - 1, 12) + 1,
     'Yuni Astuti',
     'Farhan Hidayat',
     'Nina Damayanti',
@@ -799,7 +815,7 @@ SELECT
   @now_ts
 FROM tmp_num n
 JOIN tmp_seed_map m ON m.rn = (MOD(n.n - 1, @seed_count) + 1)
-WHERE n.n <= 12;
+WHERE n.n <= 30;
 
 SET @target_net_30d = 10000000.00;
 
@@ -1127,7 +1143,11 @@ INSERT INTO pemusnahan_obat
 )
 SELECT
   CONCAT('BA-DMY26-', LPAD(n.n, 4, '0')),
-  DATE_SUB(@today, INTERVAL (10 - MOD(n.n, 10)) DAY),
+  CASE
+    WHEN n.n <= 2 THEN @today
+    WHEN n.n <= 4 THEN DATE_SUB(@today, INTERVAL 1 DAY)
+    ELSE DATE_SUB(@today, INTERVAL (MOD(n.n, 10) + 2) DAY)
+  END,
   @user_primary,
   'Area Insinerator Apotek',
   'Insinerasi sesuai SOP',
@@ -1149,7 +1169,8 @@ SELECT
   CASE WHEN MOD(n.n, 3) = 0 THEN DATE_SUB(@now_ts, INTERVAL n.n HOUR) ELSE NULL END,
   @now_ts,
   @now_ts
-FROM tmp_num n;
+FROM tmp_num n
+WHERE n.n <= 12;
 
 INSERT INTO pemusnahan_obat_detail
 (
@@ -1182,7 +1203,11 @@ INSERT INTO stok_opname
 )
 SELECT
   CONCAT('SO-DMY26-', LPAD(n.n, 4, '0')),
-  DATE_SUB(@today, INTERVAL (25 - n.n) DAY),
+  CASE
+    WHEN n.n <= 2 THEN @today
+    WHEN n.n <= 4 THEN DATE_SUB(@today, INTERVAL 1 DAY)
+    ELSE DATE_SUB(@today, INTERVAL (MOD(n.n, 20) + 2) DAY)
+  END,
   @user_primary,
   CASE MOD(n.n, 4)
     WHEN 1 THEN 'draft'
@@ -1196,7 +1221,8 @@ SELECT
   CASE WHEN MOD(n.n, 4) IN (3,0) THEN 'Berita acara dummy stok opname' ELSE NULL END,
   @now_ts,
   @now_ts
-FROM tmp_num n;
+FROM tmp_num n
+WHERE n.n <= 12;
 
 INSERT INTO stok_opname_detail
 (
