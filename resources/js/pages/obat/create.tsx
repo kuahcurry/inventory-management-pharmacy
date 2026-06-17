@@ -40,6 +40,7 @@ interface CreateProps {
     jenis: JenisObat[];
     satuan: SatuanObat[];
     suppliers: Supplier[];
+    preselectedObat?: ExistingMedicineSuggestion;
 }
 
 interface ExistingMedicineSuggestion {
@@ -60,7 +61,7 @@ const infoTabs: Array<{ key: InfoTab; label: string }> = [
     { key: 'deskripsi', label: 'Deskripsi' },
 ];
 
-export default function CreateObat({ kategori, jenis, satuan, suppliers }: CreateProps) {
+export default function CreateObat({ kategori, jenis, satuan, suppliers, preselectedObat }: CreateProps) {
     const [activeTab, setActiveTab] = useState<'manual' | 'import'>('manual');
     const [activeInfoTab, setActiveInfoTab] = useState<InfoTab>('indikasi');
     const [importFile, setImportFile] = useState<File | null>(null);
@@ -123,6 +124,21 @@ export default function CreateObat({ kategori, jenis, satuan, suppliers }: Creat
         initial_harga_beli: '',
         initial_catatan: '',
     });
+
+    useEffect(() => {
+        if (preselectedObat) {
+            setUseExistingMedicine(true);
+            setData({
+                ...data,
+                existing_obat_id: preselectedObat.id,
+                nama_obat: preselectedObat.nama_obat,
+                kode_obat: preselectedObat.kode_obat || '',
+                kategori_id: preselectedObat.kategori?.id,
+                initial_supplier_id: preselectedObat.default_supplier?.id || data.initial_supplier_id,
+            });
+            setExistingQuery(`${preselectedObat.nama_obat} (${preselectedObat.kode_obat})`);
+        }
+    }, [preselectedObat]);
 
     const hargaBeli = Number(data.initial_harga_beli || data.harga_beli || 0);
     const hargaJual = Number(data.harga_jual || 0);
@@ -210,13 +226,14 @@ export default function CreateObat({ kategori, jenis, satuan, suppliers }: Creat
     }, [useExistingMedicine, existingQuery]);
 
     const selectExistingMedicine = (item: ExistingMedicineSuggestion) => {
-        setData('existing_obat_id', item.id);
-        setData('nama_obat', item.nama_obat);
-        setData('kode_obat', item.kode_obat || '');
-        setData('kategori_id', item.kategori?.id);
-        if (item.default_supplier?.id) {
-            setData('initial_supplier_id', item.default_supplier.id);
-        }
+        setData({
+            ...data,
+            existing_obat_id: item.id,
+            nama_obat: item.nama_obat,
+            kode_obat: item.kode_obat || '',
+            kategori_id: item.kategori?.id,
+            initial_supplier_id: item.default_supplier?.id || data.initial_supplier_id,
+        });
         setExistingQuery(`${item.nama_obat} (${item.kode_obat})`);
         setExistingOpen(false);
     };

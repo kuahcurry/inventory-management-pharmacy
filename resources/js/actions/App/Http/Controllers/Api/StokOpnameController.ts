@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::pendingApproval
- * @see app/Http/Controllers/Api/StokOpnameController.php:167
+ * @see app/Http/Controllers/Api/StokOpnameController.php:158
  * @route '/api/stok-opname/pending-approval'
  */
 export const pendingApproval = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ pendingApproval.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::pendingApproval
- * @see app/Http/Controllers/Api/StokOpnameController.php:167
+ * @see app/Http/Controllers/Api/StokOpnameController.php:158
  * @route '/api/stok-opname/pending-approval'
  */
 pendingApproval.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ pendingApproval.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::pendingApproval
- * @see app/Http/Controllers/Api/StokOpnameController.php:167
+ * @see app/Http/Controllers/Api/StokOpnameController.php:158
  * @route '/api/stok-opname/pending-approval'
  */
 pendingApproval.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ pendingApproval.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => (
 })
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::pendingApproval
- * @see app/Http/Controllers/Api/StokOpnameController.php:167
+ * @see app/Http/Controllers/Api/StokOpnameController.php:158
  * @route '/api/stok-opname/pending-approval'
  */
 pendingApproval.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ pendingApproval.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
 
     /**
 * @see \App\Http\Controllers\Api\StokOpnameController::pendingApproval
- * @see app/Http/Controllers/Api/StokOpnameController.php:167
+ * @see app/Http/Controllers/Api/StokOpnameController.php:158
  * @route '/api/stok-opname/pending-approval'
  */
     const pendingApprovalForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ pendingApproval.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
 
             /**
 * @see \App\Http\Controllers\Api\StokOpnameController::pendingApproval
- * @see app/Http/Controllers/Api/StokOpnameController.php:167
+ * @see app/Http/Controllers/Api/StokOpnameController.php:158
  * @route '/api/stok-opname/pending-approval'
  */
         pendingApprovalForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ pendingApproval.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
         })
             /**
 * @see \App\Http\Controllers\Api\StokOpnameController::pendingApproval
- * @see app/Http/Controllers/Api/StokOpnameController.php:167
+ * @see app/Http/Controllers/Api/StokOpnameController.php:158
  * @route '/api/stok-opname/pending-approval'
  */
         pendingApprovalForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ pendingApproval.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
     pendingApproval.form = pendingApprovalForm
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::complete
- * @see app/Http/Controllers/Api/StokOpnameController.php:110
+ * @see app/Http/Controllers/Api/StokOpnameController.php:101
  * @route '/api/stok-opname/{stokOpname}/complete'
  */
 export const complete = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ complete.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::complete
- * @see app/Http/Controllers/Api/StokOpnameController.php:110
+ * @see app/Http/Controllers/Api/StokOpnameController.php:101
  * @route '/api/stok-opname/{stokOpname}/complete'
  */
 complete.url = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -127,7 +127,7 @@ complete.url = (args: { stokOpname: number | { id: number } } | [stokOpname: num
 
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::complete
- * @see app/Http/Controllers/Api/StokOpnameController.php:110
+ * @see app/Http/Controllers/Api/StokOpnameController.php:101
  * @route '/api/stok-opname/{stokOpname}/complete'
  */
 complete.post = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -137,7 +137,7 @@ complete.post = (args: { stokOpname: number | { id: number } } | [stokOpname: nu
 
     /**
 * @see \App\Http\Controllers\Api\StokOpnameController::complete
- * @see app/Http/Controllers/Api/StokOpnameController.php:110
+ * @see app/Http/Controllers/Api/StokOpnameController.php:101
  * @route '/api/stok-opname/{stokOpname}/complete'
  */
     const completeForm = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -147,7 +147,7 @@ complete.post = (args: { stokOpname: number | { id: number } } | [stokOpname: nu
 
             /**
 * @see \App\Http\Controllers\Api\StokOpnameController::complete
- * @see app/Http/Controllers/Api/StokOpnameController.php:110
+ * @see app/Http/Controllers/Api/StokOpnameController.php:101
  * @route '/api/stok-opname/{stokOpname}/complete'
  */
         completeForm.post = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -158,7 +158,7 @@ complete.post = (args: { stokOpname: number | { id: number } } | [stokOpname: nu
     complete.form = completeForm
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::approve
- * @see app/Http/Controllers/Api/StokOpnameController.php:142
+ * @see app/Http/Controllers/Api/StokOpnameController.php:133
  * @route '/api/stok-opname/{stokOpname}/approve'
  */
 export const approve = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -173,7 +173,7 @@ approve.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::approve
- * @see app/Http/Controllers/Api/StokOpnameController.php:142
+ * @see app/Http/Controllers/Api/StokOpnameController.php:133
  * @route '/api/stok-opname/{stokOpname}/approve'
  */
 approve.url = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -206,7 +206,7 @@ approve.url = (args: { stokOpname: number | { id: number } } | [stokOpname: numb
 
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::approve
- * @see app/Http/Controllers/Api/StokOpnameController.php:142
+ * @see app/Http/Controllers/Api/StokOpnameController.php:133
  * @route '/api/stok-opname/{stokOpname}/approve'
  */
 approve.post = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -216,7 +216,7 @@ approve.post = (args: { stokOpname: number | { id: number } } | [stokOpname: num
 
     /**
 * @see \App\Http\Controllers\Api\StokOpnameController::approve
- * @see app/Http/Controllers/Api/StokOpnameController.php:142
+ * @see app/Http/Controllers/Api/StokOpnameController.php:133
  * @route '/api/stok-opname/{stokOpname}/approve'
  */
     const approveForm = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -226,7 +226,7 @@ approve.post = (args: { stokOpname: number | { id: number } } | [stokOpname: num
 
             /**
 * @see \App\Http\Controllers\Api\StokOpnameController::approve
- * @see app/Http/Controllers/Api/StokOpnameController.php:142
+ * @see app/Http/Controllers/Api/StokOpnameController.php:133
  * @route '/api/stok-opname/{stokOpname}/approve'
  */
         approveForm.post = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -237,7 +237,7 @@ approve.post = (args: { stokOpname: number | { id: number } } | [stokOpname: num
     approve.form = approveForm
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::index
- * @see app/Http/Controllers/Api/StokOpnameController.php:20
+ * @see app/Http/Controllers/Api/StokOpnameController.php:19
  * @route '/api/stok-opname'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -252,7 +252,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::index
- * @see app/Http/Controllers/Api/StokOpnameController.php:20
+ * @see app/Http/Controllers/Api/StokOpnameController.php:19
  * @route '/api/stok-opname'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -261,7 +261,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::index
- * @see app/Http/Controllers/Api/StokOpnameController.php:20
+ * @see app/Http/Controllers/Api/StokOpnameController.php:19
  * @route '/api/stok-opname'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -270,7 +270,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::index
- * @see app/Http/Controllers/Api/StokOpnameController.php:20
+ * @see app/Http/Controllers/Api/StokOpnameController.php:19
  * @route '/api/stok-opname'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -280,7 +280,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\StokOpnameController::index
- * @see app/Http/Controllers/Api/StokOpnameController.php:20
+ * @see app/Http/Controllers/Api/StokOpnameController.php:19
  * @route '/api/stok-opname'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -290,7 +290,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\StokOpnameController::index
- * @see app/Http/Controllers/Api/StokOpnameController.php:20
+ * @see app/Http/Controllers/Api/StokOpnameController.php:19
  * @route '/api/stok-opname'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -299,7 +299,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Api\StokOpnameController::index
- * @see app/Http/Controllers/Api/StokOpnameController.php:20
+ * @see app/Http/Controllers/Api/StokOpnameController.php:19
  * @route '/api/stok-opname'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -315,7 +315,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::store
- * @see app/Http/Controllers/Api/StokOpnameController.php:40
+ * @see app/Http/Controllers/Api/StokOpnameController.php:39
  * @route '/api/stok-opname'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -330,7 +330,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::store
- * @see app/Http/Controllers/Api/StokOpnameController.php:40
+ * @see app/Http/Controllers/Api/StokOpnameController.php:39
  * @route '/api/stok-opname'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -339,7 +339,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::store
- * @see app/Http/Controllers/Api/StokOpnameController.php:40
+ * @see app/Http/Controllers/Api/StokOpnameController.php:39
  * @route '/api/stok-opname'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -349,7 +349,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\StokOpnameController::store
- * @see app/Http/Controllers/Api/StokOpnameController.php:40
+ * @see app/Http/Controllers/Api/StokOpnameController.php:39
  * @route '/api/stok-opname'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -359,7 +359,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\StokOpnameController::store
- * @see app/Http/Controllers/Api/StokOpnameController.php:40
+ * @see app/Http/Controllers/Api/StokOpnameController.php:39
  * @route '/api/stok-opname'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -370,7 +370,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::show
- * @see app/Http/Controllers/Api/StokOpnameController.php:100
+ * @see app/Http/Controllers/Api/StokOpnameController.php:91
  * @route '/api/stok-opname/{stok_opname}'
  */
 export const show = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -385,7 +385,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::show
- * @see app/Http/Controllers/Api/StokOpnameController.php:100
+ * @see app/Http/Controllers/Api/StokOpnameController.php:91
  * @route '/api/stok-opname/{stok_opname}'
  */
 show.url = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -413,7 +413,7 @@ show.url = (args: { stok_opname: string | number } | [stok_opname: string | numb
 
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::show
- * @see app/Http/Controllers/Api/StokOpnameController.php:100
+ * @see app/Http/Controllers/Api/StokOpnameController.php:91
  * @route '/api/stok-opname/{stok_opname}'
  */
 show.get = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -422,7 +422,7 @@ show.get = (args: { stok_opname: string | number } | [stok_opname: string | numb
 })
 /**
 * @see \App\Http\Controllers\Api\StokOpnameController::show
- * @see app/Http/Controllers/Api/StokOpnameController.php:100
+ * @see app/Http/Controllers/Api/StokOpnameController.php:91
  * @route '/api/stok-opname/{stok_opname}'
  */
 show.head = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -432,7 +432,7 @@ show.head = (args: { stok_opname: string | number } | [stok_opname: string | num
 
     /**
 * @see \App\Http\Controllers\Api\StokOpnameController::show
- * @see app/Http/Controllers/Api/StokOpnameController.php:100
+ * @see app/Http/Controllers/Api/StokOpnameController.php:91
  * @route '/api/stok-opname/{stok_opname}'
  */
     const showForm = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -442,7 +442,7 @@ show.head = (args: { stok_opname: string | number } | [stok_opname: string | num
 
             /**
 * @see \App\Http\Controllers\Api\StokOpnameController::show
- * @see app/Http/Controllers/Api/StokOpnameController.php:100
+ * @see app/Http/Controllers/Api/StokOpnameController.php:91
  * @route '/api/stok-opname/{stok_opname}'
  */
         showForm.get = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -451,7 +451,7 @@ show.head = (args: { stok_opname: string | number } | [stok_opname: string | num
         })
             /**
 * @see \App\Http\Controllers\Api\StokOpnameController::show
- * @see app/Http/Controllers/Api/StokOpnameController.php:100
+ * @see app/Http/Controllers/Api/StokOpnameController.php:91
  * @route '/api/stok-opname/{stok_opname}'
  */
         showForm.head = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

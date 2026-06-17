@@ -132,6 +132,7 @@ Route::middleware(['auth:web'])->group(function () {
     // QR Code
     Route::prefix('qr')->group(function () {
         Route::get('/generate/{batch}', [QrCodeController::class, 'generate'])->name('api.qr.generate');
+        Route::get('/generate-obat/{obat}', [QrCodeController::class, 'generateObat'])->name('api.qr.generate-obat');
         Route::post('/scan', [QrCodeController::class, 'scan'])->name('api.qr.scan');
         Route::get('/scan-logs', [QrCodeController::class, 'scanLogs'])->name('api.qr.scan-logs');
         Route::get('/analytics', [QrCodeController::class, 'analytics'])->name('api.qr.analytics');

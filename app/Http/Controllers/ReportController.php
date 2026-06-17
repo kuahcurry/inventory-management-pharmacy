@@ -378,9 +378,9 @@ class ReportController extends Controller
             'summaryCards' => [
                 ['label' => 'Total Penjualan', 'value' => $rows->count()],
                 ['label' => 'Total Qty', 'value' => (int) $rows->sum('jumlah')],
-                ['label' => 'total_sales', 'value' => $totalSales],
-                ['label' => 'paid_sales', 'value' => $paidSales],
-                ['label' => 'unpaid_sales', 'value' => $outstandingDebt],
+                ['label' => 'Omzet Penjualan', 'value' => $totalSales],
+                ['label' => 'Penjualan Terbayar', 'value' => $paidSales],
+                ['label' => 'Penjualan Kredit (Piutang)', 'value' => $outstandingDebt],
             ],
             'sections' => [
                 [
@@ -388,9 +388,9 @@ class ReportController extends Controller
                     'title' => 'Ringkasan Penjualan vs Hutang',
                     'columns' => ['Komponen', 'Nilai'],
                     'rows' => [
-                        ['Komponen' => 'Total Sales', 'Nilai' => $totalSales],
-                        ['Komponen' => 'Paid Sales', 'Nilai' => $paidSales],
-                        ['Komponen' => 'Unpaid Sales (Hutang)', 'Nilai' => $outstandingDebt],
+                        ['Komponen' => 'Total Omzet Penjualan', 'Nilai' => $totalSales],
+                        ['Komponen' => 'Pembayaran Tunai', 'Nilai' => $paidSales],
+                        ['Komponen' => 'Piutang Penjualan', 'Nilai' => $outstandingDebt],
                     ],
                 ],
                 [
@@ -564,9 +564,9 @@ class ReportController extends Controller
             'title' => 'Cashflow Suite',
             'description' => 'Arus kas masuk dan keluar berdasarkan transaksi serta metode pembayaran.',
             'summaryCards' => [
-                ['label' => 'Cash In', 'value' => $cashIn],
-                ['label' => 'Cash Out', 'value' => $cashOut],
-                ['label' => 'Net Cashflow', 'value' => $cashIn - $cashOut],
+                ['label' => 'Total Kas Masuk', 'value' => $cashIn],
+                ['label' => 'Total Kas Keluar', 'value' => $cashOut],
+                ['label' => 'Arus Kas Bersih', 'value' => $cashIn - $cashOut],
                 ['label' => 'PPN Terkumpul', 'value' => $ppnCollected],
             ],
             'sections' => [
@@ -625,7 +625,7 @@ class ReportController extends Controller
             'summaryCards' => [
                 ['label' => 'Obat Terjual', 'value' => $soldIds->count()],
                 ['label' => 'Obat Tidak Laku', 'value' => $notSold->count()],
-                ['label' => 'Batch Expired', 'value' => (int) BatchObat::query()->whereDate('tanggal_expired', '<', now())->where('stok_tersedia', '>', 0)->count()],
+                ['label' => 'Batch Kadaluarsa', 'value' => (int) BatchObat::query()->whereDate('tanggal_expired', '<', now())->where('stok_tersedia', '>', 0)->count()],
             ],
             'sections' => [
                 [
@@ -714,7 +714,7 @@ class ReportController extends Controller
             'title' => 'Keuangan Suite',
             'description' => 'Ringkasan laba kotor, laba operasional, laba bersih, dan modal barang aktif.',
             'summaryCards' => [
-                ['label' => 'Revenue', 'value' => $revenue],
+                ['label' => 'Pendapatan (Revenue)', 'value' => $revenue],
                 ['label' => 'Laba Kotor', 'value' => $grossProfit],
                 ['label' => 'Laba Operasional', 'value' => $operatingProfit],
                 ['label' => 'Laba Bersih', 'value' => $netProfit],
@@ -732,7 +732,7 @@ class ReportController extends Controller
                     'title' => 'Laba Rugi Ringkas',
                     'columns' => ['Komponen', 'Nilai'],
                     'rows' => [
-                        ['Komponen' => 'Revenue Penjualan', 'Nilai' => $revenue],
+                        ['Komponen' => 'Pendapatan Penjualan', 'Nilai' => $revenue],
                         ['Komponen' => 'HPP Penjualan', 'Nilai' => $hpp],
                         ['Komponen' => 'Laba Kotor', 'Nilai' => $grossProfit],
                         ['Komponen' => 'Biaya Operasional (Sewa + Lainnya)', 'Nilai' => $operatingExpense],

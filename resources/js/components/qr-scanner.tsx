@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Camera, Loader2, Search, Package, Calendar, TrendingUp, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Camera, Loader2, Search, Package, Calendar, TrendingUp, AlertTriangle, CheckCircle2, PlusCircle } from 'lucide-react';
 import axios from 'axios';
 
 interface BatchData {
@@ -28,8 +28,10 @@ interface ScanResponse {
   success: boolean;
   message: string;
   severity: 'success' | 'warning' | 'error';
+  type?: 'batch' | 'obat';
   batch?: BatchData;
   obat?: BatchData['obat'];
+  fefo_warning?: string;
 }
 
 export function QrScanner() {
@@ -310,8 +312,8 @@ export function QrScanner() {
             </Alert>
           )}
 
-          {scanResult && scanResult.batch && (
-            <div className="space-y-4">
+          {scanResult && (scanResult.type === 'batch' || scanResult.batch) && scanResult.batch && (
+            <div className="space-y-4 font-sans animate-in fade-in zoom-in-95 duration-200">
               <Alert variant={
                 scanResult.severity === 'error' ? 'destructive' : 
                 scanResult.severity === 'warning' ? 'default' : 
@@ -323,60 +325,122 @@ export function QrScanner() {
                 </div>
               </Alert>
 
-              <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
+              {/* FEFO Warning Banner */}
+              {scanResult.fefo_warning && (
+                <Alert variant="default" className="border-yellow-200 bg-yellow-50 text-yellow-800">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="h-4 w-4 text-yellow-600 shrink-0 mt-0.5" />
+                    <AlertDescription className="text-xs font-semibold">{scanResult.fefo_warning}</AlertDescription>
+                  </div>
+                </Alert>
+              )}
+
+              <div className="space-y-3 p-4 border rounded-xl bg-gradient-to-br from-slate-50 to-white shadow-sm">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <Package className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">Obat</span>
+                      <Package className="h-4 w-4 text-slate-400" />
+                      <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Batch Obat</span>
                     </div>
-                    <p className="font-semibold text-lg">{scanResult.obat?.nama_obat}</p>
-                    <p className="text-sm text-muted-foreground font-mono">{scanResult.obat?.kode_obat}</p>
+                    <p className="font-bold text-slate-800 text-lg">{scanResult.obat?.nama_obat}</p>
+                    <p className="text-xs text-slate-500 font-mono mt-0.5">{scanResult.obat?.kode_obat}</p>
                   </div>
-                  <Badge variant={scanResult.severity === 'error' ? 'destructive' : 'default'}>
+                  <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 font-medium">
                     {scanResult.obat?.kategori?.nama_kategori}
                   </Badge>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 pt-3 border-t">
+                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
                   <div>
-                    <span className="text-sm text-muted-foreground">Batch</span>
-                    <p className="font-mono font-semibold">{scanResult.batch.nomor_batch}</p>
+                    <span className="text-xs text-slate-400 font-medium">Nomor Batch</span>
+                    <p className="font-mono font-semibold text-slate-700 mt-0.5">{scanResult.batch.nomor_batch}</p>
                   </div>
                   <div>
-                    <span className="text-sm text-muted-foreground">Jenis</span>
-                    <p className="font-semibold">{scanResult.obat?.jenis?.nama_jenis}</p>
+                    <span className="text-xs text-slate-400 font-medium">Jenis Sediaan</span>
+                    <p className="font-semibold text-slate-700 mt-0.5">{scanResult.obat?.jenis?.nama_jenis}</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex items-center gap-2 col-span-1">
+                    <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
                     <div>
-                      <span className="text-sm text-muted-foreground">Expired</span>
-                      <p className="font-semibold">
+                      <span className="text-xs text-slate-400 font-medium block">Expired</span>
+                      <span className="font-semibold text-red-600">
                         {new Date(scanResult.batch.tanggal_expired).toLocaleDateString('id-ID', {
                           day: '2-digit',
                           month: 'short',
                           year: 'numeric'
                         })}
-                      </p>
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex items-center gap-2 col-span-1">
+                    <TrendingUp className="h-4 w-4 text-slate-400 shrink-0" />
                     <div>
-                      <span className="text-sm text-muted-foreground">Stok</span>
-                      <p className="font-semibold">
+                      <span className="text-xs text-slate-400 font-medium block">Stok Tersedia</span>
+                      <span className="font-semibold text-emerald-600">
                         {scanResult.batch.stok_tersedia} {scanResult.obat?.satuan?.nama_satuan}
-                      </p>
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <Button className="w-full" asChild>
+              <Button className="w-full bg-slate-800 hover:bg-slate-900 text-white font-medium" asChild>
                 <a href={`/obat/batch/${scanResult.batch.id}?from=qr`}>
                   Lihat Detail Batch
                 </a>
               </Button>
+            </div>
+          )}
+
+          {scanResult && scanResult.type === 'obat' && scanResult.obat && (
+            <div className="space-y-4 font-sans animate-in fade-in zoom-in-95 duration-200">
+              <Alert variant="default" className="border-teal-200 bg-teal-50 text-teal-800">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-teal-600" />
+                  <AlertDescription className="text-sm font-semibold">{scanResult.message}</AlertDescription>
+                </div>
+              </Alert>
+
+              <div className="space-y-3 p-4 border border-teal-200 rounded-xl bg-gradient-to-br from-teal-50/40 via-white to-teal-50/10 shadow-sm">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Package className="h-4 w-4 text-teal-600" />
+                      <span className="text-xs text-teal-600 font-semibold uppercase tracking-wider">Master Obat</span>
+                    </div>
+                    <p className="font-bold text-slate-800 text-lg">{scanResult.obat.nama_obat}</p>
+                    <p className="text-xs text-slate-500 font-mono mt-0.5">{scanResult.obat.kode_obat}</p>
+                  </div>
+                  <Badge variant="outline" className="bg-teal-50 text-teal-700 border-teal-200 font-medium">
+                    {scanResult.obat.kategori?.nama_kategori}
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-teal-100">
+                  <div>
+                    <span className="text-xs text-slate-400 font-medium">Jenis Sediaan</span>
+                    <p className="font-semibold text-slate-700 mt-0.5">{scanResult.obat.jenis?.nama_jenis || '-'}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-slate-400 font-medium">Satuan Terkecil</span>
+                    <p className="font-semibold text-slate-700 mt-0.5">{scanResult.obat.satuan?.nama_satuan || '-'}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold shadow-sm" asChild>
+                  <a href={`/obat/create?existing_obat_id=${scanResult.obat.id}`}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Tambah ke Batch Baru (Restock)
+                  </a>
+                </Button>
+                <Button variant="outline" className="w-full border-slate-200 text-slate-700 hover:bg-slate-50" asChild>
+                  <a href={`/obat/${scanResult.obat.id}`}>
+                    Lihat Detail Master Obat
+                  </a>
+                </Button>
+              </div>
             </div>
           )}
 

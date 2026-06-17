@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\QrCodeController::analytics
- * @see app/Http/Controllers/QrCodeController.php:25
+ * @see app/Http/Controllers/QrCodeController.php:31
  * @route '/qr/analytics'
  */
 export const analytics = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ analytics.definition = {
 
 /**
 * @see \App\Http\Controllers\QrCodeController::analytics
- * @see app/Http/Controllers/QrCodeController.php:25
+ * @see app/Http/Controllers/QrCodeController.php:31
  * @route '/qr/analytics'
  */
 analytics.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ analytics.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\QrCodeController::analytics
- * @see app/Http/Controllers/QrCodeController.php:25
+ * @see app/Http/Controllers/QrCodeController.php:31
  * @route '/qr/analytics'
  */
 analytics.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ analytics.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\QrCodeController::analytics
- * @see app/Http/Controllers/QrCodeController.php:25
+ * @see app/Http/Controllers/QrCodeController.php:31
  * @route '/qr/analytics'
  */
 analytics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ analytics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\QrCodeController::analytics
- * @see app/Http/Controllers/QrCodeController.php:25
+ * @see app/Http/Controllers/QrCodeController.php:31
  * @route '/qr/analytics'
  */
     const analyticsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ analytics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\QrCodeController::analytics
- * @see app/Http/Controllers/QrCodeController.php:25
+ * @see app/Http/Controllers/QrCodeController.php:31
  * @route '/qr/analytics'
  */
         analyticsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ analytics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\QrCodeController::analytics
- * @see app/Http/Controllers/QrCodeController.php:25
+ * @see app/Http/Controllers/QrCodeController.php:31
  * @route '/qr/analytics'
  */
         analyticsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

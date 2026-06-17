@@ -63,13 +63,26 @@ class ObatController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
+        $preselectedObat = null;
+        if ($request->has('existing_obat_id')) {
+            $preselectedObat = Obat::with(['kategori', 'jenis', 'satuan'])->find($request->existing_obat_id);
+            if ($preselectedObat) {
+                $latestBatch = $preselectedObat->batches()->latest('tanggal_masuk')->first();
+                if ($latestBatch) {
+                    // Temporarily attach default_supplier relation/attribute
+                    $preselectedObat->setRelation('default_supplier', $latestBatch->supplier);
+                }
+            }
+        }
+
         return Inertia::render('obat/create', [
             'kategori' => KategoriObat::where('is_active', true)->get(),
             'jenis' => JenisObat::where('is_active', true)->get(),
             'satuan' => SatuanObat::where('is_active', true)->get(),
             'suppliers' => Supplier::where('status', 'active')->orderBy('nama_supplier')->get(['id', 'nama_supplier']),
+            'preselectedObat' => $preselectedObat,
         ]);
     }
 
@@ -78,7 +91,7 @@ class ObatController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
+        $rules = [
             'existing_obat_id' => 'nullable|exists:obat,id',
             'kode_obat' => 'nullable|string|max:50|unique:obat,kode_obat',
             'nama_obat' => 'nullable|string|max:191',
@@ -103,7 +116,13 @@ class ObatController extends Controller
             'initial_stok_awal' => 'required|integer|min:1',
             'initial_harga_beli' => 'required|numeric|min:0',
             'initial_catatan' => 'nullable|string',
-        ]);
+        ];
+
+        if ($request->filled('existing_obat_id')) {
+            $rules['kode_obat'] = 'nullable|string|max:50';
+        }
+
+        $validated = $request->validate($rules);
 
         $existingObatId = $validated['existing_obat_id'] ?? null;
         $isUsingExisting = filled($existingObatId);

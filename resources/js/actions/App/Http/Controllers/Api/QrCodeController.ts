@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\QrCodeController::generate
- * @see app/Http/Controllers/Api/QrCodeController.php:46
+ * @see app/Http/Controllers/Api/QrCodeController.php:47
  * @route '/api/qr/generate/{batch}'
  */
 export const generate = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ generate.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\QrCodeController::generate
- * @see app/Http/Controllers/Api/QrCodeController.php:46
+ * @see app/Http/Controllers/Api/QrCodeController.php:47
  * @route '/api/qr/generate/{batch}'
  */
 generate.url = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ generate.url = (args: { batch: number | { id: number } } | [batch: number | { id
 
 /**
 * @see \App\Http\Controllers\Api\QrCodeController::generate
- * @see app/Http/Controllers/Api/QrCodeController.php:46
+ * @see app/Http/Controllers/Api/QrCodeController.php:47
  * @route '/api/qr/generate/{batch}'
  */
 generate.get = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -58,7 +58,7 @@ generate.get = (args: { batch: number | { id: number } } | [batch: number | { id
 })
 /**
 * @see \App\Http\Controllers\Api\QrCodeController::generate
- * @see app/Http/Controllers/Api/QrCodeController.php:46
+ * @see app/Http/Controllers/Api/QrCodeController.php:47
  * @route '/api/qr/generate/{batch}'
  */
 generate.head = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -68,7 +68,7 @@ generate.head = (args: { batch: number | { id: number } } | [batch: number | { i
 
     /**
 * @see \App\Http\Controllers\Api\QrCodeController::generate
- * @see app/Http/Controllers/Api/QrCodeController.php:46
+ * @see app/Http/Controllers/Api/QrCodeController.php:47
  * @route '/api/qr/generate/{batch}'
  */
     const generateForm = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -78,7 +78,7 @@ generate.head = (args: { batch: number | { id: number } } | [batch: number | { i
 
             /**
 * @see \App\Http\Controllers\Api\QrCodeController::generate
- * @see app/Http/Controllers/Api/QrCodeController.php:46
+ * @see app/Http/Controllers/Api/QrCodeController.php:47
  * @route '/api/qr/generate/{batch}'
  */
         generateForm.get = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -87,7 +87,7 @@ generate.head = (args: { batch: number | { id: number } } | [batch: number | { i
         })
             /**
 * @see \App\Http\Controllers\Api\QrCodeController::generate
- * @see app/Http/Controllers/Api/QrCodeController.php:46
+ * @see app/Http/Controllers/Api/QrCodeController.php:47
  * @route '/api/qr/generate/{batch}'
  */
         generateForm.head = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -102,8 +102,110 @@ generate.head = (args: { batch: number | { id: number } } | [batch: number | { i
     
     generate.form = generateForm
 /**
+* @see \App\Http\Controllers\Api\QrCodeController::generateObat
+ * @see app/Http/Controllers/Api/QrCodeController.php:82
+ * @route '/api/qr/generate-obat/{obat}'
+ */
+export const generateObat = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: generateObat.url(args, options),
+    method: 'get',
+})
+
+generateObat.definition = {
+    methods: ["get","head"],
+    url: '/api/qr/generate-obat/{obat}',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\Api\QrCodeController::generateObat
+ * @see app/Http/Controllers/Api/QrCodeController.php:82
+ * @route '/api/qr/generate-obat/{obat}'
+ */
+generateObat.url = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { obat: args }
+    }
+
+            if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+            args = { obat: args.id }
+        }
+    
+    if (Array.isArray(args)) {
+        args = {
+                    obat: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        obat: typeof args.obat === 'object'
+                ? args.obat.id
+                : args.obat,
+                }
+
+    return generateObat.definition.url
+            .replace('{obat}', parsedArgs.obat.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\QrCodeController::generateObat
+ * @see app/Http/Controllers/Api/QrCodeController.php:82
+ * @route '/api/qr/generate-obat/{obat}'
+ */
+generateObat.get = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: generateObat.url(args, options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\Api\QrCodeController::generateObat
+ * @see app/Http/Controllers/Api/QrCodeController.php:82
+ * @route '/api/qr/generate-obat/{obat}'
+ */
+generateObat.head = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: generateObat.url(args, options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\Api\QrCodeController::generateObat
+ * @see app/Http/Controllers/Api/QrCodeController.php:82
+ * @route '/api/qr/generate-obat/{obat}'
+ */
+    const generateObatForm = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: generateObat.url(args, options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\Api\QrCodeController::generateObat
+ * @see app/Http/Controllers/Api/QrCodeController.php:82
+ * @route '/api/qr/generate-obat/{obat}'
+ */
+        generateObatForm.get = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: generateObat.url(args, options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\Api\QrCodeController::generateObat
+ * @see app/Http/Controllers/Api/QrCodeController.php:82
+ * @route '/api/qr/generate-obat/{obat}'
+ */
+        generateObatForm.head = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: generateObat.url(args, {
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    generateObat.form = generateObatForm
+/**
 * @see \App\Http\Controllers\Api\QrCodeController::scan
- * @see app/Http/Controllers/Api/QrCodeController.php:81
+ * @see app/Http/Controllers/Api/QrCodeController.php:129
  * @route '/api/qr/scan'
  */
 export const scan = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -118,7 +220,7 @@ scan.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\QrCodeController::scan
- * @see app/Http/Controllers/Api/QrCodeController.php:81
+ * @see app/Http/Controllers/Api/QrCodeController.php:129
  * @route '/api/qr/scan'
  */
 scan.url = (options?: RouteQueryOptions) => {
@@ -127,7 +229,7 @@ scan.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\QrCodeController::scan
- * @see app/Http/Controllers/Api/QrCodeController.php:81
+ * @see app/Http/Controllers/Api/QrCodeController.php:129
  * @route '/api/qr/scan'
  */
 scan.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -137,7 +239,7 @@ scan.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\QrCodeController::scan
- * @see app/Http/Controllers/Api/QrCodeController.php:81
+ * @see app/Http/Controllers/Api/QrCodeController.php:129
  * @route '/api/qr/scan'
  */
     const scanForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -147,7 +249,7 @@ scan.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\QrCodeController::scan
- * @see app/Http/Controllers/Api/QrCodeController.php:81
+ * @see app/Http/Controllers/Api/QrCodeController.php:129
  * @route '/api/qr/scan'
  */
         scanForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -158,7 +260,7 @@ scan.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     scan.form = scanForm
 /**
 * @see \App\Http\Controllers\Api\QrCodeController::scanLogs
- * @see app/Http/Controllers/Api/QrCodeController.php:169
+ * @see app/Http/Controllers/Api/QrCodeController.php:278
  * @route '/api/qr/scan-logs'
  */
 export const scanLogs = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -173,7 +275,7 @@ scanLogs.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\QrCodeController::scanLogs
- * @see app/Http/Controllers/Api/QrCodeController.php:169
+ * @see app/Http/Controllers/Api/QrCodeController.php:278
  * @route '/api/qr/scan-logs'
  */
 scanLogs.url = (options?: RouteQueryOptions) => {
@@ -182,7 +284,7 @@ scanLogs.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\QrCodeController::scanLogs
- * @see app/Http/Controllers/Api/QrCodeController.php:169
+ * @see app/Http/Controllers/Api/QrCodeController.php:278
  * @route '/api/qr/scan-logs'
  */
 scanLogs.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -191,7 +293,7 @@ scanLogs.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Api\QrCodeController::scanLogs
- * @see app/Http/Controllers/Api/QrCodeController.php:169
+ * @see app/Http/Controllers/Api/QrCodeController.php:278
  * @route '/api/qr/scan-logs'
  */
 scanLogs.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -201,7 +303,7 @@ scanLogs.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\QrCodeController::scanLogs
- * @see app/Http/Controllers/Api/QrCodeController.php:169
+ * @see app/Http/Controllers/Api/QrCodeController.php:278
  * @route '/api/qr/scan-logs'
  */
     const scanLogsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -211,7 +313,7 @@ scanLogs.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\QrCodeController::scanLogs
- * @see app/Http/Controllers/Api/QrCodeController.php:169
+ * @see app/Http/Controllers/Api/QrCodeController.php:278
  * @route '/api/qr/scan-logs'
  */
         scanLogsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -220,7 +322,7 @@ scanLogs.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Api\QrCodeController::scanLogs
- * @see app/Http/Controllers/Api/QrCodeController.php:169
+ * @see app/Http/Controllers/Api/QrCodeController.php:278
  * @route '/api/qr/scan-logs'
  */
         scanLogsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -236,7 +338,7 @@ scanLogs.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     scanLogs.form = scanLogsForm
 /**
 * @see \App\Http\Controllers\Api\QrCodeController::analytics
- * @see app/Http/Controllers/Api/QrCodeController.php:189
+ * @see app/Http/Controllers/Api/QrCodeController.php:298
  * @route '/api/qr/analytics'
  */
 export const analytics = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -251,7 +353,7 @@ analytics.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\QrCodeController::analytics
- * @see app/Http/Controllers/Api/QrCodeController.php:189
+ * @see app/Http/Controllers/Api/QrCodeController.php:298
  * @route '/api/qr/analytics'
  */
 analytics.url = (options?: RouteQueryOptions) => {
@@ -260,7 +362,7 @@ analytics.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\QrCodeController::analytics
- * @see app/Http/Controllers/Api/QrCodeController.php:189
+ * @see app/Http/Controllers/Api/QrCodeController.php:298
  * @route '/api/qr/analytics'
  */
 analytics.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -269,7 +371,7 @@ analytics.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Api\QrCodeController::analytics
- * @see app/Http/Controllers/Api/QrCodeController.php:189
+ * @see app/Http/Controllers/Api/QrCodeController.php:298
  * @route '/api/qr/analytics'
  */
 analytics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -279,7 +381,7 @@ analytics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\QrCodeController::analytics
- * @see app/Http/Controllers/Api/QrCodeController.php:189
+ * @see app/Http/Controllers/Api/QrCodeController.php:298
  * @route '/api/qr/analytics'
  */
     const analyticsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -289,7 +391,7 @@ analytics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\QrCodeController::analytics
- * @see app/Http/Controllers/Api/QrCodeController.php:189
+ * @see app/Http/Controllers/Api/QrCodeController.php:298
  * @route '/api/qr/analytics'
  */
         analyticsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -298,7 +400,7 @@ analytics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Api\QrCodeController::analytics
- * @see app/Http/Controllers/Api/QrCodeController.php:189
+ * @see app/Http/Controllers/Api/QrCodeController.php:298
  * @route '/api/qr/analytics'
  */
         analyticsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -312,6 +414,6 @@ analytics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
     
     analytics.form = analyticsForm
-const QrCodeController = { generate, scan, scanLogs, analytics }
+const QrCodeController = { generate, generateObat, scan, scanLogs, analytics }
 
 export default QrCodeController

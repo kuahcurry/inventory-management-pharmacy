@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\BatchObat;
+use App\Models\Obat;
 use App\Models\LogAktivitas;
 use App\Models\QrScanLog;
 use Illuminate\Http\JsonResponse;
@@ -76,6 +77,53 @@ class QrCodeController extends Controller
     }
 
     /**
+     * Generate QR code for a drug (obat)
+     */
+    public function generateObat(Obat $obat): JsonResponse
+    {
+        $obat->load(['kategori', 'jenis', 'satuan']);
+
+        $qrData = [
+            'type' => 'obat',
+            'obat_id' => $obat->id,
+            'kode_obat' => $obat->kode_obat,
+            'nama_obat' => $obat->nama_obat,
+            'kategori' => $obat->kategori?->nama_kategori,
+            'jenis' => $obat->jenis?->nama_jenis,
+            'satuan' => $obat->satuan?->nama_satuan,
+            'generated_at' => now()->toIso8601String(),
+            'kode_qr' => $obat->kode_obat,
+        ];
+
+        // Generate QR code using endroid/qr-code
+        $qrCode = new QrCode(
+            data: json_encode($qrData),
+            size: 300,
+            margin: 10
+        );
+
+        $writer = new PngWriter();
+        $result = $writer->write($qrCode);
+
+        $qrCodeBase64 = base64_encode($result->getString());
+
+        LogAktivitas::log(
+            auth()->user(),
+            "Generate QR Code untuk obat: {$obat->nama_obat}",
+            'qr_code',
+            'generate',
+            $obat
+        );
+
+        return response()->json([
+            'obat' => $obat,
+            'qr_code' => 'data:image/png;base64,' . $qrCodeBase64,
+            'qr_data' => $qrData,
+            'kode_qr' => $obat->kode_obat,
+        ]);
+    }
+
+    /**
      * Scan QR code
      */
     public function scan(Request $request): JsonResponse
@@ -95,12 +143,55 @@ class QrCodeController extends Controller
             ], 422);
         }
 
-        // Find batch by QR code
+        // 1. Find batch by QR code
         $batch = BatchObat::with(['obat.kategori', 'obat.jenis', 'obat.satuan'])
             ->where('kode_qr', $kodeQr)
             ->first();
 
         if (!$batch) {
+            // 2. Try to find drug by code (obat master scan)
+            $obat = Obat::with(['kategori', 'jenis', 'satuan'])
+                ->where('kode_obat', $kodeQr)
+                ->first();
+
+            if ($obat) {
+                // Log successful scan for drug
+                QrScanLog::create([
+                    'batch_id' => null,
+                    'user_id' => auth()->id(),
+                    'kode_qr_scanned' => $kodeQr,
+                    'metode_scan' => $metode,
+                    'hasil_scan' => QrScanLog::HASIL_SUCCESS,
+                    'data_hasil' => [
+                        'type' => 'obat',
+                        'obat_id' => $obat->id,
+                        'kode_obat' => $obat->kode_obat,
+                        'nama_obat' => $obat->nama_obat,
+                        'kategori' => $obat->kategori?->nama_kategori,
+                        'jenis' => $obat->jenis?->nama_jenis,
+                        'satuan' => $obat->satuan?->nama_satuan,
+                    ],
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                    'waktu_scan' => now(),
+                ]);
+
+                LogAktivitas::log(
+                    auth()->user(),
+                    "Scan QR Code obat: {$obat->nama_obat}",
+                    'qr_code',
+                    LogAktivitas::AKSI_SCAN,
+                    $obat
+                );
+
+                return response()->json([
+                    'success' => true,
+                    'type' => 'obat',
+                    'message' => 'QR Code obat berhasil dipindai',
+                    'obat' => $obat,
+                ]);
+            }
+
             // Log failed scan
             QrScanLog::logScan(
                 $kodeQr,
@@ -155,11 +246,29 @@ class QrCodeController extends Controller
             $batch
         );
 
+        // FEFO Verification
+        $earlierExpiringBatch = BatchObat::where('obat_id', $batch->obat_id)
+            ->where('id', '!=', $batch->id)
+            ->where('status', 'active')
+            ->where('stok_tersedia', '>', 0)
+            ->where('tanggal_expired', '<', $batch->tanggal_expired)
+            ->orderBy('tanggal_expired', 'asc')
+            ->first();
+
+        $fefoWarning = null;
+        if ($earlierExpiringBatch) {
+            $fefoWarning = "Aturan FEFO: Ditemukan batch {$earlierExpiringBatch->nomor_batch} (Exp: " . 
+                $earlierExpiringBatch->tanggal_expired->format('d/m/Y') . 
+                ") yang kadaluwarsa lebih cepat. Harap gunakan batch tersebut terlebih dahulu.";
+        }
+
         return response()->json([
             'success' => true,
+            'type' => 'batch',
             'message' => 'QR Code berhasil dipindai',
             'batch' => $batch,
             'obat' => $batch->obat,
+            'fefo_warning' => $fefoWarning,
         ]);
     }
 

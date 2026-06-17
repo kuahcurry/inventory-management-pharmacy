@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\StokOpnameController::startOpname
- * @see app/Http/Controllers/StokOpnameController.php:303
+ * @see app/Http/Controllers/StokOpnameController.php:266
  * @route '/stok-opname/{stokOpname}/start'
  */
 export const startOpname = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ startOpname.definition = {
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::startOpname
- * @see app/Http/Controllers/StokOpnameController.php:303
+ * @see app/Http/Controllers/StokOpnameController.php:266
  * @route '/stok-opname/{stokOpname}/start'
  */
 startOpname.url = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ startOpname.url = (args: { stokOpname: number | { id: number } } | [stokOpname: 
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::startOpname
- * @see app/Http/Controllers/StokOpnameController.php:303
+ * @see app/Http/Controllers/StokOpnameController.php:266
  * @route '/stok-opname/{stokOpname}/start'
  */
 startOpname.post = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -59,7 +59,7 @@ startOpname.post = (args: { stokOpname: number | { id: number } } | [stokOpname:
 
     /**
 * @see \App\Http\Controllers\StokOpnameController::startOpname
- * @see app/Http/Controllers/StokOpnameController.php:303
+ * @see app/Http/Controllers/StokOpnameController.php:266
  * @route '/stok-opname/{stokOpname}/start'
  */
     const startOpnameForm = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -69,7 +69,7 @@ startOpname.post = (args: { stokOpname: number | { id: number } } | [stokOpname:
 
             /**
 * @see \App\Http\Controllers\StokOpnameController::startOpname
- * @see app/Http/Controllers/StokOpnameController.php:303
+ * @see app/Http/Controllers/StokOpnameController.php:266
  * @route '/stok-opname/{stokOpname}/start'
  */
         startOpnameForm.post = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -80,7 +80,7 @@ startOpname.post = (args: { stokOpname: number | { id: number } } | [stokOpname:
     startOpname.form = startOpnameForm
 /**
 * @see \App\Http\Controllers\StokOpnameController::completeOpname
- * @see app/Http/Controllers/StokOpnameController.php:317
+ * @see app/Http/Controllers/StokOpnameController.php:280
  * @route '/stok-opname/{stokOpname}/complete'
  */
 export const completeOpname = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -95,7 +95,7 @@ completeOpname.definition = {
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::completeOpname
- * @see app/Http/Controllers/StokOpnameController.php:317
+ * @see app/Http/Controllers/StokOpnameController.php:280
  * @route '/stok-opname/{stokOpname}/complete'
  */
 completeOpname.url = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -128,7 +128,7 @@ completeOpname.url = (args: { stokOpname: number | { id: number } } | [stokOpnam
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::completeOpname
- * @see app/Http/Controllers/StokOpnameController.php:317
+ * @see app/Http/Controllers/StokOpnameController.php:280
  * @route '/stok-opname/{stokOpname}/complete'
  */
 completeOpname.post = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -138,7 +138,7 @@ completeOpname.post = (args: { stokOpname: number | { id: number } } | [stokOpna
 
     /**
 * @see \App\Http\Controllers\StokOpnameController::completeOpname
- * @see app/Http/Controllers/StokOpnameController.php:317
+ * @see app/Http/Controllers/StokOpnameController.php:280
  * @route '/stok-opname/{stokOpname}/complete'
  */
     const completeOpnameForm = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -148,7 +148,7 @@ completeOpname.post = (args: { stokOpname: number | { id: number } } | [stokOpna
 
             /**
 * @see \App\Http\Controllers\StokOpnameController::completeOpname
- * @see app/Http/Controllers/StokOpnameController.php:317
+ * @see app/Http/Controllers/StokOpnameController.php:280
  * @route '/stok-opname/{stokOpname}/complete'
  */
         completeOpnameForm.post = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -159,7 +159,7 @@ completeOpname.post = (args: { stokOpname: number | { id: number } } | [stokOpna
     completeOpname.form = completeOpnameForm
 /**
 * @see \App\Http\Controllers\StokOpnameController::approve
- * @see app/Http/Controllers/StokOpnameController.php:331
+ * @see app/Http/Controllers/StokOpnameController.php:294
  * @route '/stok-opname/{stokOpname}/approve'
  */
 export const approve = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -174,7 +174,7 @@ approve.definition = {
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::approve
- * @see app/Http/Controllers/StokOpnameController.php:331
+ * @see app/Http/Controllers/StokOpnameController.php:294
  * @route '/stok-opname/{stokOpname}/approve'
  */
 approve.url = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -207,7 +207,7 @@ approve.url = (args: { stokOpname: number | { id: number } } | [stokOpname: numb
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::approve
- * @see app/Http/Controllers/StokOpnameController.php:331
+ * @see app/Http/Controllers/StokOpnameController.php:294
  * @route '/stok-opname/{stokOpname}/approve'
  */
 approve.post = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -217,7 +217,7 @@ approve.post = (args: { stokOpname: number | { id: number } } | [stokOpname: num
 
     /**
 * @see \App\Http\Controllers\StokOpnameController::approve
- * @see app/Http/Controllers/StokOpnameController.php:331
+ * @see app/Http/Controllers/StokOpnameController.php:294
  * @route '/stok-opname/{stokOpname}/approve'
  */
     const approveForm = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -227,7 +227,7 @@ approve.post = (args: { stokOpname: number | { id: number } } | [stokOpname: num
 
             /**
 * @see \App\Http\Controllers\StokOpnameController::approve
- * @see app/Http/Controllers/StokOpnameController.php:331
+ * @see app/Http/Controllers/StokOpnameController.php:294
  * @route '/stok-opname/{stokOpname}/approve'
  */
         approveForm.post = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -238,7 +238,7 @@ approve.post = (args: { stokOpname: number | { id: number } } | [stokOpname: num
     approve.form = approveForm
 /**
 * @see \App\Http\Controllers\StokOpnameController::index
- * @see app/Http/Controllers/StokOpnameController.php:18
+ * @see app/Http/Controllers/StokOpnameController.php:17
  * @route '/stok-opname'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -253,7 +253,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::index
- * @see app/Http/Controllers/StokOpnameController.php:18
+ * @see app/Http/Controllers/StokOpnameController.php:17
  * @route '/stok-opname'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -262,7 +262,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::index
- * @see app/Http/Controllers/StokOpnameController.php:18
+ * @see app/Http/Controllers/StokOpnameController.php:17
  * @route '/stok-opname'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -271,7 +271,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\StokOpnameController::index
- * @see app/Http/Controllers/StokOpnameController.php:18
+ * @see app/Http/Controllers/StokOpnameController.php:17
  * @route '/stok-opname'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -281,7 +281,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\StokOpnameController::index
- * @see app/Http/Controllers/StokOpnameController.php:18
+ * @see app/Http/Controllers/StokOpnameController.php:17
  * @route '/stok-opname'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -291,7 +291,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\StokOpnameController::index
- * @see app/Http/Controllers/StokOpnameController.php:18
+ * @see app/Http/Controllers/StokOpnameController.php:17
  * @route '/stok-opname'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -300,7 +300,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\StokOpnameController::index
- * @see app/Http/Controllers/StokOpnameController.php:18
+ * @see app/Http/Controllers/StokOpnameController.php:17
  * @route '/stok-opname'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -316,7 +316,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\StokOpnameController::create
- * @see app/Http/Controllers/StokOpnameController.php:77
+ * @see app/Http/Controllers/StokOpnameController.php:61
  * @route '/stok-opname/create'
  */
 export const create = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -331,7 +331,7 @@ create.definition = {
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::create
- * @see app/Http/Controllers/StokOpnameController.php:77
+ * @see app/Http/Controllers/StokOpnameController.php:61
  * @route '/stok-opname/create'
  */
 create.url = (options?: RouteQueryOptions) => {
@@ -340,7 +340,7 @@ create.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::create
- * @see app/Http/Controllers/StokOpnameController.php:77
+ * @see app/Http/Controllers/StokOpnameController.php:61
  * @route '/stok-opname/create'
  */
 create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -349,7 +349,7 @@ create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\StokOpnameController::create
- * @see app/Http/Controllers/StokOpnameController.php:77
+ * @see app/Http/Controllers/StokOpnameController.php:61
  * @route '/stok-opname/create'
  */
 create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -359,7 +359,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\StokOpnameController::create
- * @see app/Http/Controllers/StokOpnameController.php:77
+ * @see app/Http/Controllers/StokOpnameController.php:61
  * @route '/stok-opname/create'
  */
     const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -369,7 +369,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\StokOpnameController::create
- * @see app/Http/Controllers/StokOpnameController.php:77
+ * @see app/Http/Controllers/StokOpnameController.php:61
  * @route '/stok-opname/create'
  */
         createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -378,7 +378,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\StokOpnameController::create
- * @see app/Http/Controllers/StokOpnameController.php:77
+ * @see app/Http/Controllers/StokOpnameController.php:61
  * @route '/stok-opname/create'
  */
         createForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -394,7 +394,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     create.form = createForm
 /**
 * @see \App\Http\Controllers\StokOpnameController::store
- * @see app/Http/Controllers/StokOpnameController.php:114
+ * @see app/Http/Controllers/StokOpnameController.php:94
  * @route '/stok-opname'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -409,7 +409,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::store
- * @see app/Http/Controllers/StokOpnameController.php:114
+ * @see app/Http/Controllers/StokOpnameController.php:94
  * @route '/stok-opname'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -418,7 +418,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::store
- * @see app/Http/Controllers/StokOpnameController.php:114
+ * @see app/Http/Controllers/StokOpnameController.php:94
  * @route '/stok-opname'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -428,7 +428,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\StokOpnameController::store
- * @see app/Http/Controllers/StokOpnameController.php:114
+ * @see app/Http/Controllers/StokOpnameController.php:94
  * @route '/stok-opname'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -438,7 +438,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\StokOpnameController::store
- * @see app/Http/Controllers/StokOpnameController.php:114
+ * @see app/Http/Controllers/StokOpnameController.php:94
  * @route '/stok-opname'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -449,7 +449,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\StokOpnameController::show
- * @see app/Http/Controllers/StokOpnameController.php:165
+ * @see app/Http/Controllers/StokOpnameController.php:140
  * @route '/stok-opname/{stok_opname}'
  */
 export const show = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -464,7 +464,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::show
- * @see app/Http/Controllers/StokOpnameController.php:165
+ * @see app/Http/Controllers/StokOpnameController.php:140
  * @route '/stok-opname/{stok_opname}'
  */
 show.url = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -492,7 +492,7 @@ show.url = (args: { stok_opname: string | number } | [stok_opname: string | numb
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::show
- * @see app/Http/Controllers/StokOpnameController.php:165
+ * @see app/Http/Controllers/StokOpnameController.php:140
  * @route '/stok-opname/{stok_opname}'
  */
 show.get = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -501,7 +501,7 @@ show.get = (args: { stok_opname: string | number } | [stok_opname: string | numb
 })
 /**
 * @see \App\Http\Controllers\StokOpnameController::show
- * @see app/Http/Controllers/StokOpnameController.php:165
+ * @see app/Http/Controllers/StokOpnameController.php:140
  * @route '/stok-opname/{stok_opname}'
  */
 show.head = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -511,7 +511,7 @@ show.head = (args: { stok_opname: string | number } | [stok_opname: string | num
 
     /**
 * @see \App\Http\Controllers\StokOpnameController::show
- * @see app/Http/Controllers/StokOpnameController.php:165
+ * @see app/Http/Controllers/StokOpnameController.php:140
  * @route '/stok-opname/{stok_opname}'
  */
     const showForm = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -521,7 +521,7 @@ show.head = (args: { stok_opname: string | number } | [stok_opname: string | num
 
             /**
 * @see \App\Http\Controllers\StokOpnameController::show
- * @see app/Http/Controllers/StokOpnameController.php:165
+ * @see app/Http/Controllers/StokOpnameController.php:140
  * @route '/stok-opname/{stok_opname}'
  */
         showForm.get = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -530,7 +530,7 @@ show.head = (args: { stok_opname: string | number } | [stok_opname: string | num
         })
             /**
 * @see \App\Http\Controllers\StokOpnameController::show
- * @see app/Http/Controllers/StokOpnameController.php:165
+ * @see app/Http/Controllers/StokOpnameController.php:140
  * @route '/stok-opname/{stok_opname}'
  */
         showForm.head = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -546,7 +546,7 @@ show.head = (args: { stok_opname: string | number } | [stok_opname: string | num
     show.form = showForm
 /**
 * @see \App\Http\Controllers\StokOpnameController::edit
- * @see app/Http/Controllers/StokOpnameController.php:183
+ * @see app/Http/Controllers/StokOpnameController.php:157
  * @route '/stok-opname/{stok_opname}/edit'
  */
 export const edit = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -561,7 +561,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::edit
- * @see app/Http/Controllers/StokOpnameController.php:183
+ * @see app/Http/Controllers/StokOpnameController.php:157
  * @route '/stok-opname/{stok_opname}/edit'
  */
 edit.url = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -589,7 +589,7 @@ edit.url = (args: { stok_opname: string | number } | [stok_opname: string | numb
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::edit
- * @see app/Http/Controllers/StokOpnameController.php:183
+ * @see app/Http/Controllers/StokOpnameController.php:157
  * @route '/stok-opname/{stok_opname}/edit'
  */
 edit.get = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -598,7 +598,7 @@ edit.get = (args: { stok_opname: string | number } | [stok_opname: string | numb
 })
 /**
 * @see \App\Http\Controllers\StokOpnameController::edit
- * @see app/Http/Controllers/StokOpnameController.php:183
+ * @see app/Http/Controllers/StokOpnameController.php:157
  * @route '/stok-opname/{stok_opname}/edit'
  */
 edit.head = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -608,7 +608,7 @@ edit.head = (args: { stok_opname: string | number } | [stok_opname: string | num
 
     /**
 * @see \App\Http\Controllers\StokOpnameController::edit
- * @see app/Http/Controllers/StokOpnameController.php:183
+ * @see app/Http/Controllers/StokOpnameController.php:157
  * @route '/stok-opname/{stok_opname}/edit'
  */
     const editForm = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -618,7 +618,7 @@ edit.head = (args: { stok_opname: string | number } | [stok_opname: string | num
 
             /**
 * @see \App\Http\Controllers\StokOpnameController::edit
- * @see app/Http/Controllers/StokOpnameController.php:183
+ * @see app/Http/Controllers/StokOpnameController.php:157
  * @route '/stok-opname/{stok_opname}/edit'
  */
         editForm.get = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -627,7 +627,7 @@ edit.head = (args: { stok_opname: string | number } | [stok_opname: string | num
         })
             /**
 * @see \App\Http\Controllers\StokOpnameController::edit
- * @see app/Http/Controllers/StokOpnameController.php:183
+ * @see app/Http/Controllers/StokOpnameController.php:157
  * @route '/stok-opname/{stok_opname}/edit'
  */
         editForm.head = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -643,7 +643,7 @@ edit.head = (args: { stok_opname: string | number } | [stok_opname: string | num
     edit.form = editForm
 /**
 * @see \App\Http\Controllers\StokOpnameController::update
- * @see app/Http/Controllers/StokOpnameController.php:232
+ * @see app/Http/Controllers/StokOpnameController.php:200
  * @route '/stok-opname/{stok_opname}'
  */
 export const update = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -658,7 +658,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::update
- * @see app/Http/Controllers/StokOpnameController.php:232
+ * @see app/Http/Controllers/StokOpnameController.php:200
  * @route '/stok-opname/{stok_opname}'
  */
 update.url = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -686,7 +686,7 @@ update.url = (args: { stok_opname: string | number } | [stok_opname: string | nu
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::update
- * @see app/Http/Controllers/StokOpnameController.php:232
+ * @see app/Http/Controllers/StokOpnameController.php:200
  * @route '/stok-opname/{stok_opname}'
  */
 update.put = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -695,7 +695,7 @@ update.put = (args: { stok_opname: string | number } | [stok_opname: string | nu
 })
 /**
 * @see \App\Http\Controllers\StokOpnameController::update
- * @see app/Http/Controllers/StokOpnameController.php:232
+ * @see app/Http/Controllers/StokOpnameController.php:200
  * @route '/stok-opname/{stok_opname}'
  */
 update.patch = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -705,7 +705,7 @@ update.patch = (args: { stok_opname: string | number } | [stok_opname: string | 
 
     /**
 * @see \App\Http\Controllers\StokOpnameController::update
- * @see app/Http/Controllers/StokOpnameController.php:232
+ * @see app/Http/Controllers/StokOpnameController.php:200
  * @route '/stok-opname/{stok_opname}'
  */
     const updateForm = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -720,7 +720,7 @@ update.patch = (args: { stok_opname: string | number } | [stok_opname: string | 
 
             /**
 * @see \App\Http\Controllers\StokOpnameController::update
- * @see app/Http/Controllers/StokOpnameController.php:232
+ * @see app/Http/Controllers/StokOpnameController.php:200
  * @route '/stok-opname/{stok_opname}'
  */
         updateForm.put = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -734,7 +734,7 @@ update.patch = (args: { stok_opname: string | number } | [stok_opname: string | 
         })
             /**
 * @see \App\Http\Controllers\StokOpnameController::update
- * @see app/Http/Controllers/StokOpnameController.php:232
+ * @see app/Http/Controllers/StokOpnameController.php:200
  * @route '/stok-opname/{stok_opname}'
  */
         updateForm.patch = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -750,7 +750,7 @@ update.patch = (args: { stok_opname: string | number } | [stok_opname: string | 
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\StokOpnameController::destroy
- * @see app/Http/Controllers/StokOpnameController.php:287
+ * @see app/Http/Controllers/StokOpnameController.php:250
  * @route '/stok-opname/{stok_opname}'
  */
 export const destroy = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -765,7 +765,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::destroy
- * @see app/Http/Controllers/StokOpnameController.php:287
+ * @see app/Http/Controllers/StokOpnameController.php:250
  * @route '/stok-opname/{stok_opname}'
  */
 destroy.url = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -793,7 +793,7 @@ destroy.url = (args: { stok_opname: string | number } | [stok_opname: string | n
 
 /**
 * @see \App\Http\Controllers\StokOpnameController::destroy
- * @see app/Http/Controllers/StokOpnameController.php:287
+ * @see app/Http/Controllers/StokOpnameController.php:250
  * @route '/stok-opname/{stok_opname}'
  */
 destroy.delete = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -803,7 +803,7 @@ destroy.delete = (args: { stok_opname: string | number } | [stok_opname: string 
 
     /**
 * @see \App\Http\Controllers\StokOpnameController::destroy
- * @see app/Http/Controllers/StokOpnameController.php:287
+ * @see app/Http/Controllers/StokOpnameController.php:250
  * @route '/stok-opname/{stok_opname}'
  */
     const destroyForm = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -818,7 +818,7 @@ destroy.delete = (args: { stok_opname: string | number } | [stok_opname: string 
 
             /**
 * @see \App\Http\Controllers\StokOpnameController::destroy
- * @see app/Http/Controllers/StokOpnameController.php:287
+ * @see app/Http/Controllers/StokOpnameController.php:250
  * @route '/stok-opname/{stok_opname}'
  */
         destroyForm.delete = (args: { stok_opname: string | number } | [stok_opname: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

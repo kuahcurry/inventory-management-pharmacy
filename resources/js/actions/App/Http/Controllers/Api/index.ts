@@ -3,7 +3,6 @@ import DashboardController from './DashboardController'
 import KategoriObatController from './KategoriObatController'
 import JenisObatController from './JenisObatController'
 import SatuanObatController from './SatuanObatController'
-import UnitRumahSakitController from './UnitRumahSakitController'
 import ObatController from './ObatController'
 import BatchObatController from './BatchObatController'
 import TransaksiController from './TransaksiController'
@@ -25,7 +24,6 @@ DashboardController: Object.assign(DashboardController, DashboardController),
 KategoriObatController: Object.assign(KategoriObatController, KategoriObatController),
 JenisObatController: Object.assign(JenisObatController, JenisObatController),
 SatuanObatController: Object.assign(SatuanObatController, SatuanObatController),
-UnitRumahSakitController: Object.assign(UnitRumahSakitController, UnitRumahSakitController),
 ObatController: Object.assign(ObatController, ObatController),
 BatchObatController: Object.assign(BatchObatController, BatchObatController),
 TransaksiController: Object.assign(TransaksiController, TransaksiController),

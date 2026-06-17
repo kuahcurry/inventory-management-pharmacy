@@ -17,8 +17,14 @@ class QrCodeController extends Controller
             ->orderBy('tanggal_expired')
             ->paginate(100);
 
+        $obats = \App\Models\Obat::with(['kategori', 'jenis', 'satuan'])
+            ->active()
+            ->orderBy('nama_obat')
+            ->paginate(100);
+
         return Inertia::render('obat/qr/index', [
             'initialBatches' => $batches,
+            'initialObats' => $obats,
         ]);
     }
 

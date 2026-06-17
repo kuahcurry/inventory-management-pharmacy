@@ -12,7 +12,6 @@ import KategoriObatController from './KategoriObatController'
 import JenisObatController from './JenisObatController'
 import SatuanObatController from './SatuanObatController'
 import SupplierController from './SupplierController'
-import UnitRumahSakitController from './UnitRumahSakitController'
 import ReportController from './ReportController'
 import Settings from './Settings'
 const Controllers = {
@@ -30,7 +29,6 @@ KategoriObatController: Object.assign(KategoriObatController, KategoriObatContro
 JenisObatController: Object.assign(JenisObatController, JenisObatController),
 SatuanObatController: Object.assign(SatuanObatController, SatuanObatController),
 SupplierController: Object.assign(SupplierController, SupplierController),
-UnitRumahSakitController: Object.assign(UnitRumahSakitController, UnitRumahSakitController),
 ReportController: Object.assign(ReportController, ReportController),
 Settings: Object.assign(Settings, Settings),
 }

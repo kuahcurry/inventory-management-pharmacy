@@ -8,14 +8,6 @@ use Illuminate\Support\Facades\Route;
  */
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Data Obat (Main Medicine Inventory)
-    Route::get('obat/download-template', [\App\Http\Controllers\ObatController::class, 'downloadTemplate'])->name('obat.download-template');
-    Route::post('obat/import', [\App\Http\Controllers\ObatController::class, 'import'])->name('obat.import');
-    Route::get('obat/trash', [\App\Http\Controllers\ObatController::class, 'trash'])->name('obat.trash');
-    Route::post('obat/{obat}/restore', [\App\Http\Controllers\ObatController::class, 'restore'])->name('obat.restore');
-    Route::delete('obat/{obat}/force', [\App\Http\Controllers\ObatController::class, 'forceDelete'])->name('obat.force-delete');
-    Route::resource('obat', \App\Http\Controllers\ObatController::class);
-    
     // Batch Obat
     Route::get('obat/batch-trash', [\App\Http\Controllers\BatchObatController::class, 'trash'])->name('batch.trash');
     Route::post('obat/batch/{batch}/restore', [\App\Http\Controllers\BatchObatController::class, 'restore'])->name('batch.restore');
@@ -29,6 +21,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'update' => 'batch.update',
         'destroy' => 'batch.destroy',
     ]);
+
+    // Data Obat (Main Medicine Inventory)
+    Route::get('obat/download-template', [\App\Http\Controllers\ObatController::class, 'downloadTemplate'])->name('obat.download-template');
+    Route::post('obat/import', [\App\Http\Controllers\ObatController::class, 'import'])->name('obat.import');
+    Route::get('obat/trash', [\App\Http\Controllers\ObatController::class, 'trash'])->name('obat.trash');
+    Route::post('obat/{obat}/restore', [\App\Http\Controllers\ObatController::class, 'restore'])->name('obat.restore');
+    Route::delete('obat/{obat}/force', [\App\Http\Controllers\ObatController::class, 'forceDelete'])->name('obat.force-delete');
+    Route::resource('obat', \App\Http\Controllers\ObatController::class);
     
     // Resep (Prescriptions)
     Route::resource('resep', \App\Http\Controllers\ResepController::class);

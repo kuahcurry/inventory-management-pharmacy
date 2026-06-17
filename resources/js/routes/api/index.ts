@@ -2,7 +2,6 @@ import onboarding from './onboarding'
 import kategoriObat from './kategori-obat'
 import jenisObat from './jenis-obat'
 import satuanObat from './satuan-obat'
-import unitRumahSakit from './unit-rumah-sakit'
 import obat from './obat'
 import medicines from './medicines'
 import batch from './batch'
@@ -20,7 +19,6 @@ import insights from './insights'
 import kategori from './kategori'
 import jenis from './jenis'
 import satuan from './satuan'
-import unit from './unit'
 import supplier from './supplier'
 import suppliers from './suppliers'
 import users from './users'
@@ -30,7 +28,6 @@ const api = {
 kategoriObat: Object.assign(kategoriObat, kategoriObat),
 jenisObat: Object.assign(jenisObat, jenisObat),
 satuanObat: Object.assign(satuanObat, satuanObat),
-unitRumahSakit: Object.assign(unitRumahSakit, unitRumahSakit),
 obat: Object.assign(obat, obat),
 medicines: Object.assign(medicines, medicines),
 batch: Object.assign(batch, batch),
@@ -48,7 +45,6 @@ insights: Object.assign(insights, insights),
 kategori: Object.assign(kategori, kategori),
 jenis: Object.assign(jenis, jenis),
 satuan: Object.assign(satuan, satuan),
-unit: Object.assign(unit, unit),
 supplier: Object.assign(supplier, supplier),
 suppliers: Object.assign(suppliers, suppliers),
 users: Object.assign(users, users),

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\TransaksiController::today
- * @see app/Http/Controllers/Api/TransaksiController.php:342
+ * @see app/Http/Controllers/Api/TransaksiController.php:340
  * @route '/api/transaksi/today'
  */
 export const today = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ today.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\TransaksiController::today
- * @see app/Http/Controllers/Api/TransaksiController.php:342
+ * @see app/Http/Controllers/Api/TransaksiController.php:340
  * @route '/api/transaksi/today'
  */
 today.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ today.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\TransaksiController::today
- * @see app/Http/Controllers/Api/TransaksiController.php:342
+ * @see app/Http/Controllers/Api/TransaksiController.php:340
  * @route '/api/transaksi/today'
  */
 today.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ today.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Api\TransaksiController::today
- * @see app/Http/Controllers/Api/TransaksiController.php:342
+ * @see app/Http/Controllers/Api/TransaksiController.php:340
  * @route '/api/transaksi/today'
  */
 today.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ today.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\TransaksiController::today
- * @see app/Http/Controllers/Api/TransaksiController.php:342
+ * @see app/Http/Controllers/Api/TransaksiController.php:340
  * @route '/api/transaksi/today'
  */
     const todayForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ today.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\TransaksiController::today
- * @see app/Http/Controllers/Api/TransaksiController.php:342
+ * @see app/Http/Controllers/Api/TransaksiController.php:340
  * @route '/api/transaksi/today'
  */
         todayForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ today.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Api\TransaksiController::today
- * @see app/Http/Controllers/Api/TransaksiController.php:342
+ * @see app/Http/Controllers/Api/TransaksiController.php:340
  * @route '/api/transaksi/today'
  */
         todayForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ today.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     today.form = todayForm
 /**
 * @see \App\Http\Controllers\Api\TransaksiController::byType
- * @see app/Http/Controllers/Api/TransaksiController.php:356
+ * @see app/Http/Controllers/Api/TransaksiController.php:354
  * @route '/api/transaksi/by-type/{type}'
  */
 export const byType = (args: { type: string | number } | [type: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ byType.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\TransaksiController::byType
- * @see app/Http/Controllers/Api/TransaksiController.php:356
+ * @see app/Http/Controllers/Api/TransaksiController.php:354
  * @route '/api/transaksi/by-type/{type}'
  */
 byType.url = (args: { type: string | number } | [type: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -122,7 +122,7 @@ byType.url = (args: { type: string | number } | [type: string | number ] | strin
 
 /**
 * @see \App\Http\Controllers\Api\TransaksiController::byType
- * @see app/Http/Controllers/Api/TransaksiController.php:356
+ * @see app/Http/Controllers/Api/TransaksiController.php:354
  * @route '/api/transaksi/by-type/{type}'
  */
 byType.get = (args: { type: string | number } | [type: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -131,7 +131,7 @@ byType.get = (args: { type: string | number } | [type: string | number ] | strin
 })
 /**
 * @see \App\Http\Controllers\Api\TransaksiController::byType
- * @see app/Http/Controllers/Api/TransaksiController.php:356
+ * @see app/Http/Controllers/Api/TransaksiController.php:354
  * @route '/api/transaksi/by-type/{type}'
  */
 byType.head = (args: { type: string | number } | [type: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -141,7 +141,7 @@ byType.head = (args: { type: string | number } | [type: string | number ] | stri
 
     /**
 * @see \App\Http\Controllers\Api\TransaksiController::byType
- * @see app/Http/Controllers/Api/TransaksiController.php:356
+ * @see app/Http/Controllers/Api/TransaksiController.php:354
  * @route '/api/transaksi/by-type/{type}'
  */
     const byTypeForm = (args: { type: string | number } | [type: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -151,7 +151,7 @@ byType.head = (args: { type: string | number } | [type: string | number ] | stri
 
             /**
 * @see \App\Http\Controllers\Api\TransaksiController::byType
- * @see app/Http/Controllers/Api/TransaksiController.php:356
+ * @see app/Http/Controllers/Api/TransaksiController.php:354
  * @route '/api/transaksi/by-type/{type}'
  */
         byTypeForm.get = (args: { type: string | number } | [type: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -160,7 +160,7 @@ byType.head = (args: { type: string | number } | [type: string | number ] | stri
         })
             /**
 * @see \App\Http\Controllers\Api\TransaksiController::byType
- * @see app/Http/Controllers/Api/TransaksiController.php:356
+ * @see app/Http/Controllers/Api/TransaksiController.php:354
  * @route '/api/transaksi/by-type/{type}'
  */
         byTypeForm.head = (args: { type: string | number } | [type: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -286,7 +286,7 @@ keluar.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     keluar.form = keluarForm
 /**
 * @see \App\Http\Controllers\Api\TransaksiController::penjualan
- * @see app/Http/Controllers/Api/TransaksiController.php:215
+ * @see app/Http/Controllers/Api/TransaksiController.php:213
  * @route '/api/transaksi/penjualan'
  */
 export const penjualan = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -301,7 +301,7 @@ penjualan.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\TransaksiController::penjualan
- * @see app/Http/Controllers/Api/TransaksiController.php:215
+ * @see app/Http/Controllers/Api/TransaksiController.php:213
  * @route '/api/transaksi/penjualan'
  */
 penjualan.url = (options?: RouteQueryOptions) => {
@@ -310,7 +310,7 @@ penjualan.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\TransaksiController::penjualan
- * @see app/Http/Controllers/Api/TransaksiController.php:215
+ * @see app/Http/Controllers/Api/TransaksiController.php:213
  * @route '/api/transaksi/penjualan'
  */
 penjualan.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -320,7 +320,7 @@ penjualan.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\TransaksiController::penjualan
- * @see app/Http/Controllers/Api/TransaksiController.php:215
+ * @see app/Http/Controllers/Api/TransaksiController.php:213
  * @route '/api/transaksi/penjualan'
  */
     const penjualanForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -330,7 +330,7 @@ penjualan.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\TransaksiController::penjualan
- * @see app/Http/Controllers/Api/TransaksiController.php:215
+ * @see app/Http/Controllers/Api/TransaksiController.php:213
  * @route '/api/transaksi/penjualan'
  */
         penjualanForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

@@ -139,10 +139,10 @@ export default function OperationalReport({ reorderSuggestions, demandForecasts,
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
                         <Button onClick={generateReorder} disabled={isGeneratingReorder}>
-                            {isGeneratingReorder ? 'Generating Reorder...' : 'Generate Reorder Suggestions'}
+                            {isGeneratingReorder ? 'Membuat Saran...' : 'Buat Saran Pemesanan'}
                         </Button>
                         <Button variant="outline" onClick={generateForecast} disabled={isGeneratingForecast}>
-                            {isGeneratingForecast ? 'Generating Forecast...' : 'Generate Forecasts'}
+                            {isGeneratingForecast ? 'Membuat Forecast...' : 'Buat Forecast'}
                         </Button>
                     </div>
                 </div>
@@ -207,7 +207,9 @@ export default function OperationalReport({ reorderSuggestions, demandForecasts,
                                 {demandForecasts.map((item) => (
                                     <TableRow key={item.id}>
                                         <TableCell>{item.obat?.nama_obat}</TableCell>
-                                        <TableCell className="capitalize">{item.period_type}</TableCell>
+                                        <TableCell className="capitalize">
+                                             {item.period_type === 'weekly' ? 'Mingguan' : item.period_type === 'monthly' ? 'Bulanan' : item.period_type}
+                                        </TableCell>
                                         <TableCell>
                                             {item.forecast_quantity} ({item.confidence_percentage}%)
                                         </TableCell>
@@ -243,7 +245,7 @@ export default function OperationalReport({ reorderSuggestions, demandForecasts,
                                                     onClick={() => handleApprovalDecision(item.id, 'approved')}
                                                     disabled={decisionLoadingId === item.id}
                                                 >
-                                                    Approve
+                                                    {decisionLoadingId === item.id ? 'Memproses...' : 'Setujui'}
                                                 </Button>
                                                 <Button
                                                     size="sm"
@@ -251,7 +253,7 @@ export default function OperationalReport({ reorderSuggestions, demandForecasts,
                                                     onClick={() => handleApprovalDecision(item.id, 'rejected')}
                                                     disabled={decisionLoadingId === item.id}
                                                 >
-                                                    Reject
+                                                    {decisionLoadingId === item.id ? 'Memproses...' : 'Tolak'}
                                                 </Button>
                                             </div>
                                         </TableCell>
