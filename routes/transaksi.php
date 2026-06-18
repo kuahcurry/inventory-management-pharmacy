@@ -7,11 +7,16 @@ use Illuminate\Support\Facades\Route;
  * Handles all transactions including incoming and outgoing goods
  */
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Kasir (POS)
-    Route::get('kasir', [\App\Http\Controllers\TransaksiController::class, 'kasir'])->name('transaksi.kasir');
-    Route::post('kasir/checkout', [\App\Http\Controllers\TransaksiController::class, 'kasirCheckout'])->name('transaksi.kasir.checkout');
+    // Kasir (POS) — admin & pharmacist (staff) only
+    Route::get('kasir', [\App\Http\Controllers\TransaksiController::class, 'kasir'])
+        ->name('transaksi.kasir')
+        ->middleware('role:admin,pharmacist');
+    Route::post('kasir/checkout', [\App\Http\Controllers\TransaksiController::class, 'kasirCheckout'])
+        ->name('transaksi.kasir.checkout')
+        ->middleware('role:admin,pharmacist');
     Route::post('kasir/checkout/resume/{approvalRequest}', [\App\Http\Controllers\TransaksiController::class, 'resumePendingApprovalCheckout'])
-        ->name('transaksi.kasir.checkout.resume');
+        ->name('transaksi.kasir.checkout.resume')
+        ->middleware('role:admin,pharmacist');
 
     // Hutang Suite
     Route::get('hutang', [\App\Http\Controllers\HutangController::class, 'index'])->name('hutang.index');
@@ -27,6 +32,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Barang Keluar (Outgoing Goods)
     Route::get('transaksi/keluar', [\App\Http\Controllers\TransaksiController::class, 'keluar'])->name('transaksi.keluar');
 
-    // Transaksi Resource Routes (create, store, show, edit, update, destroy)
-    Route::resource('transaksi', \App\Http\Controllers\TransaksiController::class)->except(['index']);
+    // Transaksi Resource Routes (create, store, edit, update, destroy) - restricted to admin/pharmacist
+    Route::resource('transaksi', \App\Http\Controllers\TransaksiController::class)->only(['create', 'store', 'edit', 'update', 'destroy'])->middleware('role:admin,pharmacist');
+    // Transaksi show route - open to all authenticated users
+    Route::resource('transaksi', \App\Http\Controllers\TransaksiController::class)->only(['show']);
 });

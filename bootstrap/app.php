@@ -25,6 +25,10 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
+        $middleware->alias([
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
+        ]);
+
         // Add session middleware to API routes for stateful authentication
         $middleware->api(prepend: [
             \Illuminate\Cookie\Middleware\EncryptCookies::class,

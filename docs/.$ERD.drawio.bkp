@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram id="sim-apotek-erd" name="ERD SIM Apotek">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="4000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="100" value="&lt;b&gt;&lt;center&gt;golongan_obat&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;nama_golongan&lt;br&gt;kode&lt;br&gt;butuh_resep&lt;br&gt;deskripsi" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="40" y="40" width="230" height="142" as="geometry" />
+        </mxCell>
+        <mxCell id="101" value="&lt;b&gt;&lt;center&gt;kategori_obat&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;nama_kategori&lt;br&gt;deskripsi&lt;br&gt;is_active" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="320" y="40" width="230" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="102" value="&lt;b&gt;&lt;center&gt;jenis_obat&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;nama_jenis&lt;br&gt;deskripsi&lt;br&gt;is_active" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="600" y="40" width="230" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="103" value="&lt;b&gt;&lt;center&gt;satuan_obat&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;nama_satuan&lt;br&gt;singkatan&lt;br&gt;is_active" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="880" y="40" width="230" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="104" value="&lt;b&gt;&lt;center&gt;supplier&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;kode_supplier&lt;br&gt;nama_supplier&lt;br&gt;alamat&lt;br&gt;no_telepon&lt;br&gt;email&lt;br&gt;kontak_person&lt;br&gt;status&lt;br&gt;lead_time_days" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="1160" y="40" width="230" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="105" value="&lt;b&gt;&lt;center&gt;obat&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;kode_obat&lt;br&gt;nama_obat&lt;br&gt;nama_generik&lt;br&gt;nama_brand&lt;br&gt;&lt;i&gt;golongan_id&lt;/i&gt; [FK]&lt;br&gt;&lt;i&gt;kategori_id&lt;/i&gt; [FK]&lt;br&gt;&lt;i&gt;jenis_id&lt;/i&gt; [FK]&lt;br&gt;&lt;i&gt;satuan_id&lt;/i&gt; [FK]&lt;br&gt;stok_total&lt;br&gt;stok_minimum&lt;br&gt;harga_beli&lt;br&gt;harga_jual&lt;br&gt;lokasi_penyimpanan&lt;br&gt;is_active&lt;br&gt;is_high_risk_drug" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="40" y="380" width="230" height="384" as="geometry" />
+        </mxCell>
+        <mxCell id="106" value="&lt;b&gt;&lt;center&gt;batch_obat&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;&lt;i&gt;obat_id&lt;/i&gt; [FK]&lt;br&gt;&lt;i&gt;supplier_id&lt;/i&gt; [FK]&lt;br&gt;nomor_batch&lt;br&gt;tanggal_produksi&lt;br&gt;tanggal_expired&lt;br&gt;tanggal_masuk&lt;br&gt;stok_awal&lt;br&gt;stok_tersedia&lt;br&gt;harga_beli&lt;br&gt;status&lt;br&gt;kode_qr" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="320" y="380" width="230" height="296" as="geometry" />
+        </mxCell>
+        <mxCell id="107" value="&lt;b&gt;&lt;center&gt;users&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;name&lt;br&gt;email&lt;br&gt;password&lt;br&gt;no_hp&lt;br&gt;role&lt;br&gt;nomor_str&lt;br&gt;is_active&lt;br&gt;alamat" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="600" y="380" width="230" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="108" value="&lt;b&gt;&lt;center&gt;transaksi&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;kode_transaksi&lt;br&gt;&lt;i&gt;obat_id&lt;/i&gt; [FK]&lt;br&gt;&lt;i&gt;batch_id&lt;/i&gt; [FK]&lt;br&gt;&lt;i&gt;user_id&lt;/i&gt; [FK]&lt;br&gt;&lt;i&gt;resep_id&lt;/i&gt; [FK]&lt;br&gt;&lt;i&gt;supplier_id&lt;/i&gt; [FK]&lt;br&gt;jenis_transaksi&lt;br&gt;jumlah&lt;br&gt;harga_satuan&lt;br&gt;total_harga&lt;br&gt;tanggal_transaksi&lt;br&gt;waktu_transaksi&lt;br&gt;keterangan&lt;br&gt;metode_pembayaran&lt;br&gt;status_pelunasan&lt;br&gt;approval_status&lt;br&gt;kategori_keuangan&lt;br&gt;is_taxed&lt;br&gt;bank_code" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="40" y="720" width="230" height="472" as="geometry" />
+        </mxCell>
+        <mxCell id="109" value="&lt;b&gt;&lt;center&gt;resep&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;nomor_resep&lt;br&gt;nomor_referensi&lt;br&gt;nama_pelanggan&lt;br&gt;nama_dokter&lt;br&gt;tanggal_resep&lt;br&gt;kategori_pelanggan&lt;br&gt;metode_pembayaran&lt;br&gt;status&lt;br&gt;&lt;i&gt;processed_by&lt;/i&gt; [FK]&lt;br&gt;catatan" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="320" y="720" width="230" height="274" as="geometry" />
+        </mxCell>
+        <mxCell id="110" value="&lt;b&gt;&lt;center&gt;resep_detail&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;&lt;i&gt;resep_id&lt;/i&gt; [FK]&lt;br&gt;&lt;i&gt;obat_id&lt;/i&gt; [FK]&lt;br&gt;jumlah&lt;br&gt;dosis&lt;br&gt;aturan_pakai&lt;br&gt;is_dispensed" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="600" y="720" width="230" height="186" as="geometry" />
+        </mxCell>
+        <mxCell id="111" value="&lt;b&gt;&lt;center&gt;hutang&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;&lt;i&gt;transaksi_id&lt;/i&gt; [FK]&lt;br&gt;&lt;i&gt;supplier_id&lt;/i&gt; [FK]&lt;br&gt;customer_name&lt;br&gt;total_amount&lt;br&gt;remaining_amount&lt;br&gt;payment_status&lt;br&gt;user_id" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="40" y="1060" width="230" height="208" as="geometry" />
+        </mxCell>
+        <mxCell id="112" value="&lt;b&gt;&lt;center&gt;hutang_payments&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;&lt;i&gt;hutang_id&lt;/i&gt; [FK]&lt;br&gt;amount&lt;br&gt;paid_at&lt;br&gt;metode_pembayaran&lt;br&gt;keterangan" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="320" y="1060" width="230" height="164" as="geometry" />
+        </mxCell>
+        <mxCell id="113" value="&lt;b&gt;&lt;center&gt;biaya_operasional&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;tanggal_biaya&lt;br&gt;kategori&lt;br&gt;nominal&lt;br&gt;metode_pembayaran&lt;br&gt;bank_code&lt;br&gt;keterangan&lt;br&gt;&lt;i&gt;user_id&lt;/i&gt; [FK]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="600" y="1060" width="230" height="208" as="geometry" />
+        </mxCell>
+        <mxCell id="114" value="&lt;b&gt;&lt;center&gt;approval_requests&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;request_type&lt;br&gt;&lt;i&gt;obat_id&lt;/i&gt; [FK]&lt;br&gt;&lt;i&gt;transaksi_id&lt;/i&gt; [FK]&lt;br&gt;&lt;i&gt;requested_by&lt;/i&gt; [FK]&lt;br&gt;&lt;i&gt;approved_by&lt;/i&gt; [FK]&lt;br&gt;approval_level_required&lt;br&gt;status&lt;br&gt;requested_quantity&lt;br&gt;reason" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="880" y="1060" width="230" height="252" as="geometry" />
+        </mxCell>
+        <mxCell id="115" value="&lt;b&gt;&lt;center&gt;stok_opname&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;nomor_opname&lt;br&gt;tanggal_opname&lt;br&gt;&lt;i&gt;penanggung_jawab&lt;/i&gt; [FK]&lt;br&gt;status&lt;br&gt;&lt;i&gt;approved_by&lt;/i&gt; [FK]&lt;br&gt;catatan&lt;br&gt;berita_acara" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="40" y="1400" width="230" height="208" as="geometry" />
+        </mxCell>
+        <mxCell id="116" value="&lt;b&gt;&lt;center&gt;stok_opname_detail&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;&lt;i&gt;stok_opname_id&lt;/i&gt; [FK]&lt;br&gt;&lt;i&gt;batch_id&lt;/i&gt; [FK]&lt;br&gt;stok_sistem&lt;br&gt;stok_fisik&lt;br&gt;selisih" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="320" y="1400" width="230" height="164" as="geometry" />
+        </mxCell>
+        <mxCell id="117" value="&lt;b&gt;&lt;center&gt;pemusnahan_obat&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;nomor_berita_acara&lt;br&gt;tanggal_pemusnahan&lt;br&gt;&lt;i&gt;penanggung_jawab&lt;/i&gt; [FK]&lt;br&gt;alasan&lt;br&gt;metode_pemusnahan&lt;br&gt;lokasi_pemusnahan&lt;br&gt;status&lt;br&gt;&lt;i&gt;approved_by&lt;/i&gt; [FK]&lt;br&gt;keterangan" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="600" y="1400" width="230" height="252" as="geometry" />
+        </mxCell>
+        <mxCell id="118" value="&lt;b&gt;&lt;center&gt;pemusnahan_obat_detail&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;&lt;i&gt;pemusnahan_id&lt;/i&gt; [FK]&lt;br&gt;&lt;i&gt;batch_id&lt;/i&gt; [FK]&lt;br&gt;jumlah&lt;br&gt;nilai_perolehan" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="880" y="1400" width="230" height="142" as="geometry" />
+        </mxCell>
+        <mxCell id="119" value="&lt;b&gt;&lt;center&gt;log_aktivitas&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;&lt;i&gt;user_id&lt;/i&gt; [FK]&lt;br&gt;aktivitas&lt;br&gt;modul&lt;br&gt;aksi&lt;br&gt;loggable_type&lt;br&gt;loggable_id&lt;br&gt;waktu" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="40" y="1740" width="230" height="208" as="geometry" />
+        </mxCell>
+        <mxCell id="120" value="&lt;b&gt;&lt;center&gt;drug_interactions&lt;/center&gt;&lt;/b&gt;&lt;hr&gt;&lt;b&gt;id&lt;/b&gt; [PK]&lt;br&gt;&lt;i&gt;obat_id&lt;/i&gt; [FK]&lt;br&gt;&lt;i&gt;interacts_with_obat_id&lt;/i&gt; [FK]&lt;br&gt;severity&lt;br&gt;effect_description&lt;br&gt;recommendation" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="320" y="1740" width="230" height="164" as="geometry" />
+        </mxCell>
+        <mxCell id="5001" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="100" target="105" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5002" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="101" target="105" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5003" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="102" target="105" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5004" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="103" target="105" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5005" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="104" target="106" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5006" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="104" target="108" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5007" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="104" target="111" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5008" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="105" target="106" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5009" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="105" target="108" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5010" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="105" target="110" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5011" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="105" target="120" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5012" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="105" target="114" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5013" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="106" target="108" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5014" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="106" target="116" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5015" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="106" target="118" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5016" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="107" target="108" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5017" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="107" target="109" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5018" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="107" target="119" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5019" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="107" target="115" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5020" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="107" target="117" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5021" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="107" target="113" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5022" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="107" target="111" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5023" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="107" target="112" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5024" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="107" target="114" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5025" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="108" target="111" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5026" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="108" target="114" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5027" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="109" target="110" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5028" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="109" target="108" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5029" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="111" target="112" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5030" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="115" target="116" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5031" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6c8ebf;strokeWidth=2;" parent="1" source="117" target="118" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

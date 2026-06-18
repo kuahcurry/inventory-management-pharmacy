@@ -8,6 +8,7 @@
 -- 6) Stok opname (20) + stok_opname_detail
 -- 7) Batch obat otomatis untuk obat yang belum punya batch
 
+SET NAMES utf8mb4;
 START TRANSACTION;
 
 -- ------------------------------------------------------------------
@@ -252,9 +253,9 @@ SELECT
     ELSE 'dr. Maya Lestari'
   END,
   CASE
-    WHEN n.n <= 12 THEN @today
-    WHEN n.n <= 24 THEN DATE_SUB(@today, INTERVAL 1 DAY)
-    ELSE DATE_SUB(@today, INTERVAL (MOD(n.n, 10) + 2) DAY)
+    WHEN n.n <= 12 THEN CURDATE()
+    WHEN n.n <= 24 THEN DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+    ELSE ADDDATE(CURDATE(), -((n.n % 10) + 2))
   END,
   CASE MOD(n.n, 3)
     WHEN 1 THEN 'reguler'
@@ -276,7 +277,7 @@ SELECT
     ELSE NULL
   END,
   CASE
-    WHEN MOD(n.n, 4) IN (0,1) THEN DATE_SUB(@now_ts, INTERVAL n.n HOUR)
+    WHEN MOD(n.n, 4) IN (0,1) THEN DATE_SUB(NOW(), INTERVAL n.n HOUR)
     ELSE NULL
   END,
   'Dummy resep untuk pengujian skripsi',
@@ -345,9 +346,9 @@ SELECT
   m.harga_beli,
   (10 + n.n) * m.harga_beli,
   CASE
-    WHEN n.n <= 5 THEN @today
-    WHEN n.n <= 10 THEN DATE_SUB(@today, INTERVAL 1 DAY)
-    ELSE DATE_SUB(@today, INTERVAL (MOD(n.n, 7) + 2) DAY)
+    WHEN n.n <= 5 THEN CURDATE()
+    WHEN n.n <= 10 THEN DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+    ELSE ADDDATE(CURDATE(), -((n.n % 7) + 2))
   END,
   '08:00:00',
   'Dummy transaksi barang masuk',
@@ -408,9 +409,9 @@ SELECT
     2
   ),
   CASE
-    WHEN n.n <= 12 THEN @today
-    WHEN n.n <= 24 THEN DATE_SUB(@today, INTERVAL 1 DAY)
-    ELSE DATE_SUB(@today, INTERVAL (MOD(n.n, 7) + 2) DAY)
+    WHEN n.n <= 12 THEN CURDATE()
+    WHEN n.n <= 24 THEN DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+    ELSE ADDDATE(CURDATE(), -((n.n % 7) + 2))
   END,
   '14:00:00',
   CONCAT(
@@ -503,9 +504,9 @@ SELECT
   m.harga_jual,
   (2 + MOD(n.n, 4)) * m.harga_jual,
   CASE
-    WHEN n.n <= 5 THEN @today
-    WHEN n.n <= 10 THEN DATE_SUB(@today, INTERVAL 1 DAY)
-    ELSE DATE_SUB(@today, INTERVAL (MOD(n.n, 7) + 2) DAY)
+    WHEN n.n <= 5 THEN CURDATE()
+    WHEN n.n <= 10 THEN DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+    ELSE ADDDATE(CURDATE(), -((n.n % 7) + 2))
   END,
   '10:00:00',
   'Dummy transaksi barang keluar retail',
@@ -557,9 +558,9 @@ SELECT
   m.harga_jual,
   (1 + MOD(n.n, 3)) * m.harga_jual,
   CASE
-    WHEN n.n <= 3 THEN @today
-    WHEN n.n <= 6 THEN DATE_SUB(@today, INTERVAL 1 DAY)
-    ELSE DATE_SUB(@today, INTERVAL (MOD(n.n, 7) + 2) DAY)
+    WHEN n.n <= 3 THEN CURDATE()
+    WHEN n.n <= 6 THEN DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+    ELSE ADDDATE(CURDATE(), -((n.n % 7) + 2))
   END,
   '13:00:00',
   'Dummy transaksi hutang suite',
@@ -655,9 +656,9 @@ INSERT INTO biaya_operasional
 )
 SELECT
   CASE
-    WHEN n.n <= 2 THEN @today
-    WHEN n.n <= 4 THEN DATE_SUB(@today, INTERVAL 1 DAY)
-    ELSE DATE_SUB(@today, INTERVAL (MOD(n.n, 10) + 2) DAY)
+    WHEN n.n <= 2 THEN CURDATE()
+    WHEN n.n <= 4 THEN DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+    ELSE ADDDATE(CURDATE(), -((n.n % 10) + 2))
   END,
   CASE MOD(n.n, 4)
     WHEN 1 THEN 'pajak'
@@ -737,9 +738,9 @@ SELECT
   ROUND(GREATEST(m.harga_jual * 1.08, m.harga_beli * 1.18), 2),
   ROUND((24 + MOD(n.n, 17)) * ROUND(GREATEST(m.harga_jual * 1.08, m.harga_beli * 1.18), 2) * 1.11, 2),
   CASE
-    WHEN n.n <= 12 THEN @today
-    WHEN n.n <= 24 THEN DATE_SUB(@today, INTERVAL 1 DAY)
-    ELSE DATE_SUB(@today, INTERVAL (MOD(n.n, 7) + 2) DAY)
+    WHEN n.n <= 12 THEN CURDATE()
+    WHEN n.n <= 24 THEN DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+    ELSE ADDDATE(CURDATE(), -((n.n % 7) + 2))
   END,
   '15:30:00',
   'DMY26-boost-profit-realistis | Penjualan volume puluhan item | PPN: 11% | Diskon: 0%',
@@ -913,7 +914,7 @@ SELECT
   CAST(LEAST(75, GREATEST(@adj_qty_needed - ((n.n - 1) * 75), 0)) AS UNSIGNED),
   @adj_harga_satuan,
   ROUND(CAST(LEAST(75, GREATEST(@adj_qty_needed - ((n.n - 1) * 75), 0)) AS UNSIGNED) * @adj_harga_satuan * 1.11, 2),
-  DATE_SUB(@today, INTERVAL MOD(n.n, 7) DAY),
+  ADDDATE(@today, -(n.n % 7)),
   '16:10:00',
   'DMY26-target-net-up-realistis | Transaksi volume puluhan item | PPN: 11%',
   CONCAT('NET-ADJ-UP-DMY26-', LPAD(n.n, 4, '0')),
@@ -1144,9 +1145,9 @@ INSERT INTO pemusnahan_obat
 SELECT
   CONCAT('BA-DMY26-', LPAD(n.n, 4, '0')),
   CASE
-    WHEN n.n <= 2 THEN @today
-    WHEN n.n <= 4 THEN DATE_SUB(@today, INTERVAL 1 DAY)
-    ELSE DATE_SUB(@today, INTERVAL (MOD(n.n, 10) + 2) DAY)
+    WHEN n.n <= 2 THEN CURDATE()
+    WHEN n.n <= 4 THEN DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+    ELSE ADDDATE(CURDATE(), -((n.n % 10) + 2))
   END,
   @user_primary,
   'Area Insinerator Apotek',
@@ -1166,7 +1167,7 @@ SELECT
     ELSE 'approved'
   END,
   CASE WHEN MOD(n.n, 3) = 0 THEN @user_secondary ELSE NULL END,
-  CASE WHEN MOD(n.n, 3) = 0 THEN DATE_SUB(@now_ts, INTERVAL n.n HOUR) ELSE NULL END,
+  CASE WHEN MOD(n.n, 3) = 0 THEN DATE_SUB(NOW(), INTERVAL n.n HOUR) ELSE NULL END,
   @now_ts,
   @now_ts
 FROM tmp_num n
@@ -1204,9 +1205,9 @@ INSERT INTO stok_opname
 SELECT
   CONCAT('SO-DMY26-', LPAD(n.n, 4, '0')),
   CASE
-    WHEN n.n <= 2 THEN @today
-    WHEN n.n <= 4 THEN DATE_SUB(@today, INTERVAL 1 DAY)
-    ELSE DATE_SUB(@today, INTERVAL (MOD(n.n, 20) + 2) DAY)
+    WHEN n.n <= 2 THEN CURDATE()
+    WHEN n.n <= 4 THEN DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+    ELSE ADDDATE(CURDATE(), -((n.n % 20) + 2))
   END,
   @user_primary,
   CASE MOD(n.n, 4)
@@ -1216,7 +1217,7 @@ SELECT
     ELSE 'approved'
   END,
   CASE WHEN MOD(n.n, 4) = 0 THEN @user_secondary ELSE NULL END,
-  CASE WHEN MOD(n.n, 4) = 0 THEN DATE_SUB(@now_ts, INTERVAL n.n HOUR) ELSE NULL END,
+  CASE WHEN MOD(n.n, 4) = 0 THEN DATE_SUB(NOW(), INTERVAL n.n HOUR) ELSE NULL END,
   'Dummy stok opname periodik',
   CASE WHEN MOD(n.n, 4) IN (3,0) THEN 'Berita acara dummy stok opname' ELSE NULL END,
   @now_ts,

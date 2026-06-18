@@ -1,8 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Package, User, Calendar, MapPin, FileText, CheckCircle2, AlertCircle, Clock, Edit, ArrowLeft } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -65,6 +65,11 @@ interface Props {
 }
 
 export default function PemusnahanShow({ pemusnahan }: Props) {
+    const { auth } = usePage<SharedData>().props;
+    const role = (auth?.user as { role?: string })?.role ?? 'pharmacist';
+    const canApprove = role === 'admin' || role === 'manager';
+    const canEdit    = role === 'admin' || role === 'pharmacist';
+
     const { post, processing } = useForm();
 
     const handleApprove = () => {
@@ -148,13 +153,13 @@ export default function PemusnahanShow({ pemusnahan }: Props) {
                         </p>
                     </div>
                     <div className="flex gap-2">
-                        {pemusnahan.status === 'completed' && (
+                        {canApprove && pemusnahan.status === 'completed' && (
                             <Button onClick={handleApprove} disabled={processing}>
                                 <CheckCircle2 className="mr-2 size-4" />
                                 {processing ? 'Memproses...' : 'Approve Pemusnahan'}
                             </Button>
                         )}
-                        {pemusnahan.status === 'draft' && (
+                        {canEdit && pemusnahan.status === 'draft' && (
                             <Button asChild>
                                 <Link href={`/pemusnahan/${pemusnahan.id}/edit`}>
                                     <Edit className="mr-2 size-4" />

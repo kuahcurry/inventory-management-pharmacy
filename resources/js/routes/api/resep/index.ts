@@ -82,7 +82,7 @@ pending.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
  * @see app/Http/Controllers/Api/ResepController.php:137
  * @route '/api/resep/{resep}/process'
  */
-export const process = (args: { resep: number | { id: number } } | [resep: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const process = (args: { resep: string | number | { id: string | number } } | [resep: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: process.url(args, options),
     method: 'post',
 })
@@ -97,7 +97,7 @@ process.definition = {
  * @see app/Http/Controllers/Api/ResepController.php:137
  * @route '/api/resep/{resep}/process'
  */
-process.url = (args: { resep: number | { id: number } } | [resep: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+process.url = (args: { resep: string | number | { id: string | number } } | [resep: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { resep: args }
     }
@@ -130,7 +130,7 @@ process.url = (args: { resep: number | { id: number } } | [resep: number | { id:
  * @see app/Http/Controllers/Api/ResepController.php:137
  * @route '/api/resep/{resep}/process'
  */
-process.post = (args: { resep: number | { id: number } } | [resep: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+process.post = (args: { resep: string | number | { id: string | number } } | [resep: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: process.url(args, options),
     method: 'post',
 })
@@ -140,7 +140,7 @@ process.post = (args: { resep: number | { id: number } } | [resep: number | { id
  * @see app/Http/Controllers/Api/ResepController.php:137
  * @route '/api/resep/{resep}/process'
  */
-    const processForm = (args: { resep: number | { id: number } } | [resep: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const processForm = (args: { resep: string | number | { id: string | number } } | [resep: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: process.url(args, options),
         method: 'post',
     })
@@ -150,7 +150,7 @@ process.post = (args: { resep: number | { id: number } } | [resep: number | { id
  * @see app/Http/Controllers/Api/ResepController.php:137
  * @route '/api/resep/{resep}/process'
  */
-        processForm.post = (args: { resep: number | { id: number } } | [resep: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        processForm.post = (args: { resep: string | number | { id: string | number } } | [resep: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: process.url(args, options),
             method: 'post',
         })
@@ -161,7 +161,7 @@ process.post = (args: { resep: number | { id: number } } | [resep: number | { id
  * @see app/Http/Controllers/Api/ResepController.php:173
  * @route '/api/resep/{resep}/complete'
  */
-export const complete = (args: { resep: number | { id: number } } | [resep: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const complete = (args: { resep: string | number | { id: string | number } } | [resep: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: complete.url(args, options),
     method: 'post',
 })
@@ -176,7 +176,7 @@ complete.definition = {
  * @see app/Http/Controllers/Api/ResepController.php:173
  * @route '/api/resep/{resep}/complete'
  */
-complete.url = (args: { resep: number | { id: number } } | [resep: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+complete.url = (args: { resep: string | number | { id: string | number } } | [resep: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { resep: args }
     }
@@ -209,7 +209,7 @@ complete.url = (args: { resep: number | { id: number } } | [resep: number | { id
  * @see app/Http/Controllers/Api/ResepController.php:173
  * @route '/api/resep/{resep}/complete'
  */
-complete.post = (args: { resep: number | { id: number } } | [resep: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+complete.post = (args: { resep: string | number | { id: string | number } } | [resep: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: complete.url(args, options),
     method: 'post',
 })
@@ -219,7 +219,7 @@ complete.post = (args: { resep: number | { id: number } } | [resep: number | { i
  * @see app/Http/Controllers/Api/ResepController.php:173
  * @route '/api/resep/{resep}/complete'
  */
-    const completeForm = (args: { resep: number | { id: number } } | [resep: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const completeForm = (args: { resep: string | number | { id: string | number } } | [resep: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: complete.url(args, options),
         method: 'post',
     })
@@ -229,7 +229,7 @@ complete.post = (args: { resep: number | { id: number } } | [resep: number | { i
  * @see app/Http/Controllers/Api/ResepController.php:173
  * @route '/api/resep/{resep}/complete'
  */
-        completeForm.post = (args: { resep: number | { id: number } } | [resep: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        completeForm.post = (args: { resep: string | number | { id: string | number } } | [resep: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: complete.url(args, options),
             method: 'post',
         })
@@ -373,7 +373,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
  * @see app/Http/Controllers/Api/ResepController.php:114
  * @route '/api/resep/{resep}'
  */
-export const show = (args: { resep: number | { id: number } } | [resep: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const show = (args: { resep: string | number | { id: string | number } } | [resep: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -388,7 +388,7 @@ show.definition = {
  * @see app/Http/Controllers/Api/ResepController.php:114
  * @route '/api/resep/{resep}'
  */
-show.url = (args: { resep: number | { id: number } } | [resep: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+show.url = (args: { resep: string | number | { id: string | number } } | [resep: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { resep: args }
     }
@@ -421,7 +421,7 @@ show.url = (args: { resep: number | { id: number } } | [resep: number | { id: nu
  * @see app/Http/Controllers/Api/ResepController.php:114
  * @route '/api/resep/{resep}'
  */
-show.get = (args: { resep: number | { id: number } } | [resep: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+show.get = (args: { resep: string | number | { id: string | number } } | [resep: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -430,7 +430,7 @@ show.get = (args: { resep: number | { id: number } } | [resep: number | { id: nu
  * @see app/Http/Controllers/Api/ResepController.php:114
  * @route '/api/resep/{resep}'
  */
-show.head = (args: { resep: number | { id: number } } | [resep: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+show.head = (args: { resep: string | number | { id: string | number } } | [resep: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: show.url(args, options),
     method: 'head',
 })
@@ -440,7 +440,7 @@ show.head = (args: { resep: number | { id: number } } | [resep: number | { id: n
  * @see app/Http/Controllers/Api/ResepController.php:114
  * @route '/api/resep/{resep}'
  */
-    const showForm = (args: { resep: number | { id: number } } | [resep: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    const showForm = (args: { resep: string | number | { id: string | number } } | [resep: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
         action: show.url(args, options),
         method: 'get',
     })
@@ -450,7 +450,7 @@ show.head = (args: { resep: number | { id: number } } | [resep: number | { id: n
  * @see app/Http/Controllers/Api/ResepController.php:114
  * @route '/api/resep/{resep}'
  */
-        showForm.get = (args: { resep: number | { id: number } } | [resep: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        showForm.get = (args: { resep: string | number | { id: string | number } } | [resep: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: show.url(args, options),
             method: 'get',
         })
@@ -459,7 +459,7 @@ show.head = (args: { resep: number | { id: number } } | [resep: number | { id: n
  * @see app/Http/Controllers/Api/ResepController.php:114
  * @route '/api/resep/{resep}'
  */
-        showForm.head = (args: { resep: number | { id: number } } | [resep: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        showForm.head = (args: { resep: string | number | { id: string | number } } | [resep: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: show.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',

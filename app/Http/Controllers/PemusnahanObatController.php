@@ -18,7 +18,8 @@ class PemusnahanObatController extends Controller
     public function index(): Response
     {
         $pemusnahan = PemusnahanObat::with(['penanggungJawab', 'approvedBy', 'details'])
-            ->latest()
+            ->orderByDesc('tanggal_pemusnahan')
+            ->orderByDesc('created_at')
             ->paginate(20);
 
         return Inertia::render('obat/pemusnahan/index', [

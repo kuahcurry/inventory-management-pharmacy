@@ -160,7 +160,7 @@ expired.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
  * @see app/Http/Controllers/Api/BatchObatController.php:106
  * @route '/api/batch/{batch}/update-status'
  */
-export const updateStatus = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const updateStatus = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: updateStatus.url(args, options),
     method: 'post',
 })
@@ -175,7 +175,7 @@ updateStatus.definition = {
  * @see app/Http/Controllers/Api/BatchObatController.php:106
  * @route '/api/batch/{batch}/update-status'
  */
-updateStatus.url = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+updateStatus.url = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { batch: args }
     }
@@ -208,7 +208,7 @@ updateStatus.url = (args: { batch: number | { id: number } } | [batch: number | 
  * @see app/Http/Controllers/Api/BatchObatController.php:106
  * @route '/api/batch/{batch}/update-status'
  */
-updateStatus.post = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+updateStatus.post = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: updateStatus.url(args, options),
     method: 'post',
 })
@@ -218,7 +218,7 @@ updateStatus.post = (args: { batch: number | { id: number } } | [batch: number |
  * @see app/Http/Controllers/Api/BatchObatController.php:106
  * @route '/api/batch/{batch}/update-status'
  */
-    const updateStatusForm = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const updateStatusForm = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: updateStatus.url(args, options),
         method: 'post',
     })
@@ -228,7 +228,7 @@ updateStatus.post = (args: { batch: number | { id: number } } | [batch: number |
  * @see app/Http/Controllers/Api/BatchObatController.php:106
  * @route '/api/batch/{batch}/update-status'
  */
-        updateStatusForm.post = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        updateStatusForm.post = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: updateStatus.url(args, options),
             method: 'post',
         })
@@ -372,7 +372,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
  * @see app/Http/Controllers/Api/BatchObatController.php:96
  * @route '/api/batch/{batch}'
  */
-export const show = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const show = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -387,7 +387,7 @@ show.definition = {
  * @see app/Http/Controllers/Api/BatchObatController.php:96
  * @route '/api/batch/{batch}'
  */
-show.url = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+show.url = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { batch: args }
     }
@@ -420,7 +420,7 @@ show.url = (args: { batch: number | { id: number } } | [batch: number | { id: nu
  * @see app/Http/Controllers/Api/BatchObatController.php:96
  * @route '/api/batch/{batch}'
  */
-show.get = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+show.get = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -429,7 +429,7 @@ show.get = (args: { batch: number | { id: number } } | [batch: number | { id: nu
  * @see app/Http/Controllers/Api/BatchObatController.php:96
  * @route '/api/batch/{batch}'
  */
-show.head = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+show.head = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: show.url(args, options),
     method: 'head',
 })
@@ -439,7 +439,7 @@ show.head = (args: { batch: number | { id: number } } | [batch: number | { id: n
  * @see app/Http/Controllers/Api/BatchObatController.php:96
  * @route '/api/batch/{batch}'
  */
-    const showForm = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    const showForm = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
         action: show.url(args, options),
         method: 'get',
     })
@@ -449,7 +449,7 @@ show.head = (args: { batch: number | { id: number } } | [batch: number | { id: n
  * @see app/Http/Controllers/Api/BatchObatController.php:96
  * @route '/api/batch/{batch}'
  */
-        showForm.get = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        showForm.get = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: show.url(args, options),
             method: 'get',
         })
@@ -458,7 +458,7 @@ show.head = (args: { batch: number | { id: number } } | [batch: number | { id: n
  * @see app/Http/Controllers/Api/BatchObatController.php:96
  * @route '/api/batch/{batch}'
  */
-        showForm.head = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        showForm.head = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: show.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',

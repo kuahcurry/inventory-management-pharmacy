@@ -3,9 +3,9 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
-import { Trash2, Plus, Eye, Pencil, Trash, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Trash2, Plus, Eye, Pencil, Trash, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -47,6 +47,11 @@ interface Props {
 }
 
 export default function PemusnahanIndex({ pemusnahan }: Props) {
+    const { auth } = usePage<SharedData>().props;
+    const role = (auth?.user as { role?: string })?.role ?? 'pharmacist';
+    const canCreate  = role === 'admin' || role === 'pharmacist';
+    const canApprove = role === 'admin' || role === 'manager';
+
     const [deleteId, setDeleteId] = useState<number | null>(null);
 
     const handleDelete = () => {
@@ -105,12 +110,14 @@ export default function PemusnahanIndex({ pemusnahan }: Props) {
                             Kelola dokumentasi pemusnahan obat kadaluarsa atau rusak
                         </p>
                     </div>
-                    <Button asChild>
-                        <Link href="/pemusnahan/create">
-                            <Plus className="mr-2 size-4" />
-                            Tambah Pemusnahan
-                        </Link>
-                    </Button>
+                    {canCreate && (
+                        <Button asChild>
+                            <Link href="/pemusnahan/create">
+                                <Plus className="mr-2 size-4" />
+                                Tambah Pemusnahan
+                            </Link>
+                        </Button>
+                    )}
                 </div>
 
                 <div className="rounded-xl border border-sidebar-border/70 bg-card">
@@ -152,7 +159,7 @@ export default function PemusnahanIndex({ pemusnahan }: Props) {
                                                         <Eye className="size-4" />
                                                     </Link>
                                                 </Button>
-                                                {item.status === 'draft' && (
+                                                {canCreate && item.status === 'draft' && (
                                                     <>
                                                         <Button variant="ghost" size="sm" asChild>
                                                             <Link href={`/pemusnahan/${item.id}/edit`}>

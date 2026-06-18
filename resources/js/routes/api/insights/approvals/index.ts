@@ -4,7 +4,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
  * @see app/Http/Controllers/Api/OperationalInsightController.php:100
  * @route '/api/insights/approvals/{approval}/decision'
  */
-export const decision = (args: { approval: number | { id: number } } | [approval: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const decision = (args: { approval: string | number | { id: string | number } } | [approval: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: decision.url(args, options),
     method: 'post',
 })
@@ -19,7 +19,7 @@ decision.definition = {
  * @see app/Http/Controllers/Api/OperationalInsightController.php:100
  * @route '/api/insights/approvals/{approval}/decision'
  */
-decision.url = (args: { approval: number | { id: number } } | [approval: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+decision.url = (args: { approval: string | number | { id: string | number } } | [approval: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { approval: args }
     }
@@ -52,7 +52,7 @@ decision.url = (args: { approval: number | { id: number } } | [approval: number 
  * @see app/Http/Controllers/Api/OperationalInsightController.php:100
  * @route '/api/insights/approvals/{approval}/decision'
  */
-decision.post = (args: { approval: number | { id: number } } | [approval: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+decision.post = (args: { approval: string | number | { id: string | number } } | [approval: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: decision.url(args, options),
     method: 'post',
 })
@@ -62,7 +62,7 @@ decision.post = (args: { approval: number | { id: number } } | [approval: number
  * @see app/Http/Controllers/Api/OperationalInsightController.php:100
  * @route '/api/insights/approvals/{approval}/decision'
  */
-    const decisionForm = (args: { approval: number | { id: number } } | [approval: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const decisionForm = (args: { approval: string | number | { id: string | number } } | [approval: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: decision.url(args, options),
         method: 'post',
     })
@@ -72,7 +72,7 @@ decision.post = (args: { approval: number | { id: number } } | [approval: number
  * @see app/Http/Controllers/Api/OperationalInsightController.php:100
  * @route '/api/insights/approvals/{approval}/decision'
  */
-        decisionForm.post = (args: { approval: number | { id: number } } | [approval: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        decisionForm.post = (args: { approval: string | number | { id: string | number } } | [approval: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: decision.url(args, options),
             method: 'post',
         })

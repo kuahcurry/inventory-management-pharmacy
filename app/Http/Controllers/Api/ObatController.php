@@ -22,7 +22,7 @@ class ObatController extends Controller
         $kategori = $request->get('kategori');
         $jenis = $request->get('jenis');
 
-        $query = Obat::with(['kategori', 'jenis', 'satuan', 'batches'])
+        $query = Obat::with(['kategori', 'jenis', 'satuan', 'golongan', 'batches'])
             ->active();
 
         if ($search) {
@@ -174,7 +174,7 @@ class ObatController extends Controller
     {
         $query = $request->get('q');
         
-        $obats = Obat::with(['kategori', 'jenis', 'satuan'])
+        $obats = Obat::with(['kategori', 'jenis', 'satuan', 'golongan'])
             ->active()
             ->where(function ($q) use ($query) {
                 $q->where('nama_obat', 'like', "%{$query}%")
@@ -202,9 +202,10 @@ class ObatController extends Controller
         }
 
         $medicines = Obat::query()
-            ->select(['id', 'kode_obat', 'nama_obat', 'kategori_id', 'satuan_id', 'stok_total', 'harga_beli'])
+            ->select(['id', 'kode_obat', 'nama_obat', 'kategori_id', 'golongan_id', 'satuan_id', 'stok_total', 'harga_beli'])
             ->with([
                 'kategori:id,nama_kategori',
+                'golongan:id,nama_golongan,kode,butuh_resep',
                 'satuan:id,nama_satuan',
             ])
             ->active()
@@ -246,6 +247,11 @@ class ObatController extends Controller
                     'kategori' => $obat->kategori ? [
                         'id' => $obat->kategori->id,
                         'nama_kategori' => $obat->kategori->nama_kategori,
+                    ] : null,
+                    'golongan' => $obat->golongan ? [
+                        'id' => $obat->golongan->id,
+                        'nama_golongan' => $obat->golongan->nama_golongan,
+                        'kode' => $obat->golongan->kode,
                     ] : null,
                     'satuan' => $obat->satuan ? [
                         'id' => $obat->satuan->id,

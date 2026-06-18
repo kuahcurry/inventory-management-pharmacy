@@ -59,7 +59,7 @@ start.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
  * @see app/Http/Controllers/Api/OperationalInsightController.php:171
  * @route '/api/insights/stock-scan-sessions/{session}/scan'
  */
-export const scan = (args: { session: number | { id: number } } | [session: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const scan = (args: { session: string | number | { id: string | number } } | [session: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: scan.url(args, options),
     method: 'post',
 })
@@ -74,7 +74,7 @@ scan.definition = {
  * @see app/Http/Controllers/Api/OperationalInsightController.php:171
  * @route '/api/insights/stock-scan-sessions/{session}/scan'
  */
-scan.url = (args: { session: number | { id: number } } | [session: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+scan.url = (args: { session: string | number | { id: string | number } } | [session: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { session: args }
     }
@@ -107,7 +107,7 @@ scan.url = (args: { session: number | { id: number } } | [session: number | { id
  * @see app/Http/Controllers/Api/OperationalInsightController.php:171
  * @route '/api/insights/stock-scan-sessions/{session}/scan'
  */
-scan.post = (args: { session: number | { id: number } } | [session: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+scan.post = (args: { session: string | number | { id: string | number } } | [session: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: scan.url(args, options),
     method: 'post',
 })
@@ -117,7 +117,7 @@ scan.post = (args: { session: number | { id: number } } | [session: number | { i
  * @see app/Http/Controllers/Api/OperationalInsightController.php:171
  * @route '/api/insights/stock-scan-sessions/{session}/scan'
  */
-    const scanForm = (args: { session: number | { id: number } } | [session: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const scanForm = (args: { session: string | number | { id: string | number } } | [session: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: scan.url(args, options),
         method: 'post',
     })
@@ -127,7 +127,7 @@ scan.post = (args: { session: number | { id: number } } | [session: number | { i
  * @see app/Http/Controllers/Api/OperationalInsightController.php:171
  * @route '/api/insights/stock-scan-sessions/{session}/scan'
  */
-        scanForm.post = (args: { session: number | { id: number } } | [session: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        scanForm.post = (args: { session: string | number | { id: string | number } } | [session: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: scan.url(args, options),
             method: 'post',
         })
@@ -138,7 +138,7 @@ scan.post = (args: { session: number | { id: number } } | [session: number | { i
  * @see app/Http/Controllers/Api/OperationalInsightController.php:214
  * @route '/api/insights/stock-scan-sessions/{session}/complete'
  */
-export const complete = (args: { session: number | { id: number } } | [session: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const complete = (args: { session: string | number | { id: string | number } } | [session: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: complete.url(args, options),
     method: 'post',
 })
@@ -153,7 +153,7 @@ complete.definition = {
  * @see app/Http/Controllers/Api/OperationalInsightController.php:214
  * @route '/api/insights/stock-scan-sessions/{session}/complete'
  */
-complete.url = (args: { session: number | { id: number } } | [session: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+complete.url = (args: { session: string | number | { id: string | number } } | [session: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { session: args }
     }
@@ -186,7 +186,7 @@ complete.url = (args: { session: number | { id: number } } | [session: number | 
  * @see app/Http/Controllers/Api/OperationalInsightController.php:214
  * @route '/api/insights/stock-scan-sessions/{session}/complete'
  */
-complete.post = (args: { session: number | { id: number } } | [session: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+complete.post = (args: { session: string | number | { id: string | number } } | [session: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: complete.url(args, options),
     method: 'post',
 })
@@ -196,7 +196,7 @@ complete.post = (args: { session: number | { id: number } } | [session: number |
  * @see app/Http/Controllers/Api/OperationalInsightController.php:214
  * @route '/api/insights/stock-scan-sessions/{session}/complete'
  */
-    const completeForm = (args: { session: number | { id: number } } | [session: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const completeForm = (args: { session: string | number | { id: string | number } } | [session: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: complete.url(args, options),
         method: 'post',
     })
@@ -206,7 +206,7 @@ complete.post = (args: { session: number | { id: number } } | [session: number |
  * @see app/Http/Controllers/Api/OperationalInsightController.php:214
  * @route '/api/insights/stock-scan-sessions/{session}/complete'
  */
-        completeForm.post = (args: { session: number | { id: number } } | [session: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        completeForm.post = (args: { session: string | number | { id: string | number } } | [session: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: complete.url(args, options),
             method: 'post',
         })

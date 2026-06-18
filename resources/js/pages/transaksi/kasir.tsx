@@ -1,6 +1,6 @@
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
-import { Search, Trash2 } from 'lucide-react';
+import { Search, Trash2, Lock, CheckCircle2, XCircle } from 'lucide-react';
 
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
@@ -27,6 +27,7 @@ type Batch = {
         kode_obat: string;
         harga_jual: number;
         satuan?: { nama_satuan: string };
+        golongan?: { kode: string; nama_golongan: string; butuh_resep: boolean };
     };
 };
 
@@ -91,7 +92,6 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
         supplier_nama: '',
         pelanggan_nama: '',
         dokter_nama: '',
-        kasir_nama: auth.user.name,
         resep_id: '',
         tipe_penjualan: 'biasa',
         is_taxed: false,
@@ -140,6 +140,15 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
         const q = search.trim().toLowerCase();
 
         return batches.filter((batch) => {
+            // Hide prescription-only drugs in biasa mode
+            if (
+                data.mode === 'penjualan' &&
+                data.tipe_penjualan === 'biasa' &&
+                batch.obat.golongan?.butuh_resep
+            ) {
+                return false;
+            }
+
             if (!q) return true;
 
             return [
@@ -151,7 +160,7 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                 .toLowerCase()
                 .includes(q);
         });
-    }, [batches, search]);
+    }, [batches, search, data.mode, data.tipe_penjualan]);
 
     const findBatch = (batchId: number) => batches.find((b) => b.id === batchId);
     const cartObatIds = useMemo(
@@ -241,7 +250,7 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
 
         const timeout = window.setTimeout(() => {
             setBanner(null);
-        }, 3500);
+        }, 4000);
 
         return () => window.clearTimeout(timeout);
     }, [banner]);
@@ -407,6 +416,20 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
 
         post('/kasir/checkout', {
             preserveScroll: true,
+            onSuccess: () => {
+                setCart([]);
+                setData((prev) => ({
+                    ...prev,
+                    pelanggan_nama: '',
+                    dokter_nama: '',
+                    resep_id: '',
+                    pembayaran_diterima: '',
+                    biaya_nominal: '',
+                    biaya_keterangan: '',
+                    bank_code: '',
+                    bank_nama: '',
+                }));
+            },
         });
     };
 
@@ -422,24 +445,33 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                     </p>
                 </div>
 
-                <div>
-                    <h1 className="text-2xl font-bold">Kasir</h1>
-                    <p className="text-sm text-muted-foreground">
-                        POS berbasis batch obat dengan checkout cepat.
-                    </p>
-                </div>
-
-                {banner && (
-                    <div
-                        className={`rounded-lg border px-4 py-3 text-sm ${
-                            banner.type === 'success'
-                                ? 'border-emerald-300 bg-emerald-50 text-emerald-800'
-                                : 'border-red-300 bg-red-50 text-red-800'
-                        }`}
-                    >
-                        {banner.message}
+                {/* Floating toast notification */}
+                <div
+                    className={`fixed bottom-6 right-6 z-50 flex items-start gap-3 rounded-xl border px-5 py-4 shadow-2xl transition-all duration-500 ${
+                        banner
+                            ? 'translate-y-0 opacity-100'
+                            : 'pointer-events-none translate-y-4 opacity-0'
+                    } ${
+                        banner?.type === 'success'
+                            ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
+                            : 'border-red-200 bg-red-50 text-red-900'
+                    }`}
+                    style={{ maxWidth: '380px', minWidth: '260px' }}
+                    role="alert"
+                    aria-live="polite"
+                >
+                    {banner?.type === 'success' ? (
+                        <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-600" />
+                    ) : (
+                        <XCircle className="mt-0.5 size-5 shrink-0 text-red-500" />
+                    )}
+                    <div>
+                        <p className="text-sm font-semibold">
+                            {banner?.type === 'success' ? 'Transaksi Berhasil' : 'Terjadi Kesalahan'}
+                        </p>
+                        <p className="mt-0.5 text-xs opacity-80">{banner?.message}</p>
                     </div>
-                )}
+                </div>
 
                 <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr]">
                     <div className="space-y-4 rounded-xl border border-sidebar-border/70 bg-card p-4">
@@ -548,12 +580,14 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
 
                             <div className="grid gap-2">
                                 <Label htmlFor="kasir-nama">Kasir</Label>
-                                <Input
+                                <div
                                     id="kasir-nama"
-                                    value={data.kasir_nama}
-                                    onChange={(e) => setData('kasir_nama', e.target.value)}
-                                    placeholder="Nama kasir"
-                                />
+                                    className="flex h-10 w-full items-center gap-2 rounded-md border border-input bg-muted px-3 py-2 text-sm text-muted-foreground select-none"
+                                >
+                                    <Lock className="size-3.5 shrink-0" />
+                                    <span className="truncate">{auth.user.name}</span>
+                                </div>
+                                <p className="text-xs text-muted-foreground">Nama kasir dikunci ke akun yang sedang login.</p>
                             </div>
                         </div>
 
@@ -639,15 +673,32 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                                 </div>
 
                                 <div className="max-h-[500px] space-y-2 overflow-y-auto pr-1">
-                                    {filteredBatches.map((batch) => (
+                                    {filteredBatches.map((batch) => {
+                                        const golongan = batch.obat.golongan;
+                                        const golBadgeClass = golongan?.butuh_resep
+                                            ? 'bg-red-100 text-red-700 border-red-200'
+                                            : golongan?.kode === 'GTB'
+                                              ? 'bg-blue-100 text-blue-700 border-blue-200'
+                                              : 'bg-green-100 text-green-700 border-green-200';
+                                        return (
                                         <div key={batch.id} className="rounded-lg border border-sidebar-border/70 p-3">
                                             <div className="flex items-start justify-between gap-3">
-                                                <div>
-                                                    <p className="font-medium">
-                                                        {batch.obat.nama_obat} - {batch.nomor_batch}
-                                                    </p>
+                                                <div className="min-w-0">
+                                                    <div className="flex flex-wrap items-center gap-1.5">
+                                                        <p className="font-medium">
+                                                            {batch.obat.nama_obat}
+                                                        </p>
+                                                        {golongan && (
+                                                            <span
+                                                                className={`inline-flex shrink-0 items-center rounded border px-1.5 py-0.5 text-[10px] font-bold leading-none ${golBadgeClass}`}
+                                                                title={golongan.nama_golongan}
+                                                            >
+                                                                {golongan.kode}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                     <p className="text-xs text-muted-foreground">
-                                                        {batch.obat.kode_obat} - Stok {batch.stok_tersedia}
+                                                        {batch.nomor_batch} &middot; Stok {batch.stok_tersedia}
                                                     </p>
                                                 </div>
                                                 <Button size="sm" onClick={() => addToCart(batch)}>
@@ -655,7 +706,8 @@ export default function Kasir({ batches, reseps, paymentMethodsByMode }: Props) 
                                                 </Button>
                                             </div>
                                         </div>
-                                    ))}
+                                    );
+                                    })}
                                 </div>
                             </>
                         )}

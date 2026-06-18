@@ -160,7 +160,7 @@ pendingApproval.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
  * @see app/Http/Controllers/Api/PemusnahanObatController.php:115
  * @route '/api/pemusnahan/{pemusnahanObat}/upload-ba'
  */
-export const uploadBa = (args: { pemusnahanObat: number | { id: number } } | [pemusnahanObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const uploadBa = (args: { pemusnahanObat: string | number | { id: string | number } } | [pemusnahanObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: uploadBa.url(args, options),
     method: 'post',
 })
@@ -175,7 +175,7 @@ uploadBa.definition = {
  * @see app/Http/Controllers/Api/PemusnahanObatController.php:115
  * @route '/api/pemusnahan/{pemusnahanObat}/upload-ba'
  */
-uploadBa.url = (args: { pemusnahanObat: number | { id: number } } | [pemusnahanObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+uploadBa.url = (args: { pemusnahanObat: string | number | { id: string | number } } | [pemusnahanObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { pemusnahanObat: args }
     }
@@ -208,7 +208,7 @@ uploadBa.url = (args: { pemusnahanObat: number | { id: number } } | [pemusnahanO
  * @see app/Http/Controllers/Api/PemusnahanObatController.php:115
  * @route '/api/pemusnahan/{pemusnahanObat}/upload-ba'
  */
-uploadBa.post = (args: { pemusnahanObat: number | { id: number } } | [pemusnahanObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+uploadBa.post = (args: { pemusnahanObat: string | number | { id: string | number } } | [pemusnahanObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: uploadBa.url(args, options),
     method: 'post',
 })
@@ -218,7 +218,7 @@ uploadBa.post = (args: { pemusnahanObat: number | { id: number } } | [pemusnahan
  * @see app/Http/Controllers/Api/PemusnahanObatController.php:115
  * @route '/api/pemusnahan/{pemusnahanObat}/upload-ba'
  */
-    const uploadBaForm = (args: { pemusnahanObat: number | { id: number } } | [pemusnahanObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const uploadBaForm = (args: { pemusnahanObat: string | number | { id: string | number } } | [pemusnahanObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: uploadBa.url(args, options),
         method: 'post',
     })
@@ -228,7 +228,7 @@ uploadBa.post = (args: { pemusnahanObat: number | { id: number } } | [pemusnahan
  * @see app/Http/Controllers/Api/PemusnahanObatController.php:115
  * @route '/api/pemusnahan/{pemusnahanObat}/upload-ba'
  */
-        uploadBaForm.post = (args: { pemusnahanObat: number | { id: number } } | [pemusnahanObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        uploadBaForm.post = (args: { pemusnahanObat: string | number | { id: string | number } } | [pemusnahanObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: uploadBa.url(args, options),
             method: 'post',
         })
@@ -239,7 +239,7 @@ uploadBa.post = (args: { pemusnahanObat: number | { id: number } } | [pemusnahan
  * @see app/Http/Controllers/Api/PemusnahanObatController.php:141
  * @route '/api/pemusnahan/{pemusnahanObat}/approve'
  */
-export const approve = (args: { pemusnahanObat: number | { id: number } } | [pemusnahanObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const approve = (args: { pemusnahanObat: string | number | { id: string | number } } | [pemusnahanObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: approve.url(args, options),
     method: 'post',
 })
@@ -254,7 +254,7 @@ approve.definition = {
  * @see app/Http/Controllers/Api/PemusnahanObatController.php:141
  * @route '/api/pemusnahan/{pemusnahanObat}/approve'
  */
-approve.url = (args: { pemusnahanObat: number | { id: number } } | [pemusnahanObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+approve.url = (args: { pemusnahanObat: string | number | { id: string | number } } | [pemusnahanObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { pemusnahanObat: args }
     }
@@ -287,7 +287,7 @@ approve.url = (args: { pemusnahanObat: number | { id: number } } | [pemusnahanOb
  * @see app/Http/Controllers/Api/PemusnahanObatController.php:141
  * @route '/api/pemusnahan/{pemusnahanObat}/approve'
  */
-approve.post = (args: { pemusnahanObat: number | { id: number } } | [pemusnahanObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+approve.post = (args: { pemusnahanObat: string | number | { id: string | number } } | [pemusnahanObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: approve.url(args, options),
     method: 'post',
 })
@@ -297,7 +297,7 @@ approve.post = (args: { pemusnahanObat: number | { id: number } } | [pemusnahanO
  * @see app/Http/Controllers/Api/PemusnahanObatController.php:141
  * @route '/api/pemusnahan/{pemusnahanObat}/approve'
  */
-    const approveForm = (args: { pemusnahanObat: number | { id: number } } | [pemusnahanObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const approveForm = (args: { pemusnahanObat: string | number | { id: string | number } } | [pemusnahanObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: approve.url(args, options),
         method: 'post',
     })
@@ -307,7 +307,7 @@ approve.post = (args: { pemusnahanObat: number | { id: number } } | [pemusnahanO
  * @see app/Http/Controllers/Api/PemusnahanObatController.php:141
  * @route '/api/pemusnahan/{pemusnahanObat}/approve'
  */
-        approveForm.post = (args: { pemusnahanObat: number | { id: number } } | [pemusnahanObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        approveForm.post = (args: { pemusnahanObat: string | number | { id: string | number } } | [pemusnahanObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: approve.url(args, options),
             method: 'post',
         })

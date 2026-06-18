@@ -35,6 +35,7 @@ interface BatchRow {
         nama_obat: string;
         kode_obat: string;
         kategori?: { nama_kategori: string };
+        golongan?: { nama_golongan: string; kode: string; butuh_resep: boolean };
         satuan?: { nama_satuan: string };
     };
     supplier?: { nama_supplier: string };
@@ -172,6 +173,7 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
                                     <th className="w-16 p-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">No.</th>
                                     <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Obat</th>
                                     <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Kategori</th>
+                                    <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Golongan</th>
                                     <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Supplier</th>
                                     <th className="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Batch ID</th>
                                     <th className="p-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">Stok</th>
@@ -193,6 +195,19 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
                                                     <div className="text-xs text-muted-foreground">{batch.obat.kode_obat}</div>
                                                 </td>
                                                 <td className="p-3 text-sm text-muted-foreground">{batch.obat.kategori?.nama_kategori || '-'}</td>
+                                                <td className="p-3 text-sm">
+                                                    {batch.obat.golongan ? (
+                                                        <span className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-bold leading-none ${
+                                                            batch.obat.golongan.butuh_resep
+                                                                ? 'border-red-200 bg-red-100 text-red-700'
+                                                                : batch.obat.golongan.kode === 'GTB'
+                                                                    ? 'border-blue-200 bg-blue-100 text-blue-700'
+                                                                    : 'border-green-200 bg-green-100 text-green-700'
+                                                        }`}>
+                                                            {batch.obat.golongan.kode}
+                                                        </span>
+                                                    ) : '-'}
+                                                </td>
                                                 <td className="p-3 text-sm text-muted-foreground">{batch.supplier?.nama_supplier || '-'}</td>
                                                 <td className="p-3 text-sm font-mono text-slate-700">{batch.nomor_batch}</td>
                                                 <td className="p-3 text-right text-sm font-semibold text-slate-800">
@@ -226,7 +241,7 @@ export default function ObatIndex({ obats, batches, filters }: ObatIndexProps) {
                                     })
                                 ) : (
                                     <tr>
-                                        <td colSpan={9} className="p-8 text-center text-sm text-muted-foreground">
+                                        <td colSpan={10} className="p-8 text-center text-sm text-muted-foreground">
                                             <Package className="mx-auto mb-2 size-8" />
                                             Tidak ada data batch inventori
                                         </td>

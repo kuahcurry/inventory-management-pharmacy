@@ -20,6 +20,12 @@ interface KategoriObat {
     nama_kategori: string;
 }
 
+interface GolonganObat {
+    id: number;
+    nama_golongan: string;
+    kode: string;
+}
+
 interface JenisObat {
     id: number;
     nama_jenis: string;
@@ -39,6 +45,7 @@ interface CreateProps {
     kategori: KategoriObat[];
     jenis: JenisObat[];
     satuan: SatuanObat[];
+    golongan: GolonganObat[];
     suppliers: Supplier[];
     preselectedObat?: ExistingMedicineSuggestion;
 }
@@ -48,6 +55,7 @@ interface ExistingMedicineSuggestion {
     kode_obat: string;
     nama_obat: string;
     kategori?: { id: number; nama_kategori: string } | null;
+    golongan?: { id: number; nama_golongan: string; kode: string } | null;
     satuan?: { id: number; nama_satuan: string } | null;
     default_supplier?: { id: number; nama_supplier: string } | null;
 }
@@ -61,7 +69,7 @@ const infoTabs: Array<{ key: InfoTab; label: string }> = [
     { key: 'deskripsi', label: 'Deskripsi' },
 ];
 
-export default function CreateObat({ kategori, jenis, satuan, suppliers, preselectedObat }: CreateProps) {
+export default function CreateObat({ kategori, jenis, satuan, golongan, suppliers, preselectedObat }: CreateProps) {
     const [activeTab, setActiveTab] = useState<'manual' | 'import'>('manual');
     const [activeInfoTab, setActiveInfoTab] = useState<InfoTab>('indikasi');
     const [importFile, setImportFile] = useState<File | null>(null);
@@ -80,6 +88,7 @@ export default function CreateObat({ kategori, jenis, satuan, suppliers, presele
         nama_generik: string;
         nama_brand: string;
         kategori_id: number | undefined;
+        golongan_id: number | undefined;
         jenis_id: number | undefined;
         satuan_id: number | undefined;
         stok_minimum: number;
@@ -105,6 +114,7 @@ export default function CreateObat({ kategori, jenis, satuan, suppliers, presele
         nama_generik: '',
         nama_brand: '',
         kategori_id: undefined,
+        golongan_id: undefined,
         jenis_id: undefined,
         satuan_id: undefined,
         stok_minimum: 10,
@@ -134,6 +144,7 @@ export default function CreateObat({ kategori, jenis, satuan, suppliers, presele
                 nama_obat: preselectedObat.nama_obat,
                 kode_obat: preselectedObat.kode_obat || '',
                 kategori_id: preselectedObat.kategori?.id,
+                golongan_id: preselectedObat.golongan?.id,
                 initial_supplier_id: preselectedObat.default_supplier?.id || data.initial_supplier_id,
             });
             setExistingQuery(`${preselectedObat.nama_obat} (${preselectedObat.kode_obat})`);
@@ -232,6 +243,7 @@ export default function CreateObat({ kategori, jenis, satuan, suppliers, presele
             nama_obat: item.nama_obat,
             kode_obat: item.kode_obat || '',
             kategori_id: item.kategori?.id,
+            golongan_id: item.golongan?.id,
             initial_supplier_id: item.default_supplier?.id || data.initial_supplier_id,
         });
         setExistingQuery(`${item.nama_obat} (${item.kode_obat})`);
@@ -360,7 +372,7 @@ export default function CreateObat({ kategori, jenis, satuan, suppliers, presele
                                                             onMouseDown={() => selectExistingMedicine(item)}
                                                         >
                                                             <div className="font-medium">{item.nama_obat} <span className="text-xs text-muted-foreground">({item.kode_obat})</span></div>
-                                                            <div className="text-xs text-muted-foreground">{item.kategori?.nama_kategori || 'Tanpa kategori'}</div>
+                                                            <div className="text-xs text-muted-foreground">{item.kategori?.nama_kategori || 'Tanpa kategori'}{item.golongan ? ` · ${item.golongan.kode}` : ''}</div>
                                                         </button>
                                                     ))
                                                 )}
@@ -395,7 +407,7 @@ export default function CreateObat({ kategori, jenis, satuan, suppliers, presele
                                     </div>
                                 </div>
 
-                                <div className="grid gap-3 sm:grid-cols-3">
+                                <div className="grid gap-3 sm:grid-cols-4">
                                     <div className="space-y-1.5">
                                         <Label>Kategori *</Label>
                                         <Select value={data.kategori_id?.toString() || undefined} onValueChange={(v) => setData('kategori_id', parseInt(v, 10))} disabled={disableNewMedicineFields}>
@@ -407,6 +419,18 @@ export default function CreateObat({ kategori, jenis, satuan, suppliers, presele
                                             </SelectContent>
                                         </Select>
                                         {errors.kategori_id && <p className="text-xs text-destructive">{errors.kategori_id}</p>}
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label>Golongan *</Label>
+                                        <Select value={data.golongan_id?.toString() || undefined} onValueChange={(v) => setData('golongan_id', parseInt(v, 10))} disabled={disableNewMedicineFields}>
+                                            <SelectTrigger><SelectValue placeholder="Pilih" /></SelectTrigger>
+                                            <SelectContent>
+                                                {golongan.map((item) => (
+                                                    <SelectItem key={item.id} value={item.id.toString()}>{item.nama_golongan} ({item.kode})</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        {errors.golongan_id && <p className="text-xs text-destructive">{errors.golongan_id}</p>}
                                     </div>
                                     <div className="space-y-1.5">
                                         <Label>Jenis *</Label>

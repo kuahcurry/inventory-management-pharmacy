@@ -82,7 +82,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
  * @see app/Http/Controllers/HutangController.php:39
  * @route '/hutang/{hutang}/pay'
  */
-export const pay = (args: { hutang: number | { id: number } } | [hutang: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const pay = (args: { hutang: string | number | { id: string | number } } | [hutang: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: pay.url(args, options),
     method: 'post',
 })
@@ -97,7 +97,7 @@ pay.definition = {
  * @see app/Http/Controllers/HutangController.php:39
  * @route '/hutang/{hutang}/pay'
  */
-pay.url = (args: { hutang: number | { id: number } } | [hutang: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+pay.url = (args: { hutang: string | number | { id: string | number } } | [hutang: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { hutang: args }
     }
@@ -130,7 +130,7 @@ pay.url = (args: { hutang: number | { id: number } } | [hutang: number | { id: n
  * @see app/Http/Controllers/HutangController.php:39
  * @route '/hutang/{hutang}/pay'
  */
-pay.post = (args: { hutang: number | { id: number } } | [hutang: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+pay.post = (args: { hutang: string | number | { id: string | number } } | [hutang: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: pay.url(args, options),
     method: 'post',
 })
@@ -140,7 +140,7 @@ pay.post = (args: { hutang: number | { id: number } } | [hutang: number | { id: 
  * @see app/Http/Controllers/HutangController.php:39
  * @route '/hutang/{hutang}/pay'
  */
-    const payForm = (args: { hutang: number | { id: number } } | [hutang: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const payForm = (args: { hutang: string | number | { id: string | number } } | [hutang: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: pay.url(args, options),
         method: 'post',
     })
@@ -150,7 +150,7 @@ pay.post = (args: { hutang: number | { id: number } } | [hutang: number | { id: 
  * @see app/Http/Controllers/HutangController.php:39
  * @route '/hutang/{hutang}/pay'
  */
-        payForm.post = (args: { hutang: number | { id: number } } | [hutang: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        payForm.post = (args: { hutang: string | number | { id: string | number } } | [hutang: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: pay.url(args, options),
             method: 'post',
         })
@@ -161,7 +161,7 @@ pay.post = (args: { hutang: number | { id: number } } | [hutang: number | { id: 
  * @see app/Http/Controllers/HutangController.php:74
  * @route '/hutang/{hutang}/partial-pay'
  */
-export const partialPay = (args: { hutang: number | { id: number } } | [hutang: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const partialPay = (args: { hutang: string | number | { id: string | number } } | [hutang: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: partialPay.url(args, options),
     method: 'post',
 })
@@ -176,7 +176,7 @@ partialPay.definition = {
  * @see app/Http/Controllers/HutangController.php:74
  * @route '/hutang/{hutang}/partial-pay'
  */
-partialPay.url = (args: { hutang: number | { id: number } } | [hutang: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+partialPay.url = (args: { hutang: string | number | { id: string | number } } | [hutang: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { hutang: args }
     }
@@ -209,7 +209,7 @@ partialPay.url = (args: { hutang: number | { id: number } } | [hutang: number | 
  * @see app/Http/Controllers/HutangController.php:74
  * @route '/hutang/{hutang}/partial-pay'
  */
-partialPay.post = (args: { hutang: number | { id: number } } | [hutang: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+partialPay.post = (args: { hutang: string | number | { id: string | number } } | [hutang: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: partialPay.url(args, options),
     method: 'post',
 })
@@ -219,7 +219,7 @@ partialPay.post = (args: { hutang: number | { id: number } } | [hutang: number |
  * @see app/Http/Controllers/HutangController.php:74
  * @route '/hutang/{hutang}/partial-pay'
  */
-    const partialPayForm = (args: { hutang: number | { id: number } } | [hutang: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const partialPayForm = (args: { hutang: string | number | { id: string | number } } | [hutang: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: partialPay.url(args, options),
         method: 'post',
     })
@@ -229,7 +229,7 @@ partialPay.post = (args: { hutang: number | { id: number } } | [hutang: number |
  * @see app/Http/Controllers/HutangController.php:74
  * @route '/hutang/{hutang}/partial-pay'
  */
-        partialPayForm.post = (args: { hutang: number | { id: number } } | [hutang: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        partialPayForm.post = (args: { hutang: string | number | { id: string | number } } | [hutang: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: partialPay.url(args, options),
             method: 'post',
         })

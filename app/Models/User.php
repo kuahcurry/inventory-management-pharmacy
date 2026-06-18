@@ -18,6 +18,10 @@ class User extends Authenticatable
     const ROLE_PHARMACIST = 'pharmacist';
     const ROLE_MANAGER = 'manager';
 
+    protected $attributes = [
+        'role' => self::ROLE_PHARMACIST,
+    ];
+
     /**
      * The attributes that are mass assignable.
      *

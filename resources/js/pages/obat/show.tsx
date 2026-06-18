@@ -25,6 +25,7 @@ interface Props {
         kontraindikasi?: string | null;
         is_high_risk_drug: boolean;
         kategori?: { nama_kategori: string };
+        golongan?: { nama_golongan: string; kode: string; butuh_resep: boolean };
         jenis?: { nama_jenis: string };
         satuan?: { nama_satuan: string };
     };
@@ -78,6 +79,7 @@ export default function ObatShow({ obat, batchCount, activeBatchCount, latestBat
                         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             <InfoCard label="Kode Obat" value={obat.kode_obat} />
                             <InfoCard label="Kategori" value={obat.kategori?.nama_kategori || '-'} />
+                            <InfoCard label="Golongan" value={obat.golongan ? `${obat.golongan.nama_golongan} (${obat.golongan.kode})` : '-'} />
                             <InfoCard label="Jenis" value={obat.jenis?.nama_jenis || '-'} />
                             <InfoCard label="Satuan" value={obat.satuan?.nama_satuan || '-'} />
                             <InfoCard label="Stok Total" value={`${obat.stok_total}`} />

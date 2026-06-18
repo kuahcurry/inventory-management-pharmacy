@@ -8,6 +8,7 @@ use App\Models\KategoriObat;
 use App\Models\JenisObat;
 use App\Models\SatuanObat;
 use App\Models\Supplier;
+use App\Models\GolonganObat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -27,7 +28,7 @@ class ObatController extends Controller
      */
     public function index(Request $request): Response
     {
-        $obats = Obat::with(['kategori', 'jenis', 'satuan'])
+        $obats = Obat::with(['kategori', 'jenis', 'satuan', 'golongan'])
             ->when($request->search, function ($query, $search) {
                 $query->where('nama_obat', 'like', "%{$search}%")
                     ->orWhere('kode_obat', 'like', "%{$search}%");
@@ -36,7 +37,7 @@ class ObatController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        $batches = BatchObat::with(['obat.satuan', 'obat.kategori', 'supplier'])
+        $batches = BatchObat::with(['obat.satuan', 'obat.kategori', 'obat.golongan', 'supplier'])
             ->when($request->search, function ($query, $search) {
                 $query->where('nomor_batch', 'like', "%{$search}%")
                     ->orWhereHas('obat', function ($obatQuery) use ($search) {
@@ -81,6 +82,7 @@ class ObatController extends Controller
             'kategori' => KategoriObat::where('is_active', true)->get(),
             'jenis' => JenisObat::where('is_active', true)->get(),
             'satuan' => SatuanObat::where('is_active', true)->get(),
+            'golongan' => GolonganObat::all(),
             'suppliers' => Supplier::where('status', 'active')->orderBy('nama_supplier')->get(['id', 'nama_supplier']),
             'preselectedObat' => $preselectedObat,
         ]);
@@ -98,6 +100,7 @@ class ObatController extends Controller
             'nama_generik' => 'nullable|string|max:191',
             'nama_brand' => 'nullable|string|max:191',
             'kategori_id' => 'nullable|exists:kategori_obat,id',
+            'golongan_id' => 'nullable|exists:golongan_obat,id',
             'jenis_id' => 'nullable|exists:jenis_obat,id',
             'satuan_id' => 'nullable|exists:satuan_obat,id',
             'stok_minimum' => 'nullable|integer|min:0',
@@ -159,12 +162,15 @@ class ObatController extends Controller
                     ]);
                 }
 
+                $defaultGolonganId = GolonganObat::where('kode', 'G')->value('id') ?? GolonganObat::value('id');
+
                 $obat = Obat::create([
                     'kode_obat' => $validated['kode_obat'] ?? null,
                     'nama_obat' => $validated['nama_obat'],
                     'nama_generik' => $validated['nama_generik'] ?? null,
                     'nama_brand' => $validated['nama_brand'] ?? null,
                     'kategori_id' => $validated['kategori_id'],
+                    'golongan_id' => $validated['golongan_id'] ?? $defaultGolonganId,
                     'jenis_id' => $validated['jenis_id'],
                     'satuan_id' => $validated['satuan_id'],
                     'stok_minimum' => $validated['stok_minimum'] ?? 10,
@@ -219,7 +225,7 @@ class ObatController extends Controller
      */
     public function show(string $id): Response
     {
-        $obat = Obat::with(['kategori', 'jenis', 'satuan', 'batches.supplier'])
+        $obat = Obat::with(['kategori', 'jenis', 'satuan', 'golongan', 'batches.supplier'])
             ->findOrFail($id);
 
         return Inertia::render('obat/show', [
@@ -242,6 +248,7 @@ class ObatController extends Controller
             'kategori' => KategoriObat::where('is_active', true)->get(),
             'jenis' => JenisObat::where('is_active', true)->get(),
             'satuan' => SatuanObat::where('is_active', true)->get(),
+            'golongan' => GolonganObat::all(),
         ]);
     }
 
@@ -258,6 +265,7 @@ class ObatController extends Controller
             'nama_generik' => 'nullable|string|max:191',
             'nama_brand' => 'nullable|string|max:191',
             'kategori_id' => 'required|exists:kategori_obat,id',
+            'golongan_id' => 'required|exists:golongan_obat,id',
             'jenis_id' => 'required|exists:jenis_obat,id',
             'satuan_id' => 'required|exists:satuan_obat,id',
             'stok_minimum' => 'required|integer|min:0',
@@ -301,7 +309,7 @@ class ObatController extends Controller
             ->withQueryString();
 
         $trashedBatches = BatchObat::onlyTrashed()
-            ->with(['obat.kategori', 'obat.satuan', 'supplier'])
+            ->with(['obat.kategori', 'obat.satuan', 'obat.golongan', 'supplier'])
             ->latest('deleted_at')
             ->paginate(15, ['*'], 'batch_page')
             ->withQueryString();

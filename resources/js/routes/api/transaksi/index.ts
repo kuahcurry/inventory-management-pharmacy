@@ -477,7 +477,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
  * @see app/Http/Controllers/Api/TransaksiController.php:51
  * @route '/api/transaksi/{transaksi}'
  */
-export const show = (args: { transaksi: number | { id: number } } | [transaksi: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const show = (args: { transaksi: string | number | { id: string | number } } | [transaksi: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -492,7 +492,7 @@ show.definition = {
  * @see app/Http/Controllers/Api/TransaksiController.php:51
  * @route '/api/transaksi/{transaksi}'
  */
-show.url = (args: { transaksi: number | { id: number } } | [transaksi: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+show.url = (args: { transaksi: string | number | { id: string | number } } | [transaksi: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { transaksi: args }
     }
@@ -525,7 +525,7 @@ show.url = (args: { transaksi: number | { id: number } } | [transaksi: number | 
  * @see app/Http/Controllers/Api/TransaksiController.php:51
  * @route '/api/transaksi/{transaksi}'
  */
-show.get = (args: { transaksi: number | { id: number } } | [transaksi: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+show.get = (args: { transaksi: string | number | { id: string | number } } | [transaksi: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -534,7 +534,7 @@ show.get = (args: { transaksi: number | { id: number } } | [transaksi: number | 
  * @see app/Http/Controllers/Api/TransaksiController.php:51
  * @route '/api/transaksi/{transaksi}'
  */
-show.head = (args: { transaksi: number | { id: number } } | [transaksi: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+show.head = (args: { transaksi: string | number | { id: string | number } } | [transaksi: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: show.url(args, options),
     method: 'head',
 })
@@ -544,7 +544,7 @@ show.head = (args: { transaksi: number | { id: number } } | [transaksi: number |
  * @see app/Http/Controllers/Api/TransaksiController.php:51
  * @route '/api/transaksi/{transaksi}'
  */
-    const showForm = (args: { transaksi: number | { id: number } } | [transaksi: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    const showForm = (args: { transaksi: string | number | { id: string | number } } | [transaksi: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
         action: show.url(args, options),
         method: 'get',
     })
@@ -554,7 +554,7 @@ show.head = (args: { transaksi: number | { id: number } } | [transaksi: number |
  * @see app/Http/Controllers/Api/TransaksiController.php:51
  * @route '/api/transaksi/{transaksi}'
  */
-        showForm.get = (args: { transaksi: number | { id: number } } | [transaksi: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        showForm.get = (args: { transaksi: string | number | { id: string | number } } | [transaksi: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: show.url(args, options),
             method: 'get',
         })
@@ -563,7 +563,7 @@ show.head = (args: { transaksi: number | { id: number } } | [transaksi: number |
  * @see app/Http/Controllers/Api/TransaksiController.php:51
  * @route '/api/transaksi/{transaksi}'
  */
-        showForm.head = (args: { transaksi: number | { id: number } } | [transaksi: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        showForm.head = (args: { transaksi: string | number | { id: string | number } } | [transaksi: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: show.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',

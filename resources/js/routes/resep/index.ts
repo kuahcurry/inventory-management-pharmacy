@@ -1,83 +1,5 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
-* @see \App\Http\Controllers\ResepController::index
- * @see app/Http/Controllers/ResepController.php:20
- * @route '/resep'
- */
-export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: index.url(options),
-    method: 'get',
-})
-
-index.definition = {
-    methods: ["get","head"],
-    url: '/resep',
-} satisfies RouteDefinition<["get","head"]>
-
-/**
-* @see \App\Http\Controllers\ResepController::index
- * @see app/Http/Controllers/ResepController.php:20
- * @route '/resep'
- */
-index.url = (options?: RouteQueryOptions) => {
-    return index.definition.url + queryParams(options)
-}
-
-/**
-* @see \App\Http\Controllers\ResepController::index
- * @see app/Http/Controllers/ResepController.php:20
- * @route '/resep'
- */
-index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: index.url(options),
-    method: 'get',
-})
-/**
-* @see \App\Http\Controllers\ResepController::index
- * @see app/Http/Controllers/ResepController.php:20
- * @route '/resep'
- */
-index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: index.url(options),
-    method: 'head',
-})
-
-    /**
-* @see \App\Http\Controllers\ResepController::index
- * @see app/Http/Controllers/ResepController.php:20
- * @route '/resep'
- */
-    const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-        action: index.url(options),
-        method: 'get',
-    })
-
-            /**
-* @see \App\Http\Controllers\ResepController::index
- * @see app/Http/Controllers/ResepController.php:20
- * @route '/resep'
- */
-        indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: index.url(options),
-            method: 'get',
-        })
-            /**
-* @see \App\Http\Controllers\ResepController::index
- * @see app/Http/Controllers/ResepController.php:20
- * @route '/resep'
- */
-        indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: index.url({
-                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-                            _method: 'HEAD',
-                            ...(options?.query ?? options?.mergeQuery ?? {}),
-                        }
-                    }),
-            method: 'get',
-        })
-    
-    index.form = indexForm
-/**
 * @see \App\Http\Controllers\ResepController::create
  * @see app/Http/Controllers/ResepController.php:34
  * @route '/resep/create'
@@ -210,103 +132,6 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
         })
     
     store.form = storeForm
-/**
-* @see \App\Http\Controllers\ResepController::show
- * @see app/Http/Controllers/ResepController.php:85
- * @route '/resep/{resep}'
- */
-export const show = (args: { resep: string | number } | [resep: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: show.url(args, options),
-    method: 'get',
-})
-
-show.definition = {
-    methods: ["get","head"],
-    url: '/resep/{resep}',
-} satisfies RouteDefinition<["get","head"]>
-
-/**
-* @see \App\Http\Controllers\ResepController::show
- * @see app/Http/Controllers/ResepController.php:85
- * @route '/resep/{resep}'
- */
-show.url = (args: { resep: string | number } | [resep: string | number ] | string | number, options?: RouteQueryOptions) => {
-    if (typeof args === 'string' || typeof args === 'number') {
-        args = { resep: args }
-    }
-
-    
-    if (Array.isArray(args)) {
-        args = {
-                    resep: args[0],
-                }
-    }
-
-    args = applyUrlDefaults(args)
-
-    const parsedArgs = {
-                        resep: args.resep,
-                }
-
-    return show.definition.url
-            .replace('{resep}', parsedArgs.resep.toString())
-            .replace(/\/+$/, '') + queryParams(options)
-}
-
-/**
-* @see \App\Http\Controllers\ResepController::show
- * @see app/Http/Controllers/ResepController.php:85
- * @route '/resep/{resep}'
- */
-show.get = (args: { resep: string | number } | [resep: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: show.url(args, options),
-    method: 'get',
-})
-/**
-* @see \App\Http\Controllers\ResepController::show
- * @see app/Http/Controllers/ResepController.php:85
- * @route '/resep/{resep}'
- */
-show.head = (args: { resep: string | number } | [resep: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: show.url(args, options),
-    method: 'head',
-})
-
-    /**
-* @see \App\Http\Controllers\ResepController::show
- * @see app/Http/Controllers/ResepController.php:85
- * @route '/resep/{resep}'
- */
-    const showForm = (args: { resep: string | number } | [resep: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-        action: show.url(args, options),
-        method: 'get',
-    })
-
-            /**
-* @see \App\Http\Controllers\ResepController::show
- * @see app/Http/Controllers/ResepController.php:85
- * @route '/resep/{resep}'
- */
-        showForm.get = (args: { resep: string | number } | [resep: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: show.url(args, options),
-            method: 'get',
-        })
-            /**
-* @see \App\Http\Controllers\ResepController::show
- * @see app/Http/Controllers/ResepController.php:85
- * @route '/resep/{resep}'
- */
-        showForm.head = (args: { resep: string | number } | [resep: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: show.url(args, {
-                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-                            _method: 'HEAD',
-                            ...(options?.query ?? options?.mergeQuery ?? {}),
-                        }
-                    }),
-            method: 'get',
-        })
-    
-    show.form = showForm
 /**
 * @see \App\Http\Controllers\ResepController::edit
  * @see app/Http/Controllers/ResepController.php:98
@@ -595,14 +420,189 @@ destroy.delete = (args: { resep: string | number } | [resep: string | number ] |
         })
     
     destroy.form = destroyForm
+/**
+* @see \App\Http\Controllers\ResepController::index
+ * @see app/Http/Controllers/ResepController.php:20
+ * @route '/resep'
+ */
+export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+index.definition = {
+    methods: ["get","head"],
+    url: '/resep',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\ResepController::index
+ * @see app/Http/Controllers/ResepController.php:20
+ * @route '/resep'
+ */
+index.url = (options?: RouteQueryOptions) => {
+    return index.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\ResepController::index
+ * @see app/Http/Controllers/ResepController.php:20
+ * @route '/resep'
+ */
+index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\ResepController::index
+ * @see app/Http/Controllers/ResepController.php:20
+ * @route '/resep'
+ */
+index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: index.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\ResepController::index
+ * @see app/Http/Controllers/ResepController.php:20
+ * @route '/resep'
+ */
+    const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: index.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\ResepController::index
+ * @see app/Http/Controllers/ResepController.php:20
+ * @route '/resep'
+ */
+        indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: index.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\ResepController::index
+ * @see app/Http/Controllers/ResepController.php:20
+ * @route '/resep'
+ */
+        indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: index.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    index.form = indexForm
+/**
+* @see \App\Http\Controllers\ResepController::show
+ * @see app/Http/Controllers/ResepController.php:85
+ * @route '/resep/{resep}'
+ */
+export const show = (args: { resep: string | number } | [resep: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: show.url(args, options),
+    method: 'get',
+})
+
+show.definition = {
+    methods: ["get","head"],
+    url: '/resep/{resep}',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\ResepController::show
+ * @see app/Http/Controllers/ResepController.php:85
+ * @route '/resep/{resep}'
+ */
+show.url = (args: { resep: string | number } | [resep: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { resep: args }
+    }
+
+    
+    if (Array.isArray(args)) {
+        args = {
+                    resep: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        resep: args.resep,
+                }
+
+    return show.definition.url
+            .replace('{resep}', parsedArgs.resep.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\ResepController::show
+ * @see app/Http/Controllers/ResepController.php:85
+ * @route '/resep/{resep}'
+ */
+show.get = (args: { resep: string | number } | [resep: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: show.url(args, options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\ResepController::show
+ * @see app/Http/Controllers/ResepController.php:85
+ * @route '/resep/{resep}'
+ */
+show.head = (args: { resep: string | number } | [resep: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: show.url(args, options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\ResepController::show
+ * @see app/Http/Controllers/ResepController.php:85
+ * @route '/resep/{resep}'
+ */
+    const showForm = (args: { resep: string | number } | [resep: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: show.url(args, options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\ResepController::show
+ * @see app/Http/Controllers/ResepController.php:85
+ * @route '/resep/{resep}'
+ */
+        showForm.get = (args: { resep: string | number } | [resep: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: show.url(args, options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\ResepController::show
+ * @see app/Http/Controllers/ResepController.php:85
+ * @route '/resep/{resep}'
+ */
+        showForm.head = (args: { resep: string | number } | [resep: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: show.url(args, {
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    show.form = showForm
 const resep = {
-    index: Object.assign(index, index),
-create: Object.assign(create, create),
+    create: Object.assign(create, create),
 store: Object.assign(store, store),
-show: Object.assign(show, show),
 edit: Object.assign(edit, edit),
 update: Object.assign(update, update),
 destroy: Object.assign(destroy, destroy),
+index: Object.assign(index, index),
+show: Object.assign(show, show),
 }
 
 export default resep

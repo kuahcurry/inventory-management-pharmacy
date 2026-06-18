@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\ObatController::downloadTemplate
- * @see app/Http/Controllers/ObatController.php:343
+ * @see app/Http/Controllers/ObatController.php:351
  * @route '/obat/download-template'
  */
 export const downloadTemplate = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ downloadTemplate.definition = {
 
 /**
 * @see \App\Http\Controllers\ObatController::downloadTemplate
- * @see app/Http/Controllers/ObatController.php:343
+ * @see app/Http/Controllers/ObatController.php:351
  * @route '/obat/download-template'
  */
 downloadTemplate.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ downloadTemplate.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ObatController::downloadTemplate
- * @see app/Http/Controllers/ObatController.php:343
+ * @see app/Http/Controllers/ObatController.php:351
  * @route '/obat/download-template'
  */
 downloadTemplate.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ downloadTemplate.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => 
 })
 /**
 * @see \App\Http\Controllers\ObatController::downloadTemplate
- * @see app/Http/Controllers/ObatController.php:343
+ * @see app/Http/Controllers/ObatController.php:351
  * @route '/obat/download-template'
  */
 downloadTemplate.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ downloadTemplate.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
 
     /**
 * @see \App\Http\Controllers\ObatController::downloadTemplate
- * @see app/Http/Controllers/ObatController.php:343
+ * @see app/Http/Controllers/ObatController.php:351
  * @route '/obat/download-template'
  */
     const downloadTemplateForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ downloadTemplate.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
 
             /**
 * @see \App\Http\Controllers\ObatController::downloadTemplate
- * @see app/Http/Controllers/ObatController.php:343
+ * @see app/Http/Controllers/ObatController.php:351
  * @route '/obat/download-template'
  */
         downloadTemplateForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ downloadTemplate.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
         })
             /**
 * @see \App\Http\Controllers\ObatController::downloadTemplate
- * @see app/Http/Controllers/ObatController.php:343
+ * @see app/Http/Controllers/ObatController.php:351
  * @route '/obat/download-template'
  */
         downloadTemplateForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ downloadTemplate.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
     downloadTemplate.form = downloadTemplateForm
 /**
 * @see \App\Http\Controllers\ObatController::importMethod
- * @see app/Http/Controllers/ObatController.php:435
+ * @see app/Http/Controllers/ObatController.php:443
  * @route '/obat/import'
  */
 export const importMethod = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ importMethod.definition = {
 
 /**
 * @see \App\Http\Controllers\ObatController::importMethod
- * @see app/Http/Controllers/ObatController.php:435
+ * @see app/Http/Controllers/ObatController.php:443
  * @route '/obat/import'
  */
 importMethod.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ importMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ObatController::importMethod
- * @see app/Http/Controllers/ObatController.php:435
+ * @see app/Http/Controllers/ObatController.php:443
  * @route '/obat/import'
  */
 importMethod.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +113,7 @@ importMethod.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\ObatController::importMethod
- * @see app/Http/Controllers/ObatController.php:435
+ * @see app/Http/Controllers/ObatController.php:443
  * @route '/obat/import'
  */
     const importMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +123,7 @@ importMethod.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\ObatController::importMethod
- * @see app/Http/Controllers/ObatController.php:435
+ * @see app/Http/Controllers/ObatController.php:443
  * @route '/obat/import'
  */
         importMethodForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -134,7 +134,7 @@ importMethod.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     importMethod.form = importMethodForm
 /**
 * @see \App\Http\Controllers\ObatController::trash
- * @see app/Http/Controllers/ObatController.php:294
+ * @see app/Http/Controllers/ObatController.php:302
  * @route '/obat/trash'
  */
 export const trash = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -149,7 +149,7 @@ trash.definition = {
 
 /**
 * @see \App\Http\Controllers\ObatController::trash
- * @see app/Http/Controllers/ObatController.php:294
+ * @see app/Http/Controllers/ObatController.php:302
  * @route '/obat/trash'
  */
 trash.url = (options?: RouteQueryOptions) => {
@@ -158,7 +158,7 @@ trash.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ObatController::trash
- * @see app/Http/Controllers/ObatController.php:294
+ * @see app/Http/Controllers/ObatController.php:302
  * @route '/obat/trash'
  */
 trash.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -167,7 +167,7 @@ trash.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\ObatController::trash
- * @see app/Http/Controllers/ObatController.php:294
+ * @see app/Http/Controllers/ObatController.php:302
  * @route '/obat/trash'
  */
 trash.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -177,7 +177,7 @@ trash.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\ObatController::trash
- * @see app/Http/Controllers/ObatController.php:294
+ * @see app/Http/Controllers/ObatController.php:302
  * @route '/obat/trash'
  */
     const trashForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -187,7 +187,7 @@ trash.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\ObatController::trash
- * @see app/Http/Controllers/ObatController.php:294
+ * @see app/Http/Controllers/ObatController.php:302
  * @route '/obat/trash'
  */
         trashForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -196,7 +196,7 @@ trash.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\ObatController::trash
- * @see app/Http/Controllers/ObatController.php:294
+ * @see app/Http/Controllers/ObatController.php:302
  * @route '/obat/trash'
  */
         trashForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -212,7 +212,7 @@ trash.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     trash.form = trashForm
 /**
 * @see \App\Http\Controllers\ObatController::restore
- * @see app/Http/Controllers/ObatController.php:319
+ * @see app/Http/Controllers/ObatController.php:327
  * @route '/obat/{obat}/restore'
  */
 export const restore = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -227,7 +227,7 @@ restore.definition = {
 
 /**
 * @see \App\Http\Controllers\ObatController::restore
- * @see app/Http/Controllers/ObatController.php:319
+ * @see app/Http/Controllers/ObatController.php:327
  * @route '/obat/{obat}/restore'
  */
 restore.url = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -255,7 +255,7 @@ restore.url = (args: { obat: string | number } | [obat: string | number ] | stri
 
 /**
 * @see \App\Http\Controllers\ObatController::restore
- * @see app/Http/Controllers/ObatController.php:319
+ * @see app/Http/Controllers/ObatController.php:327
  * @route '/obat/{obat}/restore'
  */
 restore.post = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -265,7 +265,7 @@ restore.post = (args: { obat: string | number } | [obat: string | number ] | str
 
     /**
 * @see \App\Http\Controllers\ObatController::restore
- * @see app/Http/Controllers/ObatController.php:319
+ * @see app/Http/Controllers/ObatController.php:327
  * @route '/obat/{obat}/restore'
  */
     const restoreForm = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -275,7 +275,7 @@ restore.post = (args: { obat: string | number } | [obat: string | number ] | str
 
             /**
 * @see \App\Http\Controllers\ObatController::restore
- * @see app/Http/Controllers/ObatController.php:319
+ * @see app/Http/Controllers/ObatController.php:327
  * @route '/obat/{obat}/restore'
  */
         restoreForm.post = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -286,7 +286,7 @@ restore.post = (args: { obat: string | number } | [obat: string | number ] | str
     restore.form = restoreForm
 /**
 * @see \App\Http\Controllers\ObatController::forceDelete
- * @see app/Http/Controllers/ObatController.php:331
+ * @see app/Http/Controllers/ObatController.php:339
  * @route '/obat/{obat}/force'
  */
 export const forceDelete = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -301,7 +301,7 @@ forceDelete.definition = {
 
 /**
 * @see \App\Http\Controllers\ObatController::forceDelete
- * @see app/Http/Controllers/ObatController.php:331
+ * @see app/Http/Controllers/ObatController.php:339
  * @route '/obat/{obat}/force'
  */
 forceDelete.url = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -329,7 +329,7 @@ forceDelete.url = (args: { obat: string | number } | [obat: string | number ] | 
 
 /**
 * @see \App\Http\Controllers\ObatController::forceDelete
- * @see app/Http/Controllers/ObatController.php:331
+ * @see app/Http/Controllers/ObatController.php:339
  * @route '/obat/{obat}/force'
  */
 forceDelete.delete = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -339,7 +339,7 @@ forceDelete.delete = (args: { obat: string | number } | [obat: string | number ]
 
     /**
 * @see \App\Http\Controllers\ObatController::forceDelete
- * @see app/Http/Controllers/ObatController.php:331
+ * @see app/Http/Controllers/ObatController.php:339
  * @route '/obat/{obat}/force'
  */
     const forceDeleteForm = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -354,7 +354,7 @@ forceDelete.delete = (args: { obat: string | number } | [obat: string | number ]
 
             /**
 * @see \App\Http\Controllers\ObatController::forceDelete
- * @see app/Http/Controllers/ObatController.php:331
+ * @see app/Http/Controllers/ObatController.php:339
  * @route '/obat/{obat}/force'
  */
         forceDeleteForm.delete = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -369,86 +369,8 @@ forceDelete.delete = (args: { obat: string | number } | [obat: string | number ]
     
     forceDelete.form = forceDeleteForm
 /**
-* @see \App\Http\Controllers\ObatController::index
- * @see app/Http/Controllers/ObatController.php:28
- * @route '/obat'
- */
-export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: index.url(options),
-    method: 'get',
-})
-
-index.definition = {
-    methods: ["get","head"],
-    url: '/obat',
-} satisfies RouteDefinition<["get","head"]>
-
-/**
-* @see \App\Http\Controllers\ObatController::index
- * @see app/Http/Controllers/ObatController.php:28
- * @route '/obat'
- */
-index.url = (options?: RouteQueryOptions) => {
-    return index.definition.url + queryParams(options)
-}
-
-/**
-* @see \App\Http\Controllers\ObatController::index
- * @see app/Http/Controllers/ObatController.php:28
- * @route '/obat'
- */
-index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: index.url(options),
-    method: 'get',
-})
-/**
-* @see \App\Http\Controllers\ObatController::index
- * @see app/Http/Controllers/ObatController.php:28
- * @route '/obat'
- */
-index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: index.url(options),
-    method: 'head',
-})
-
-    /**
-* @see \App\Http\Controllers\ObatController::index
- * @see app/Http/Controllers/ObatController.php:28
- * @route '/obat'
- */
-    const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-        action: index.url(options),
-        method: 'get',
-    })
-
-            /**
-* @see \App\Http\Controllers\ObatController::index
- * @see app/Http/Controllers/ObatController.php:28
- * @route '/obat'
- */
-        indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: index.url(options),
-            method: 'get',
-        })
-            /**
-* @see \App\Http\Controllers\ObatController::index
- * @see app/Http/Controllers/ObatController.php:28
- * @route '/obat'
- */
-        indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: index.url({
-                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-                            _method: 'HEAD',
-                            ...(options?.query ?? options?.mergeQuery ?? {}),
-                        }
-                    }),
-            method: 'get',
-        })
-    
-    index.form = indexForm
-/**
 * @see \App\Http\Controllers\ObatController::create
- * @see app/Http/Controllers/ObatController.php:66
+ * @see app/Http/Controllers/ObatController.php:67
  * @route '/obat/create'
  */
 export const create = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -463,7 +385,7 @@ create.definition = {
 
 /**
 * @see \App\Http\Controllers\ObatController::create
- * @see app/Http/Controllers/ObatController.php:66
+ * @see app/Http/Controllers/ObatController.php:67
  * @route '/obat/create'
  */
 create.url = (options?: RouteQueryOptions) => {
@@ -472,7 +394,7 @@ create.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ObatController::create
- * @see app/Http/Controllers/ObatController.php:66
+ * @see app/Http/Controllers/ObatController.php:67
  * @route '/obat/create'
  */
 create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -481,7 +403,7 @@ create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\ObatController::create
- * @see app/Http/Controllers/ObatController.php:66
+ * @see app/Http/Controllers/ObatController.php:67
  * @route '/obat/create'
  */
 create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -491,7 +413,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\ObatController::create
- * @see app/Http/Controllers/ObatController.php:66
+ * @see app/Http/Controllers/ObatController.php:67
  * @route '/obat/create'
  */
     const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -501,7 +423,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\ObatController::create
- * @see app/Http/Controllers/ObatController.php:66
+ * @see app/Http/Controllers/ObatController.php:67
  * @route '/obat/create'
  */
         createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -510,7 +432,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\ObatController::create
- * @see app/Http/Controllers/ObatController.php:66
+ * @see app/Http/Controllers/ObatController.php:67
  * @route '/obat/create'
  */
         createForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -526,7 +448,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     create.form = createForm
 /**
 * @see \App\Http\Controllers\ObatController::store
- * @see app/Http/Controllers/ObatController.php:92
+ * @see app/Http/Controllers/ObatController.php:94
  * @route '/obat'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -541,7 +463,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\ObatController::store
- * @see app/Http/Controllers/ObatController.php:92
+ * @see app/Http/Controllers/ObatController.php:94
  * @route '/obat'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -550,7 +472,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ObatController::store
- * @see app/Http/Controllers/ObatController.php:92
+ * @see app/Http/Controllers/ObatController.php:94
  * @route '/obat'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -560,7 +482,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\ObatController::store
- * @see app/Http/Controllers/ObatController.php:92
+ * @see app/Http/Controllers/ObatController.php:94
  * @route '/obat'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -570,7 +492,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\ObatController::store
- * @see app/Http/Controllers/ObatController.php:92
+ * @see app/Http/Controllers/ObatController.php:94
  * @route '/obat'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -580,105 +502,8 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     
     store.form = storeForm
 /**
-* @see \App\Http\Controllers\ObatController::show
- * @see app/Http/Controllers/ObatController.php:220
- * @route '/obat/{obat}'
- */
-export const show = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: show.url(args, options),
-    method: 'get',
-})
-
-show.definition = {
-    methods: ["get","head"],
-    url: '/obat/{obat}',
-} satisfies RouteDefinition<["get","head"]>
-
-/**
-* @see \App\Http\Controllers\ObatController::show
- * @see app/Http/Controllers/ObatController.php:220
- * @route '/obat/{obat}'
- */
-show.url = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions) => {
-    if (typeof args === 'string' || typeof args === 'number') {
-        args = { obat: args }
-    }
-
-    
-    if (Array.isArray(args)) {
-        args = {
-                    obat: args[0],
-                }
-    }
-
-    args = applyUrlDefaults(args)
-
-    const parsedArgs = {
-                        obat: args.obat,
-                }
-
-    return show.definition.url
-            .replace('{obat}', parsedArgs.obat.toString())
-            .replace(/\/+$/, '') + queryParams(options)
-}
-
-/**
-* @see \App\Http\Controllers\ObatController::show
- * @see app/Http/Controllers/ObatController.php:220
- * @route '/obat/{obat}'
- */
-show.get = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: show.url(args, options),
-    method: 'get',
-})
-/**
-* @see \App\Http\Controllers\ObatController::show
- * @see app/Http/Controllers/ObatController.php:220
- * @route '/obat/{obat}'
- */
-show.head = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: show.url(args, options),
-    method: 'head',
-})
-
-    /**
-* @see \App\Http\Controllers\ObatController::show
- * @see app/Http/Controllers/ObatController.php:220
- * @route '/obat/{obat}'
- */
-    const showForm = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-        action: show.url(args, options),
-        method: 'get',
-    })
-
-            /**
-* @see \App\Http\Controllers\ObatController::show
- * @see app/Http/Controllers/ObatController.php:220
- * @route '/obat/{obat}'
- */
-        showForm.get = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: show.url(args, options),
-            method: 'get',
-        })
-            /**
-* @see \App\Http\Controllers\ObatController::show
- * @see app/Http/Controllers/ObatController.php:220
- * @route '/obat/{obat}'
- */
-        showForm.head = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: show.url(args, {
-                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-                            _method: 'HEAD',
-                            ...(options?.query ?? options?.mergeQuery ?? {}),
-                        }
-                    }),
-            method: 'get',
-        })
-    
-    show.form = showForm
-/**
 * @see \App\Http\Controllers\ObatController::edit
- * @see app/Http/Controllers/ObatController.php:236
+ * @see app/Http/Controllers/ObatController.php:242
  * @route '/obat/{obat}/edit'
  */
 export const edit = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -693,7 +518,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\ObatController::edit
- * @see app/Http/Controllers/ObatController.php:236
+ * @see app/Http/Controllers/ObatController.php:242
  * @route '/obat/{obat}/edit'
  */
 edit.url = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -721,7 +546,7 @@ edit.url = (args: { obat: string | number } | [obat: string | number ] | string 
 
 /**
 * @see \App\Http\Controllers\ObatController::edit
- * @see app/Http/Controllers/ObatController.php:236
+ * @see app/Http/Controllers/ObatController.php:242
  * @route '/obat/{obat}/edit'
  */
 edit.get = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -730,7 +555,7 @@ edit.get = (args: { obat: string | number } | [obat: string | number ] | string 
 })
 /**
 * @see \App\Http\Controllers\ObatController::edit
- * @see app/Http/Controllers/ObatController.php:236
+ * @see app/Http/Controllers/ObatController.php:242
  * @route '/obat/{obat}/edit'
  */
 edit.head = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -740,7 +565,7 @@ edit.head = (args: { obat: string | number } | [obat: string | number ] | string
 
     /**
 * @see \App\Http\Controllers\ObatController::edit
- * @see app/Http/Controllers/ObatController.php:236
+ * @see app/Http/Controllers/ObatController.php:242
  * @route '/obat/{obat}/edit'
  */
     const editForm = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -750,7 +575,7 @@ edit.head = (args: { obat: string | number } | [obat: string | number ] | string
 
             /**
 * @see \App\Http\Controllers\ObatController::edit
- * @see app/Http/Controllers/ObatController.php:236
+ * @see app/Http/Controllers/ObatController.php:242
  * @route '/obat/{obat}/edit'
  */
         editForm.get = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -759,7 +584,7 @@ edit.head = (args: { obat: string | number } | [obat: string | number ] | string
         })
             /**
 * @see \App\Http\Controllers\ObatController::edit
- * @see app/Http/Controllers/ObatController.php:236
+ * @see app/Http/Controllers/ObatController.php:242
  * @route '/obat/{obat}/edit'
  */
         editForm.head = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -775,7 +600,7 @@ edit.head = (args: { obat: string | number } | [obat: string | number ] | string
     edit.form = editForm
 /**
 * @see \App\Http\Controllers\ObatController::update
- * @see app/Http/Controllers/ObatController.php:251
+ * @see app/Http/Controllers/ObatController.php:258
  * @route '/obat/{obat}'
  */
 export const update = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -790,7 +615,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\ObatController::update
- * @see app/Http/Controllers/ObatController.php:251
+ * @see app/Http/Controllers/ObatController.php:258
  * @route '/obat/{obat}'
  */
 update.url = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -818,7 +643,7 @@ update.url = (args: { obat: string | number } | [obat: string | number ] | strin
 
 /**
 * @see \App\Http\Controllers\ObatController::update
- * @see app/Http/Controllers/ObatController.php:251
+ * @see app/Http/Controllers/ObatController.php:258
  * @route '/obat/{obat}'
  */
 update.put = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -827,7 +652,7 @@ update.put = (args: { obat: string | number } | [obat: string | number ] | strin
 })
 /**
 * @see \App\Http\Controllers\ObatController::update
- * @see app/Http/Controllers/ObatController.php:251
+ * @see app/Http/Controllers/ObatController.php:258
  * @route '/obat/{obat}'
  */
 update.patch = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -837,7 +662,7 @@ update.patch = (args: { obat: string | number } | [obat: string | number ] | str
 
     /**
 * @see \App\Http\Controllers\ObatController::update
- * @see app/Http/Controllers/ObatController.php:251
+ * @see app/Http/Controllers/ObatController.php:258
  * @route '/obat/{obat}'
  */
     const updateForm = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -852,7 +677,7 @@ update.patch = (args: { obat: string | number } | [obat: string | number ] | str
 
             /**
 * @see \App\Http\Controllers\ObatController::update
- * @see app/Http/Controllers/ObatController.php:251
+ * @see app/Http/Controllers/ObatController.php:258
  * @route '/obat/{obat}'
  */
         updateForm.put = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -866,7 +691,7 @@ update.patch = (args: { obat: string | number } | [obat: string | number ] | str
         })
             /**
 * @see \App\Http\Controllers\ObatController::update
- * @see app/Http/Controllers/ObatController.php:251
+ * @see app/Http/Controllers/ObatController.php:258
  * @route '/obat/{obat}'
  */
         updateForm.patch = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -882,7 +707,7 @@ update.patch = (args: { obat: string | number } | [obat: string | number ] | str
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\ObatController::destroy
- * @see app/Http/Controllers/ObatController.php:282
+ * @see app/Http/Controllers/ObatController.php:290
  * @route '/obat/{obat}'
  */
 export const destroy = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -897,7 +722,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\ObatController::destroy
- * @see app/Http/Controllers/ObatController.php:282
+ * @see app/Http/Controllers/ObatController.php:290
  * @route '/obat/{obat}'
  */
 destroy.url = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -925,7 +750,7 @@ destroy.url = (args: { obat: string | number } | [obat: string | number ] | stri
 
 /**
 * @see \App\Http\Controllers\ObatController::destroy
- * @see app/Http/Controllers/ObatController.php:282
+ * @see app/Http/Controllers/ObatController.php:290
  * @route '/obat/{obat}'
  */
 destroy.delete = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -935,7 +760,7 @@ destroy.delete = (args: { obat: string | number } | [obat: string | number ] | s
 
     /**
 * @see \App\Http\Controllers\ObatController::destroy
- * @see app/Http/Controllers/ObatController.php:282
+ * @see app/Http/Controllers/ObatController.php:290
  * @route '/obat/{obat}'
  */
     const destroyForm = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -950,7 +775,7 @@ destroy.delete = (args: { obat: string | number } | [obat: string | number ] | s
 
             /**
 * @see \App\Http\Controllers\ObatController::destroy
- * @see app/Http/Controllers/ObatController.php:282
+ * @see app/Http/Controllers/ObatController.php:290
  * @route '/obat/{obat}'
  */
         destroyForm.delete = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -964,19 +789,194 @@ destroy.delete = (args: { obat: string | number } | [obat: string | number ] | s
         })
     
     destroy.form = destroyForm
+/**
+* @see \App\Http\Controllers\ObatController::index
+ * @see app/Http/Controllers/ObatController.php:29
+ * @route '/obat'
+ */
+export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+index.definition = {
+    methods: ["get","head"],
+    url: '/obat',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\ObatController::index
+ * @see app/Http/Controllers/ObatController.php:29
+ * @route '/obat'
+ */
+index.url = (options?: RouteQueryOptions) => {
+    return index.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\ObatController::index
+ * @see app/Http/Controllers/ObatController.php:29
+ * @route '/obat'
+ */
+index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\ObatController::index
+ * @see app/Http/Controllers/ObatController.php:29
+ * @route '/obat'
+ */
+index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: index.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\ObatController::index
+ * @see app/Http/Controllers/ObatController.php:29
+ * @route '/obat'
+ */
+    const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: index.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\ObatController::index
+ * @see app/Http/Controllers/ObatController.php:29
+ * @route '/obat'
+ */
+        indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: index.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\ObatController::index
+ * @see app/Http/Controllers/ObatController.php:29
+ * @route '/obat'
+ */
+        indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: index.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    index.form = indexForm
+/**
+* @see \App\Http\Controllers\ObatController::show
+ * @see app/Http/Controllers/ObatController.php:226
+ * @route '/obat/{obat}'
+ */
+export const show = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: show.url(args, options),
+    method: 'get',
+})
+
+show.definition = {
+    methods: ["get","head"],
+    url: '/obat/{obat}',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\ObatController::show
+ * @see app/Http/Controllers/ObatController.php:226
+ * @route '/obat/{obat}'
+ */
+show.url = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { obat: args }
+    }
+
+    
+    if (Array.isArray(args)) {
+        args = {
+                    obat: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        obat: args.obat,
+                }
+
+    return show.definition.url
+            .replace('{obat}', parsedArgs.obat.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\ObatController::show
+ * @see app/Http/Controllers/ObatController.php:226
+ * @route '/obat/{obat}'
+ */
+show.get = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: show.url(args, options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\ObatController::show
+ * @see app/Http/Controllers/ObatController.php:226
+ * @route '/obat/{obat}'
+ */
+show.head = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: show.url(args, options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\ObatController::show
+ * @see app/Http/Controllers/ObatController.php:226
+ * @route '/obat/{obat}'
+ */
+    const showForm = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: show.url(args, options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\ObatController::show
+ * @see app/Http/Controllers/ObatController.php:226
+ * @route '/obat/{obat}'
+ */
+        showForm.get = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: show.url(args, options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\ObatController::show
+ * @see app/Http/Controllers/ObatController.php:226
+ * @route '/obat/{obat}'
+ */
+        showForm.head = (args: { obat: string | number } | [obat: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: show.url(args, {
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    show.form = showForm
 const obat = {
     downloadTemplate: Object.assign(downloadTemplate, downloadTemplate),
 import: Object.assign(importMethod, importMethod),
 trash: Object.assign(trash, trash),
 restore: Object.assign(restore, restore),
 forceDelete: Object.assign(forceDelete, forceDelete),
-index: Object.assign(index, index),
 create: Object.assign(create, create),
 store: Object.assign(store, store),
-show: Object.assign(show, show),
 edit: Object.assign(edit, edit),
 update: Object.assign(update, update),
 destroy: Object.assign(destroy, destroy),
+index: Object.assign(index, index),
+show: Object.assign(show, show),
 }
 
 export default obat

@@ -6,9 +6,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
-import { Save, X, Package, QrCode, Scan, AlertCircle, CheckCircle2, Camera, Keyboard, Loader2 } from 'lucide-react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Save, X, Package, QrCode, Scan, AlertCircle, CheckCircle2, Camera, Keyboard, Loader2, Lock } from 'lucide-react';
 import type { FormEventHandler } from 'react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -74,6 +74,7 @@ interface MedicineSuggestion {
 }
 
 export default function TransaksiCreate({ obat, batches }: Props) {
+    const { auth } = usePage<SharedData>().props;
     const { data, setData, post, processing, errors } = useForm({
         obat_id: '',
         batch_id: '',
@@ -1090,8 +1091,15 @@ export default function TransaksiCreate({ obat, batches }: Props) {
                                 )}
                                 {isPenjualan && (
                                     <div className="grid gap-2">
-                                        <Label htmlFor="kasir_nama">Kasir</Label>
-                                        <Input id="kasir_nama" value={data.kasir_nama} onChange={(e) => setData('kasir_nama', e.target.value)} placeholder="Nama kasir (opsional)" />
+                                        <Label htmlFor="kasir-nama">Kasir</Label>
+                                        <div
+                                            id="kasir-nama"
+                                            className="flex h-10 w-full items-center gap-2 rounded-md border border-input bg-muted px-3 py-2 text-sm text-muted-foreground select-none"
+                                        >
+                                            <Lock className="size-3.5 shrink-0" />
+                                            <span className="truncate">{auth.user.name}</span>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">Nama kasir dikunci ke akun yang sedang login.</p>
                                     </div>
                                 )}
                                 {requiresTempoDate && (

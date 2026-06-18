@@ -12,6 +12,6 @@ class LogoutResponse implements LogoutResponseContract
      */
     public function toResponse($request)
     {
-        return Inertia::location(route('login'));
+        return redirect(route('home'));
     }
 }

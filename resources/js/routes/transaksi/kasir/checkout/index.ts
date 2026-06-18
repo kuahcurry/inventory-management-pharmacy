@@ -1,10 +1,10 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\TransaksiController::resume
- * @see app/Http/Controllers/TransaksiController.php:326
+ * @see app/Http/Controllers/TransaksiController.php:334
  * @route '/kasir/checkout/resume/{approvalRequest}'
  */
-export const resume = (args: { approvalRequest: number | { id: number } } | [approvalRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const resume = (args: { approvalRequest: string | number | { id: string | number } } | [approvalRequest: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: resume.url(args, options),
     method: 'post',
 })
@@ -16,10 +16,10 @@ resume.definition = {
 
 /**
 * @see \App\Http\Controllers\TransaksiController::resume
- * @see app/Http/Controllers/TransaksiController.php:326
+ * @see app/Http/Controllers/TransaksiController.php:334
  * @route '/kasir/checkout/resume/{approvalRequest}'
  */
-resume.url = (args: { approvalRequest: number | { id: number } } | [approvalRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+resume.url = (args: { approvalRequest: string | number | { id: string | number } } | [approvalRequest: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { approvalRequest: args }
     }
@@ -49,30 +49,30 @@ resume.url = (args: { approvalRequest: number | { id: number } } | [approvalRequ
 
 /**
 * @see \App\Http\Controllers\TransaksiController::resume
- * @see app/Http/Controllers/TransaksiController.php:326
+ * @see app/Http/Controllers/TransaksiController.php:334
  * @route '/kasir/checkout/resume/{approvalRequest}'
  */
-resume.post = (args: { approvalRequest: number | { id: number } } | [approvalRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+resume.post = (args: { approvalRequest: string | number | { id: string | number } } | [approvalRequest: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: resume.url(args, options),
     method: 'post',
 })
 
     /**
 * @see \App\Http\Controllers\TransaksiController::resume
- * @see app/Http/Controllers/TransaksiController.php:326
+ * @see app/Http/Controllers/TransaksiController.php:334
  * @route '/kasir/checkout/resume/{approvalRequest}'
  */
-    const resumeForm = (args: { approvalRequest: number | { id: number } } | [approvalRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const resumeForm = (args: { approvalRequest: string | number | { id: string | number } } | [approvalRequest: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: resume.url(args, options),
         method: 'post',
     })
 
             /**
 * @see \App\Http\Controllers\TransaksiController::resume
- * @see app/Http/Controllers/TransaksiController.php:326
+ * @see app/Http/Controllers/TransaksiController.php:334
  * @route '/kasir/checkout/resume/{approvalRequest}'
  */
-        resumeForm.post = (args: { approvalRequest: number | { id: number } } | [approvalRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        resumeForm.post = (args: { approvalRequest: string | number | { id: string | number } } | [approvalRequest: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: resume.url(args, options),
             method: 'post',
         })

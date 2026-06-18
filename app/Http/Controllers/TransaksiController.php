@@ -26,7 +26,7 @@ class TransaksiController extends Controller
     public function kasir()
     {
         $batches = \App\Models\BatchObat::query()
-            ->with(['obat.satuan'])
+            ->with(['obat.satuan', 'obat.golongan'])
             ->where('status', 'active')
             ->where('stok_tersedia', '>', 0)
             ->whereDate('tanggal_expired', '>=', today())
@@ -74,7 +74,6 @@ class TransaksiController extends Controller
                 'bank_code' => 'nullable|string|max:16',
                 'bank_nama' => 'nullable|string|max:255',
                 'tanggal_transaksi' => 'required|date',
-                'kasir_nama' => 'nullable|string|max:255',
                 'biaya_kategori' => 'required|in:pajak,bunga,sewa,lainnya',
                 'biaya_nominal' => 'required|numeric|min:1',
                 'biaya_keterangan' => 'nullable|string|max:2000',
@@ -102,7 +101,7 @@ class TransaksiController extends Controller
                 'metode_pembayaran' => $validatedBiaya['metode_pembayaran'],
                 'bank_code' => $validatedBiaya['metode_pembayaran'] === 'transfer' ? ($validatedBiaya['bank_code'] ?? null) : null,
                 'bank_nama' => $validatedBiaya['metode_pembayaran'] === 'transfer' ? ($validatedBiaya['bank_nama'] ?? null) : null,
-                'kasir_nama' => $validatedBiaya['kasir_nama'] ?? auth()->user()?->name,
+                'kasir_nama' => auth()->user()?->name,
                 'user_id' => auth()->id(),
             ]);
 
@@ -123,7 +122,6 @@ class TransaksiController extends Controller
             'pelanggan_nama' => 'nullable|string|max:255',
             'dokter_nama' => 'nullable|string|max:255',
             'resep_id' => 'nullable|exists:resep,id',
-            'kasir_nama' => 'nullable|string|max:255',
             'tipe_penjualan' => 'nullable|in:biasa,resep',
             'is_taxed' => 'nullable|boolean',
             'items' => 'required|array|min:1',
@@ -192,6 +190,16 @@ class TransaksiController extends Controller
                 throw ValidationException::withMessages([
                     'resep_id' => 'Semua obat dalam keranjang harus sesuai dengan detail resep yang dipilih.',
                 ]);
+            }
+        } else {
+            // Check that no prescription-only drugs are sold in free/biasa sale
+            foreach ($validated['items'] as $index => $item) {
+                $obat = Obat::query()->with('golongan')->findOrFail($item['obat_id']);
+                if ($obat->golongan?->butuh_resep) {
+                    throw ValidationException::withMessages([
+                        'items' => "Obat {$obat->nama_obat} hanya dapat dibeli menggunakan resep dokter.",
+                    ]);
+                }
             }
         }
 
@@ -279,7 +287,7 @@ class TransaksiController extends Controller
                     'dokter_nama' => $selectedResep?->nama_dokter ?? ($validated['dokter_nama'] ?? null),
                     'sales_nama' => null,
                     'operator_nama' => null,
-                    'kasir_nama' => $validated['kasir_nama'] ?? auth()->user()?->name,
+                    'kasir_nama' => auth()->user()?->name,
                     'metode_pembayaran' => $validated['metode_pembayaran'],
                     'bank_code' => $validated['metode_pembayaran'] === 'transfer' ? ($validated['bank_code'] ?? null) : null,
                     'bank_nama' => $validated['metode_pembayaran'] === 'transfer' ? ($validated['bank_nama'] ?? null) : null,
@@ -431,7 +439,6 @@ class TransaksiController extends Controller
             'dokter_nama' => 'nullable|string|max:255',
             'sales_nama' => 'nullable|string|max:255',
             'operator_nama' => 'nullable|string|max:255',
-            'kasir_nama' => 'nullable|string|max:255',
             'metode_pembayaran' => 'nullable|string|max:30',
             'tipe_penjualan' => 'nullable|in:biasa,resep',
             'kategori_keuangan' => 'nullable|in:none,hutang,piutang',
@@ -485,7 +492,7 @@ class TransaksiController extends Controller
             'dokter_nama' => $validated['dokter_nama'] ?? null,
             'sales_nama' => $validated['sales_nama'] ?? null,
             'operator_nama' => $validated['operator_nama'] ?? null,
-            'kasir_nama' => $validated['kasir_nama'] ?? null,
+            'kasir_nama' => auth()->user()?->name,
             'metode_pembayaran' => $validated['metode_pembayaran'] ?? null,
             'tipe_penjualan' => $validated['tipe_penjualan'] ?? null,
             'kategori_keuangan' => $validated['kategori_keuangan'] ?? 'none',
@@ -615,7 +622,6 @@ class TransaksiController extends Controller
             'dokter_nama' => 'nullable|string|max:255',
             'sales_nama' => 'nullable|string|max:255',
             'operator_nama' => 'nullable|string|max:255',
-            'kasir_nama' => 'nullable|string|max:255',
             'metode_pembayaran' => 'nullable|string|max:30',
             'tipe_penjualan' => 'nullable|in:biasa,resep',
             'kategori_keuangan' => 'nullable|in:none,hutang,piutang',
@@ -623,7 +629,7 @@ class TransaksiController extends Controller
             'jatuh_tempo' => 'nullable|date',
             'is_taxed' => 'nullable|boolean',
         ]);
-
+    
         // Calculate total
         $validated['total_harga'] = $validated['jumlah'] * $validated['harga_satuan'];
         $validated['kategori_keuangan'] = $validated['kategori_keuangan'] ?? 'none';
@@ -641,6 +647,8 @@ class TransaksiController extends Controller
                 }
             }
         }
+
+        $validated['kasir_nama'] = auth()->user()?->name;
 
         $transaksi->update($validated);
 

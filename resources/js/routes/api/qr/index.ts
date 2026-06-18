@@ -4,7 +4,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
  * @see app/Http/Controllers/Api/QrCodeController.php:47
  * @route '/api/qr/generate/{batch}'
  */
-export const generate = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const generate = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: generate.url(args, options),
     method: 'get',
 })
@@ -19,7 +19,7 @@ generate.definition = {
  * @see app/Http/Controllers/Api/QrCodeController.php:47
  * @route '/api/qr/generate/{batch}'
  */
-generate.url = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+generate.url = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { batch: args }
     }
@@ -52,7 +52,7 @@ generate.url = (args: { batch: number | { id: number } } | [batch: number | { id
  * @see app/Http/Controllers/Api/QrCodeController.php:47
  * @route '/api/qr/generate/{batch}'
  */
-generate.get = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+generate.get = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: generate.url(args, options),
     method: 'get',
 })
@@ -61,7 +61,7 @@ generate.get = (args: { batch: number | { id: number } } | [batch: number | { id
  * @see app/Http/Controllers/Api/QrCodeController.php:47
  * @route '/api/qr/generate/{batch}'
  */
-generate.head = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+generate.head = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: generate.url(args, options),
     method: 'head',
 })
@@ -71,7 +71,7 @@ generate.head = (args: { batch: number | { id: number } } | [batch: number | { i
  * @see app/Http/Controllers/Api/QrCodeController.php:47
  * @route '/api/qr/generate/{batch}'
  */
-    const generateForm = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    const generateForm = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
         action: generate.url(args, options),
         method: 'get',
     })
@@ -81,7 +81,7 @@ generate.head = (args: { batch: number | { id: number } } | [batch: number | { i
  * @see app/Http/Controllers/Api/QrCodeController.php:47
  * @route '/api/qr/generate/{batch}'
  */
-        generateForm.get = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        generateForm.get = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: generate.url(args, options),
             method: 'get',
         })
@@ -90,7 +90,7 @@ generate.head = (args: { batch: number | { id: number } } | [batch: number | { i
  * @see app/Http/Controllers/Api/QrCodeController.php:47
  * @route '/api/qr/generate/{batch}'
  */
-        generateForm.head = (args: { batch: number | { id: number } } | [batch: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        generateForm.head = (args: { batch: string | number | { id: string | number } } | [batch: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: generate.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',
@@ -106,7 +106,7 @@ generate.head = (args: { batch: number | { id: number } } | [batch: number | { i
  * @see app/Http/Controllers/Api/QrCodeController.php:82
  * @route '/api/qr/generate-obat/{obat}'
  */
-export const generateObat = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const generateObat = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: generateObat.url(args, options),
     method: 'get',
 })
@@ -121,7 +121,7 @@ generateObat.definition = {
  * @see app/Http/Controllers/Api/QrCodeController.php:82
  * @route '/api/qr/generate-obat/{obat}'
  */
-generateObat.url = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+generateObat.url = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { obat: args }
     }
@@ -154,7 +154,7 @@ generateObat.url = (args: { obat: number | { id: number } } | [obat: number | { 
  * @see app/Http/Controllers/Api/QrCodeController.php:82
  * @route '/api/qr/generate-obat/{obat}'
  */
-generateObat.get = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+generateObat.get = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: generateObat.url(args, options),
     method: 'get',
 })
@@ -163,7 +163,7 @@ generateObat.get = (args: { obat: number | { id: number } } | [obat: number | { 
  * @see app/Http/Controllers/Api/QrCodeController.php:82
  * @route '/api/qr/generate-obat/{obat}'
  */
-generateObat.head = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+generateObat.head = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: generateObat.url(args, options),
     method: 'head',
 })
@@ -173,7 +173,7 @@ generateObat.head = (args: { obat: number | { id: number } } | [obat: number | {
  * @see app/Http/Controllers/Api/QrCodeController.php:82
  * @route '/api/qr/generate-obat/{obat}'
  */
-    const generateObatForm = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    const generateObatForm = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
         action: generateObat.url(args, options),
         method: 'get',
     })
@@ -183,7 +183,7 @@ generateObat.head = (args: { obat: number | { id: number } } | [obat: number | {
  * @see app/Http/Controllers/Api/QrCodeController.php:82
  * @route '/api/qr/generate-obat/{obat}'
  */
-        generateObatForm.get = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        generateObatForm.get = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: generateObat.url(args, options),
             method: 'get',
         })
@@ -192,7 +192,7 @@ generateObat.head = (args: { obat: number | { id: number } } | [obat: number | {
  * @see app/Http/Controllers/Api/QrCodeController.php:82
  * @route '/api/qr/generate-obat/{obat}'
  */
-        generateObatForm.head = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        generateObatForm.head = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: generateObat.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',

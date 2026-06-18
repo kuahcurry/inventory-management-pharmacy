@@ -24,6 +24,7 @@ class Obat extends Model
         'nama_generik',
         'nama_brand',
         'kategori_id',
+        'golongan_id',
         'jenis_id',
         'satuan_id',
         'stok_total',
@@ -73,6 +74,14 @@ class Obat extends Model
         } while (self::where('kode_obat', $candidate)->exists());
 
         return $candidate;
+    }
+
+    /**
+     * Get the drug classification (golongan)
+     */
+    public function golongan(): BelongsTo
+    {
+        return $this->belongsTo(GolonganObat::class, 'golongan_id');
     }
 
     /**

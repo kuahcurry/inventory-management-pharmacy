@@ -2,6 +2,7 @@
 -- Removes all dummy records created by prefixes DMY26 / RSP-DMY26 / BA-DMY26 / SO-DMY26
 -- and optional retail support inserts (auto batch + dummy units).
 
+SET NAMES utf8mb4;
 START TRANSACTION;
 
 -- 1) Child records first (FK-safe order)

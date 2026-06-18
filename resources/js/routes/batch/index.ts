@@ -236,84 +236,6 @@ forceDelete.delete = (args: { batch: string | number } | [batch: string | number
     
     forceDelete.form = forceDeleteForm
 /**
-* @see \App\Http\Controllers\BatchObatController::index
- * @see app/Http/Controllers/BatchObatController.php:18
- * @route '/obat/batch'
- */
-export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: index.url(options),
-    method: 'get',
-})
-
-index.definition = {
-    methods: ["get","head"],
-    url: '/obat/batch',
-} satisfies RouteDefinition<["get","head"]>
-
-/**
-* @see \App\Http\Controllers\BatchObatController::index
- * @see app/Http/Controllers/BatchObatController.php:18
- * @route '/obat/batch'
- */
-index.url = (options?: RouteQueryOptions) => {
-    return index.definition.url + queryParams(options)
-}
-
-/**
-* @see \App\Http\Controllers\BatchObatController::index
- * @see app/Http/Controllers/BatchObatController.php:18
- * @route '/obat/batch'
- */
-index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: index.url(options),
-    method: 'get',
-})
-/**
-* @see \App\Http\Controllers\BatchObatController::index
- * @see app/Http/Controllers/BatchObatController.php:18
- * @route '/obat/batch'
- */
-index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: index.url(options),
-    method: 'head',
-})
-
-    /**
-* @see \App\Http\Controllers\BatchObatController::index
- * @see app/Http/Controllers/BatchObatController.php:18
- * @route '/obat/batch'
- */
-    const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-        action: index.url(options),
-        method: 'get',
-    })
-
-            /**
-* @see \App\Http\Controllers\BatchObatController::index
- * @see app/Http/Controllers/BatchObatController.php:18
- * @route '/obat/batch'
- */
-        indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: index.url(options),
-            method: 'get',
-        })
-            /**
-* @see \App\Http\Controllers\BatchObatController::index
- * @see app/Http/Controllers/BatchObatController.php:18
- * @route '/obat/batch'
- */
-        indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: index.url({
-                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-                            _method: 'HEAD',
-                            ...(options?.query ?? options?.mergeQuery ?? {}),
-                        }
-                    }),
-            method: 'get',
-        })
-    
-    index.form = indexForm
-/**
 * @see \App\Http\Controllers\BatchObatController::create
  * @see app/Http/Controllers/BatchObatController.php:32
  * @route '/obat/batch/create'
@@ -446,103 +368,6 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
         })
     
     store.form = storeForm
-/**
-* @see \App\Http\Controllers\BatchObatController::show
- * @see app/Http/Controllers/BatchObatController.php:76
- * @route '/obat/batch/{batch}'
- */
-export const show = (args: { batch: string | number } | [batch: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: show.url(args, options),
-    method: 'get',
-})
-
-show.definition = {
-    methods: ["get","head"],
-    url: '/obat/batch/{batch}',
-} satisfies RouteDefinition<["get","head"]>
-
-/**
-* @see \App\Http\Controllers\BatchObatController::show
- * @see app/Http/Controllers/BatchObatController.php:76
- * @route '/obat/batch/{batch}'
- */
-show.url = (args: { batch: string | number } | [batch: string | number ] | string | number, options?: RouteQueryOptions) => {
-    if (typeof args === 'string' || typeof args === 'number') {
-        args = { batch: args }
-    }
-
-    
-    if (Array.isArray(args)) {
-        args = {
-                    batch: args[0],
-                }
-    }
-
-    args = applyUrlDefaults(args)
-
-    const parsedArgs = {
-                        batch: args.batch,
-                }
-
-    return show.definition.url
-            .replace('{batch}', parsedArgs.batch.toString())
-            .replace(/\/+$/, '') + queryParams(options)
-}
-
-/**
-* @see \App\Http\Controllers\BatchObatController::show
- * @see app/Http/Controllers/BatchObatController.php:76
- * @route '/obat/batch/{batch}'
- */
-show.get = (args: { batch: string | number } | [batch: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: show.url(args, options),
-    method: 'get',
-})
-/**
-* @see \App\Http\Controllers\BatchObatController::show
- * @see app/Http/Controllers/BatchObatController.php:76
- * @route '/obat/batch/{batch}'
- */
-show.head = (args: { batch: string | number } | [batch: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: show.url(args, options),
-    method: 'head',
-})
-
-    /**
-* @see \App\Http\Controllers\BatchObatController::show
- * @see app/Http/Controllers/BatchObatController.php:76
- * @route '/obat/batch/{batch}'
- */
-    const showForm = (args: { batch: string | number } | [batch: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-        action: show.url(args, options),
-        method: 'get',
-    })
-
-            /**
-* @see \App\Http\Controllers\BatchObatController::show
- * @see app/Http/Controllers/BatchObatController.php:76
- * @route '/obat/batch/{batch}'
- */
-        showForm.get = (args: { batch: string | number } | [batch: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: show.url(args, options),
-            method: 'get',
-        })
-            /**
-* @see \App\Http\Controllers\BatchObatController::show
- * @see app/Http/Controllers/BatchObatController.php:76
- * @route '/obat/batch/{batch}'
- */
-        showForm.head = (args: { batch: string | number } | [batch: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: show.url(args, {
-                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-                            _method: 'HEAD',
-                            ...(options?.query ?? options?.mergeQuery ?? {}),
-                        }
-                    }),
-            method: 'get',
-        })
-    
-    show.form = showForm
 /**
 * @see \App\Http\Controllers\BatchObatController::edit
  * @see app/Http/Controllers/BatchObatController.php:89
@@ -831,17 +656,192 @@ destroy.delete = (args: { batch: string | number } | [batch: string | number ] |
         })
     
     destroy.form = destroyForm
+/**
+* @see \App\Http\Controllers\BatchObatController::index
+ * @see app/Http/Controllers/BatchObatController.php:18
+ * @route '/obat/batch'
+ */
+export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+index.definition = {
+    methods: ["get","head"],
+    url: '/obat/batch',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\BatchObatController::index
+ * @see app/Http/Controllers/BatchObatController.php:18
+ * @route '/obat/batch'
+ */
+index.url = (options?: RouteQueryOptions) => {
+    return index.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\BatchObatController::index
+ * @see app/Http/Controllers/BatchObatController.php:18
+ * @route '/obat/batch'
+ */
+index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\BatchObatController::index
+ * @see app/Http/Controllers/BatchObatController.php:18
+ * @route '/obat/batch'
+ */
+index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: index.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\BatchObatController::index
+ * @see app/Http/Controllers/BatchObatController.php:18
+ * @route '/obat/batch'
+ */
+    const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: index.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\BatchObatController::index
+ * @see app/Http/Controllers/BatchObatController.php:18
+ * @route '/obat/batch'
+ */
+        indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: index.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\BatchObatController::index
+ * @see app/Http/Controllers/BatchObatController.php:18
+ * @route '/obat/batch'
+ */
+        indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: index.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    index.form = indexForm
+/**
+* @see \App\Http\Controllers\BatchObatController::show
+ * @see app/Http/Controllers/BatchObatController.php:76
+ * @route '/obat/batch/{batch}'
+ */
+export const show = (args: { batch: string | number } | [batch: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: show.url(args, options),
+    method: 'get',
+})
+
+show.definition = {
+    methods: ["get","head"],
+    url: '/obat/batch/{batch}',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\BatchObatController::show
+ * @see app/Http/Controllers/BatchObatController.php:76
+ * @route '/obat/batch/{batch}'
+ */
+show.url = (args: { batch: string | number } | [batch: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { batch: args }
+    }
+
+    
+    if (Array.isArray(args)) {
+        args = {
+                    batch: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        batch: args.batch,
+                }
+
+    return show.definition.url
+            .replace('{batch}', parsedArgs.batch.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\BatchObatController::show
+ * @see app/Http/Controllers/BatchObatController.php:76
+ * @route '/obat/batch/{batch}'
+ */
+show.get = (args: { batch: string | number } | [batch: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: show.url(args, options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\BatchObatController::show
+ * @see app/Http/Controllers/BatchObatController.php:76
+ * @route '/obat/batch/{batch}'
+ */
+show.head = (args: { batch: string | number } | [batch: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: show.url(args, options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\BatchObatController::show
+ * @see app/Http/Controllers/BatchObatController.php:76
+ * @route '/obat/batch/{batch}'
+ */
+    const showForm = (args: { batch: string | number } | [batch: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: show.url(args, options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\BatchObatController::show
+ * @see app/Http/Controllers/BatchObatController.php:76
+ * @route '/obat/batch/{batch}'
+ */
+        showForm.get = (args: { batch: string | number } | [batch: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: show.url(args, options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\BatchObatController::show
+ * @see app/Http/Controllers/BatchObatController.php:76
+ * @route '/obat/batch/{batch}'
+ */
+        showForm.head = (args: { batch: string | number } | [batch: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: show.url(args, {
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    show.form = showForm
 const batch = {
     trash: Object.assign(trash, trash),
 restore: Object.assign(restore, restore),
 forceDelete: Object.assign(forceDelete, forceDelete),
-index: Object.assign(index, index),
 create: Object.assign(create, create),
 store: Object.assign(store, store),
-show: Object.assign(show, show),
 edit: Object.assign(edit, edit),
 update: Object.assign(update, update),
 destroy: Object.assign(destroy, destroy),
+index: Object.assign(index, index),
+show: Object.assign(show, show),
 }
 
 export default batch

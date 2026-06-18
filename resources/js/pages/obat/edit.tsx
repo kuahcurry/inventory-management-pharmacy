@@ -19,6 +19,12 @@ interface KategoriObat {
     nama_kategori: string;
 }
 
+interface GolonganObat {
+    id: number;
+    nama_golongan: string;
+    kode: string;
+}
+
 interface JenisObat {
     id: number;
     nama_jenis: string;
@@ -36,6 +42,7 @@ interface Obat {
     nama_generik?: string;
     nama_brand?: string;
     kategori_id: number;
+    golongan_id?: number | null;
     jenis_id: number;
     satuan_id: number;
     stok_minimum: number;
@@ -53,6 +60,7 @@ interface EditProps {
     kategori: KategoriObat[];
     jenis: JenisObat[];
     satuan: SatuanObat[];
+    golongan: GolonganObat[];
 }
 
 type InfoTab = 'indikasi' | 'kontraindikasi' | 'efek_samping' | 'deskripsi';
@@ -64,7 +72,7 @@ const infoTabs: Array<{ key: InfoTab; label: string }> = [
     { key: 'deskripsi', label: 'Deskripsi' },
 ];
 
-export default function EditObat({ obat, kategori, jenis, satuan }: EditProps) {
+export default function EditObat({ obat, kategori, jenis, satuan, golongan }: EditProps) {
     const [activeInfoTab, setActiveInfoTab] = useState<InfoTab>('indikasi');
 
     const { data, setData, put, processing, errors } = useForm({
@@ -73,6 +81,7 @@ export default function EditObat({ obat, kategori, jenis, satuan }: EditProps) {
         nama_generik: obat.nama_generik || '',
         nama_brand: obat.nama_brand || '',
         kategori_id: obat.kategori_id.toString(),
+        golongan_id: (obat.golongan_id || '').toString(),
         jenis_id: obat.jenis_id.toString(),
         satuan_id: obat.satuan_id.toString(),
         stok_minimum: obat.stok_minimum.toString(),
@@ -140,7 +149,7 @@ export default function EditObat({ obat, kategori, jenis, satuan }: EditProps) {
                                 </div>
                             </div>
 
-                            <div className="grid gap-3 sm:grid-cols-3">
+                            <div className="grid gap-3 sm:grid-cols-4">
                                 <div className="space-y-1.5">
                                     <Label>Kategori *</Label>
                                     <Select value={data.kategori_id} onValueChange={(v) => setData('kategori_id', v)} required>
@@ -152,6 +161,18 @@ export default function EditObat({ obat, kategori, jenis, satuan }: EditProps) {
                                         </SelectContent>
                                     </Select>
                                     {errors.kategori_id && <p className="text-xs text-destructive">{errors.kategori_id}</p>}
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label>Golongan *</Label>
+                                    <Select value={data.golongan_id} onValueChange={(v) => setData('golongan_id', v)} required>
+                                        <SelectTrigger><SelectValue placeholder="Pilih" /></SelectTrigger>
+                                        <SelectContent>
+                                            {golongan.map((item) => (
+                                                <SelectItem key={item.id} value={item.id.toString()}>{item.nama_golongan} ({item.kode})</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.golongan_id && <p className="text-xs text-destructive">{errors.golongan_id}</p>}
                                 </div>
                                 <div className="space-y-1.5">
                                     <Label>Jenis *</Label>

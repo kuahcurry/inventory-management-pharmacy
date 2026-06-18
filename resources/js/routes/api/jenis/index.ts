@@ -82,7 +82,7 @@ active.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
  * @see app/Http/Controllers/Api/JenisObatController.php:145
  * @route '/api/jenis/{jenisObat}/toggle-status'
  */
-export const toggleStatus = (args: { jenisObat: number | { id: number } } | [jenisObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const toggleStatus = (args: { jenisObat: string | number | { id: string | number } } | [jenisObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: toggleStatus.url(args, options),
     method: 'post',
 })
@@ -97,7 +97,7 @@ toggleStatus.definition = {
  * @see app/Http/Controllers/Api/JenisObatController.php:145
  * @route '/api/jenis/{jenisObat}/toggle-status'
  */
-toggleStatus.url = (args: { jenisObat: number | { id: number } } | [jenisObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+toggleStatus.url = (args: { jenisObat: string | number | { id: string | number } } | [jenisObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { jenisObat: args }
     }
@@ -130,7 +130,7 @@ toggleStatus.url = (args: { jenisObat: number | { id: number } } | [jenisObat: n
  * @see app/Http/Controllers/Api/JenisObatController.php:145
  * @route '/api/jenis/{jenisObat}/toggle-status'
  */
-toggleStatus.post = (args: { jenisObat: number | { id: number } } | [jenisObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+toggleStatus.post = (args: { jenisObat: string | number | { id: string | number } } | [jenisObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: toggleStatus.url(args, options),
     method: 'post',
 })
@@ -140,7 +140,7 @@ toggleStatus.post = (args: { jenisObat: number | { id: number } } | [jenisObat: 
  * @see app/Http/Controllers/Api/JenisObatController.php:145
  * @route '/api/jenis/{jenisObat}/toggle-status'
  */
-    const toggleStatusForm = (args: { jenisObat: number | { id: number } } | [jenisObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const toggleStatusForm = (args: { jenisObat: string | number | { id: string | number } } | [jenisObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: toggleStatus.url(args, options),
         method: 'post',
     })
@@ -150,7 +150,7 @@ toggleStatus.post = (args: { jenisObat: number | { id: number } } | [jenisObat: 
  * @see app/Http/Controllers/Api/JenisObatController.php:145
  * @route '/api/jenis/{jenisObat}/toggle-status'
  */
-        toggleStatusForm.post = (args: { jenisObat: number | { id: number } } | [jenisObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        toggleStatusForm.post = (args: { jenisObat: string | number | { id: string | number } } | [jenisObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: toggleStatus.url(args, options),
             method: 'post',
         })
