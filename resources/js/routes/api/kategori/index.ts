@@ -82,7 +82,7 @@ active.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
  * @see app/Http/Controllers/Api/KategoriObatController.php:145
  * @route '/api/kategori/{kategoriObat}/toggle-status'
  */
-export const toggleStatus = (args: { kategoriObat: string | number | { id: string | number } } | [kategoriObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const toggleStatus = (args: { kategoriObat: number | { id: number } } | [kategoriObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: toggleStatus.url(args, options),
     method: 'post',
 })
@@ -97,7 +97,7 @@ toggleStatus.definition = {
  * @see app/Http/Controllers/Api/KategoriObatController.php:145
  * @route '/api/kategori/{kategoriObat}/toggle-status'
  */
-toggleStatus.url = (args: { kategoriObat: string | number | { id: string | number } } | [kategoriObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+toggleStatus.url = (args: { kategoriObat: number | { id: number } } | [kategoriObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { kategoriObat: args }
     }
@@ -130,7 +130,7 @@ toggleStatus.url = (args: { kategoriObat: string | number | { id: string | numbe
  * @see app/Http/Controllers/Api/KategoriObatController.php:145
  * @route '/api/kategori/{kategoriObat}/toggle-status'
  */
-toggleStatus.post = (args: { kategoriObat: string | number | { id: string | number } } | [kategoriObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+toggleStatus.post = (args: { kategoriObat: number | { id: number } } | [kategoriObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: toggleStatus.url(args, options),
     method: 'post',
 })
@@ -140,7 +140,7 @@ toggleStatus.post = (args: { kategoriObat: string | number | { id: string | numb
  * @see app/Http/Controllers/Api/KategoriObatController.php:145
  * @route '/api/kategori/{kategoriObat}/toggle-status'
  */
-    const toggleStatusForm = (args: { kategoriObat: string | number | { id: string | number } } | [kategoriObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const toggleStatusForm = (args: { kategoriObat: number | { id: number } } | [kategoriObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: toggleStatus.url(args, options),
         method: 'post',
     })
@@ -150,7 +150,7 @@ toggleStatus.post = (args: { kategoriObat: string | number | { id: string | numb
  * @see app/Http/Controllers/Api/KategoriObatController.php:145
  * @route '/api/kategori/{kategoriObat}/toggle-status'
  */
-        toggleStatusForm.post = (args: { kategoriObat: string | number | { id: string | number } } | [kategoriObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        toggleStatusForm.post = (args: { kategoriObat: number | { id: number } } | [kategoriObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: toggleStatus.url(args, options),
             method: 'post',
         })

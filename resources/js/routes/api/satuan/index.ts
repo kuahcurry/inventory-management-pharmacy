@@ -82,7 +82,7 @@ active.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
  * @see app/Http/Controllers/Api/SatuanObatController.php:145
  * @route '/api/satuan/{satuanObat}/toggle-status'
  */
-export const toggleStatus = (args: { satuanObat: string | number | { id: string | number } } | [satuanObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const toggleStatus = (args: { satuanObat: number | { id: number } } | [satuanObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: toggleStatus.url(args, options),
     method: 'post',
 })
@@ -97,7 +97,7 @@ toggleStatus.definition = {
  * @see app/Http/Controllers/Api/SatuanObatController.php:145
  * @route '/api/satuan/{satuanObat}/toggle-status'
  */
-toggleStatus.url = (args: { satuanObat: string | number | { id: string | number } } | [satuanObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+toggleStatus.url = (args: { satuanObat: number | { id: number } } | [satuanObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { satuanObat: args }
     }
@@ -130,7 +130,7 @@ toggleStatus.url = (args: { satuanObat: string | number | { id: string | number 
  * @see app/Http/Controllers/Api/SatuanObatController.php:145
  * @route '/api/satuan/{satuanObat}/toggle-status'
  */
-toggleStatus.post = (args: { satuanObat: string | number | { id: string | number } } | [satuanObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+toggleStatus.post = (args: { satuanObat: number | { id: number } } | [satuanObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: toggleStatus.url(args, options),
     method: 'post',
 })
@@ -140,7 +140,7 @@ toggleStatus.post = (args: { satuanObat: string | number | { id: string | number
  * @see app/Http/Controllers/Api/SatuanObatController.php:145
  * @route '/api/satuan/{satuanObat}/toggle-status'
  */
-    const toggleStatusForm = (args: { satuanObat: string | number | { id: string | number } } | [satuanObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const toggleStatusForm = (args: { satuanObat: number | { id: number } } | [satuanObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: toggleStatus.url(args, options),
         method: 'post',
     })
@@ -150,7 +150,7 @@ toggleStatus.post = (args: { satuanObat: string | number | { id: string | number
  * @see app/Http/Controllers/Api/SatuanObatController.php:145
  * @route '/api/satuan/{satuanObat}/toggle-status'
  */
-        toggleStatusForm.post = (args: { satuanObat: string | number | { id: string | number } } | [satuanObat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        toggleStatusForm.post = (args: { satuanObat: number | { id: number } } | [satuanObat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: toggleStatus.url(args, options),
             method: 'post',
         })

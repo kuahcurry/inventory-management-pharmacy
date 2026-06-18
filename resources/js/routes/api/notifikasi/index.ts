@@ -238,7 +238,7 @@ unreadCount.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
  * @see app/Http/Controllers/Api/NotifikasiController.php:60
  * @route '/api/notifikasi/{notifikasi}/read'
  */
-export const markAsRead = (args: { notifikasi: string | number | { id: string | number } } | [notifikasi: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const markAsRead = (args: { notifikasi: number | { id: number } } | [notifikasi: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: markAsRead.url(args, options),
     method: 'post',
 })
@@ -253,7 +253,7 @@ markAsRead.definition = {
  * @see app/Http/Controllers/Api/NotifikasiController.php:60
  * @route '/api/notifikasi/{notifikasi}/read'
  */
-markAsRead.url = (args: { notifikasi: string | number | { id: string | number } } | [notifikasi: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+markAsRead.url = (args: { notifikasi: number | { id: number } } | [notifikasi: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { notifikasi: args }
     }
@@ -286,7 +286,7 @@ markAsRead.url = (args: { notifikasi: string | number | { id: string | number } 
  * @see app/Http/Controllers/Api/NotifikasiController.php:60
  * @route '/api/notifikasi/{notifikasi}/read'
  */
-markAsRead.post = (args: { notifikasi: string | number | { id: string | number } } | [notifikasi: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+markAsRead.post = (args: { notifikasi: number | { id: number } } | [notifikasi: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: markAsRead.url(args, options),
     method: 'post',
 })
@@ -296,7 +296,7 @@ markAsRead.post = (args: { notifikasi: string | number | { id: string | number }
  * @see app/Http/Controllers/Api/NotifikasiController.php:60
  * @route '/api/notifikasi/{notifikasi}/read'
  */
-    const markAsReadForm = (args: { notifikasi: string | number | { id: string | number } } | [notifikasi: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const markAsReadForm = (args: { notifikasi: number | { id: number } } | [notifikasi: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: markAsRead.url(args, options),
         method: 'post',
     })
@@ -306,7 +306,7 @@ markAsRead.post = (args: { notifikasi: string | number | { id: string | number }
  * @see app/Http/Controllers/Api/NotifikasiController.php:60
  * @route '/api/notifikasi/{notifikasi}/read'
  */
-        markAsReadForm.post = (args: { notifikasi: string | number | { id: string | number } } | [notifikasi: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        markAsReadForm.post = (args: { notifikasi: number | { id: number } } | [notifikasi: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: markAsRead.url(args, options),
             method: 'post',
         })

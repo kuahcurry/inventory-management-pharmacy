@@ -160,7 +160,7 @@ search.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
  * @see app/Http/Controllers/Api/ObatController.php:274
  * @route '/api/obat/{obat}/batches'
  */
-export const batches = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const batches = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: batches.url(args, options),
     method: 'get',
 })
@@ -175,7 +175,7 @@ batches.definition = {
  * @see app/Http/Controllers/Api/ObatController.php:274
  * @route '/api/obat/{obat}/batches'
  */
-batches.url = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+batches.url = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { obat: args }
     }
@@ -208,7 +208,7 @@ batches.url = (args: { obat: string | number | { id: string | number } } | [obat
  * @see app/Http/Controllers/Api/ObatController.php:274
  * @route '/api/obat/{obat}/batches'
  */
-batches.get = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+batches.get = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: batches.url(args, options),
     method: 'get',
 })
@@ -217,7 +217,7 @@ batches.get = (args: { obat: string | number | { id: string | number } } | [obat
  * @see app/Http/Controllers/Api/ObatController.php:274
  * @route '/api/obat/{obat}/batches'
  */
-batches.head = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+batches.head = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: batches.url(args, options),
     method: 'head',
 })
@@ -227,7 +227,7 @@ batches.head = (args: { obat: string | number | { id: string | number } } | [oba
  * @see app/Http/Controllers/Api/ObatController.php:274
  * @route '/api/obat/{obat}/batches'
  */
-    const batchesForm = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    const batchesForm = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
         action: batches.url(args, options),
         method: 'get',
     })
@@ -237,7 +237,7 @@ batches.head = (args: { obat: string | number | { id: string | number } } | [oba
  * @see app/Http/Controllers/Api/ObatController.php:274
  * @route '/api/obat/{obat}/batches'
  */
-        batchesForm.get = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        batchesForm.get = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: batches.url(args, options),
             method: 'get',
         })
@@ -246,7 +246,7 @@ batches.head = (args: { obat: string | number | { id: string | number } } | [oba
  * @see app/Http/Controllers/Api/ObatController.php:274
  * @route '/api/obat/{obat}/batches'
  */
-        batchesForm.head = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        batchesForm.head = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: batches.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',
@@ -262,7 +262,7 @@ batches.head = (args: { obat: string | number | { id: string | number } } | [oba
  * @see app/Http/Controllers/Api/ObatController.php:287
  * @route '/api/obat/{obat}/recalculate-stock'
  */
-export const recalculateStock = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const recalculateStock = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: recalculateStock.url(args, options),
     method: 'post',
 })
@@ -277,7 +277,7 @@ recalculateStock.definition = {
  * @see app/Http/Controllers/Api/ObatController.php:287
  * @route '/api/obat/{obat}/recalculate-stock'
  */
-recalculateStock.url = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+recalculateStock.url = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { obat: args }
     }
@@ -310,7 +310,7 @@ recalculateStock.url = (args: { obat: string | number | { id: string | number } 
  * @see app/Http/Controllers/Api/ObatController.php:287
  * @route '/api/obat/{obat}/recalculate-stock'
  */
-recalculateStock.post = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+recalculateStock.post = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: recalculateStock.url(args, options),
     method: 'post',
 })
@@ -320,7 +320,7 @@ recalculateStock.post = (args: { obat: string | number | { id: string | number }
  * @see app/Http/Controllers/Api/ObatController.php:287
  * @route '/api/obat/{obat}/recalculate-stock'
  */
-    const recalculateStockForm = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const recalculateStockForm = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: recalculateStock.url(args, options),
         method: 'post',
     })
@@ -330,7 +330,7 @@ recalculateStock.post = (args: { obat: string | number | { id: string | number }
  * @see app/Http/Controllers/Api/ObatController.php:287
  * @route '/api/obat/{obat}/recalculate-stock'
  */
-        recalculateStockForm.post = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        recalculateStockForm.post = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: recalculateStock.url(args, options),
             method: 'post',
         })
@@ -474,7 +474,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
  * @see app/Http/Controllers/Api/ObatController.php:90
  * @route '/api/obat/{obat}'
  */
-export const show = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const show = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -489,7 +489,7 @@ show.definition = {
  * @see app/Http/Controllers/Api/ObatController.php:90
  * @route '/api/obat/{obat}'
  */
-show.url = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+show.url = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { obat: args }
     }
@@ -522,7 +522,7 @@ show.url = (args: { obat: string | number | { id: string | number } } | [obat: s
  * @see app/Http/Controllers/Api/ObatController.php:90
  * @route '/api/obat/{obat}'
  */
-show.get = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+show.get = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -531,7 +531,7 @@ show.get = (args: { obat: string | number | { id: string | number } } | [obat: s
  * @see app/Http/Controllers/Api/ObatController.php:90
  * @route '/api/obat/{obat}'
  */
-show.head = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+show.head = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: show.url(args, options),
     method: 'head',
 })
@@ -541,7 +541,7 @@ show.head = (args: { obat: string | number | { id: string | number } } | [obat: 
  * @see app/Http/Controllers/Api/ObatController.php:90
  * @route '/api/obat/{obat}'
  */
-    const showForm = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    const showForm = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
         action: show.url(args, options),
         method: 'get',
     })
@@ -551,7 +551,7 @@ show.head = (args: { obat: string | number | { id: string | number } } | [obat: 
  * @see app/Http/Controllers/Api/ObatController.php:90
  * @route '/api/obat/{obat}'
  */
-        showForm.get = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        showForm.get = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: show.url(args, options),
             method: 'get',
         })
@@ -560,7 +560,7 @@ show.head = (args: { obat: string | number | { id: string | number } } | [obat: 
  * @see app/Http/Controllers/Api/ObatController.php:90
  * @route '/api/obat/{obat}'
  */
-        showForm.head = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        showForm.head = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: show.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',
@@ -576,7 +576,7 @@ show.head = (args: { obat: string | number | { id: string | number } } | [obat: 
  * @see app/Http/Controllers/Api/ObatController.php:100
  * @route '/api/obat/{obat}'
  */
-export const update = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+export const update = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(args, options),
     method: 'put',
 })
@@ -591,7 +591,7 @@ update.definition = {
  * @see app/Http/Controllers/Api/ObatController.php:100
  * @route '/api/obat/{obat}'
  */
-update.url = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+update.url = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { obat: args }
     }
@@ -624,7 +624,7 @@ update.url = (args: { obat: string | number | { id: string | number } } | [obat:
  * @see app/Http/Controllers/Api/ObatController.php:100
  * @route '/api/obat/{obat}'
  */
-update.put = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+update.put = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(args, options),
     method: 'put',
 })
@@ -633,7 +633,7 @@ update.put = (args: { obat: string | number | { id: string | number } } | [obat:
  * @see app/Http/Controllers/Api/ObatController.php:100
  * @route '/api/obat/{obat}'
  */
-update.patch = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+update.patch = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: update.url(args, options),
     method: 'patch',
 })
@@ -643,7 +643,7 @@ update.patch = (args: { obat: string | number | { id: string | number } } | [oba
  * @see app/Http/Controllers/Api/ObatController.php:100
  * @route '/api/obat/{obat}'
  */
-    const updateForm = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const updateForm = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: update.url(args, {
                     [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                         _method: 'PUT',
@@ -658,7 +658,7 @@ update.patch = (args: { obat: string | number | { id: string | number } } | [oba
  * @see app/Http/Controllers/Api/ObatController.php:100
  * @route '/api/obat/{obat}'
  */
-        updateForm.put = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        updateForm.put = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: update.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'PUT',
@@ -672,7 +672,7 @@ update.patch = (args: { obat: string | number | { id: string | number } } | [oba
  * @see app/Http/Controllers/Api/ObatController.php:100
  * @route '/api/obat/{obat}'
  */
-        updateForm.patch = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        updateForm.patch = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: update.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'PATCH',
@@ -688,7 +688,7 @@ update.patch = (args: { obat: string | number | { id: string | number } } | [oba
  * @see app/Http/Controllers/Api/ObatController.php:139
  * @route '/api/obat/{obat}'
  */
-export const destroy = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+export const destroy = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -703,7 +703,7 @@ destroy.definition = {
  * @see app/Http/Controllers/Api/ObatController.php:139
  * @route '/api/obat/{obat}'
  */
-destroy.url = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+destroy.url = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { obat: args }
     }
@@ -736,7 +736,7 @@ destroy.url = (args: { obat: string | number | { id: string | number } } | [obat
  * @see app/Http/Controllers/Api/ObatController.php:139
  * @route '/api/obat/{obat}'
  */
-destroy.delete = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+destroy.delete = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -746,7 +746,7 @@ destroy.delete = (args: { obat: string | number | { id: string | number } } | [o
  * @see app/Http/Controllers/Api/ObatController.php:139
  * @route '/api/obat/{obat}'
  */
-    const destroyForm = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const destroyForm = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: destroy.url(args, {
                     [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                         _method: 'DELETE',
@@ -761,7 +761,7 @@ destroy.delete = (args: { obat: string | number | { id: string | number } } | [o
  * @see app/Http/Controllers/Api/ObatController.php:139
  * @route '/api/obat/{obat}'
  */
-        destroyForm.delete = (args: { obat: string | number | { id: string | number } } | [obat: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        destroyForm.delete = (args: { obat: number | { id: number } } | [obat: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: destroy.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'DELETE',

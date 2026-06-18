@@ -82,7 +82,7 @@ pendingApproval.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
  * @see app/Http/Controllers/Api/StokOpnameController.php:101
  * @route '/api/stok-opname/{stokOpname}/complete'
  */
-export const complete = (args: { stokOpname: string | number | { id: string | number } } | [stokOpname: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const complete = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: complete.url(args, options),
     method: 'post',
 })
@@ -97,7 +97,7 @@ complete.definition = {
  * @see app/Http/Controllers/Api/StokOpnameController.php:101
  * @route '/api/stok-opname/{stokOpname}/complete'
  */
-complete.url = (args: { stokOpname: string | number | { id: string | number } } | [stokOpname: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+complete.url = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { stokOpname: args }
     }
@@ -130,7 +130,7 @@ complete.url = (args: { stokOpname: string | number | { id: string | number } } 
  * @see app/Http/Controllers/Api/StokOpnameController.php:101
  * @route '/api/stok-opname/{stokOpname}/complete'
  */
-complete.post = (args: { stokOpname: string | number | { id: string | number } } | [stokOpname: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+complete.post = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: complete.url(args, options),
     method: 'post',
 })
@@ -140,7 +140,7 @@ complete.post = (args: { stokOpname: string | number | { id: string | number } }
  * @see app/Http/Controllers/Api/StokOpnameController.php:101
  * @route '/api/stok-opname/{stokOpname}/complete'
  */
-    const completeForm = (args: { stokOpname: string | number | { id: string | number } } | [stokOpname: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const completeForm = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: complete.url(args, options),
         method: 'post',
     })
@@ -150,7 +150,7 @@ complete.post = (args: { stokOpname: string | number | { id: string | number } }
  * @see app/Http/Controllers/Api/StokOpnameController.php:101
  * @route '/api/stok-opname/{stokOpname}/complete'
  */
-        completeForm.post = (args: { stokOpname: string | number | { id: string | number } } | [stokOpname: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        completeForm.post = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: complete.url(args, options),
             method: 'post',
         })
@@ -161,7 +161,7 @@ complete.post = (args: { stokOpname: string | number | { id: string | number } }
  * @see app/Http/Controllers/Api/StokOpnameController.php:133
  * @route '/api/stok-opname/{stokOpname}/approve'
  */
-export const approve = (args: { stokOpname: string | number | { id: string | number } } | [stokOpname: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const approve = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: approve.url(args, options),
     method: 'post',
 })
@@ -176,7 +176,7 @@ approve.definition = {
  * @see app/Http/Controllers/Api/StokOpnameController.php:133
  * @route '/api/stok-opname/{stokOpname}/approve'
  */
-approve.url = (args: { stokOpname: string | number | { id: string | number } } | [stokOpname: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+approve.url = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { stokOpname: args }
     }
@@ -209,7 +209,7 @@ approve.url = (args: { stokOpname: string | number | { id: string | number } } |
  * @see app/Http/Controllers/Api/StokOpnameController.php:133
  * @route '/api/stok-opname/{stokOpname}/approve'
  */
-approve.post = (args: { stokOpname: string | number | { id: string | number } } | [stokOpname: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+approve.post = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: approve.url(args, options),
     method: 'post',
 })
@@ -219,7 +219,7 @@ approve.post = (args: { stokOpname: string | number | { id: string | number } } 
  * @see app/Http/Controllers/Api/StokOpnameController.php:133
  * @route '/api/stok-opname/{stokOpname}/approve'
  */
-    const approveForm = (args: { stokOpname: string | number | { id: string | number } } | [stokOpname: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const approveForm = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: approve.url(args, options),
         method: 'post',
     })
@@ -229,7 +229,7 @@ approve.post = (args: { stokOpname: string | number | { id: string | number } } 
  * @see app/Http/Controllers/Api/StokOpnameController.php:133
  * @route '/api/stok-opname/{stokOpname}/approve'
  */
-        approveForm.post = (args: { stokOpname: string | number | { id: string | number } } | [stokOpname: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        approveForm.post = (args: { stokOpname: number | { id: number } } | [stokOpname: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: approve.url(args, options),
             method: 'post',
         })

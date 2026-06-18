@@ -82,7 +82,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
  * @see app/Http/Controllers/Api/LogAktivitasController.php:69
  * @route '/api/log-aktivitas/{log}'
  */
-export const show = (args: { log: string | number | { id: string | number } } | [log: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const show = (args: { log: number | { id: number } } | [log: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -97,7 +97,7 @@ show.definition = {
  * @see app/Http/Controllers/Api/LogAktivitasController.php:69
  * @route '/api/log-aktivitas/{log}'
  */
-show.url = (args: { log: string | number | { id: string | number } } | [log: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+show.url = (args: { log: number | { id: number } } | [log: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { log: args }
     }
@@ -130,7 +130,7 @@ show.url = (args: { log: string | number | { id: string | number } } | [log: str
  * @see app/Http/Controllers/Api/LogAktivitasController.php:69
  * @route '/api/log-aktivitas/{log}'
  */
-show.get = (args: { log: string | number | { id: string | number } } | [log: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+show.get = (args: { log: number | { id: number } } | [log: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -139,7 +139,7 @@ show.get = (args: { log: string | number | { id: string | number } } | [log: str
  * @see app/Http/Controllers/Api/LogAktivitasController.php:69
  * @route '/api/log-aktivitas/{log}'
  */
-show.head = (args: { log: string | number | { id: string | number } } | [log: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+show.head = (args: { log: number | { id: number } } | [log: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: show.url(args, options),
     method: 'head',
 })
@@ -149,7 +149,7 @@ show.head = (args: { log: string | number | { id: string | number } } | [log: st
  * @see app/Http/Controllers/Api/LogAktivitasController.php:69
  * @route '/api/log-aktivitas/{log}'
  */
-    const showForm = (args: { log: string | number | { id: string | number } } | [log: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    const showForm = (args: { log: number | { id: number } } | [log: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
         action: show.url(args, options),
         method: 'get',
     })
@@ -159,7 +159,7 @@ show.head = (args: { log: string | number | { id: string | number } } | [log: st
  * @see app/Http/Controllers/Api/LogAktivitasController.php:69
  * @route '/api/log-aktivitas/{log}'
  */
-        showForm.get = (args: { log: string | number | { id: string | number } } | [log: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        showForm.get = (args: { log: number | { id: number } } | [log: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: show.url(args, options),
             method: 'get',
         })
@@ -168,7 +168,7 @@ show.head = (args: { log: string | number | { id: string | number } } | [log: st
  * @see app/Http/Controllers/Api/LogAktivitasController.php:69
  * @route '/api/log-aktivitas/{log}'
  */
-        showForm.head = (args: { log: string | number | { id: string | number } } | [log: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        showForm.head = (args: { log: number | { id: number } } | [log: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: show.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',
@@ -184,7 +184,7 @@ show.head = (args: { log: string | number | { id: string | number } } | [log: st
  * @see app/Http/Controllers/Api/LogAktivitasController.php:79
  * @route '/api/log-aktivitas/user/{user}'
  */
-export const byUser = (args: { user: string | number | { id: string | number } } | [user: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const byUser = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: byUser.url(args, options),
     method: 'get',
 })
@@ -199,7 +199,7 @@ byUser.definition = {
  * @see app/Http/Controllers/Api/LogAktivitasController.php:79
  * @route '/api/log-aktivitas/user/{user}'
  */
-byUser.url = (args: { user: string | number | { id: string | number } } | [user: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+byUser.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { user: args }
     }
@@ -232,7 +232,7 @@ byUser.url = (args: { user: string | number | { id: string | number } } | [user:
  * @see app/Http/Controllers/Api/LogAktivitasController.php:79
  * @route '/api/log-aktivitas/user/{user}'
  */
-byUser.get = (args: { user: string | number | { id: string | number } } | [user: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+byUser.get = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: byUser.url(args, options),
     method: 'get',
 })
@@ -241,7 +241,7 @@ byUser.get = (args: { user: string | number | { id: string | number } } | [user:
  * @see app/Http/Controllers/Api/LogAktivitasController.php:79
  * @route '/api/log-aktivitas/user/{user}'
  */
-byUser.head = (args: { user: string | number | { id: string | number } } | [user: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+byUser.head = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: byUser.url(args, options),
     method: 'head',
 })
@@ -251,7 +251,7 @@ byUser.head = (args: { user: string | number | { id: string | number } } | [user
  * @see app/Http/Controllers/Api/LogAktivitasController.php:79
  * @route '/api/log-aktivitas/user/{user}'
  */
-    const byUserForm = (args: { user: string | number | { id: string | number } } | [user: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    const byUserForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
         action: byUser.url(args, options),
         method: 'get',
     })
@@ -261,7 +261,7 @@ byUser.head = (args: { user: string | number | { id: string | number } } | [user
  * @see app/Http/Controllers/Api/LogAktivitasController.php:79
  * @route '/api/log-aktivitas/user/{user}'
  */
-        byUserForm.get = (args: { user: string | number | { id: string | number } } | [user: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        byUserForm.get = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: byUser.url(args, options),
             method: 'get',
         })
@@ -270,7 +270,7 @@ byUser.head = (args: { user: string | number | { id: string | number } } | [user
  * @see app/Http/Controllers/Api/LogAktivitasController.php:79
  * @route '/api/log-aktivitas/user/{user}'
  */
-        byUserForm.head = (args: { user: string | number | { id: string | number } } | [user: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        byUserForm.head = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: byUser.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',
